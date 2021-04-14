@@ -526,6 +526,7 @@ export default {
 		 * 执行请求
 		 */
 		execute() {
+			// alert('执行了此处');
 			this.$refs.requestTable.validate(valid => {
 				if (valid) {
 					this.isExecuting = true; //修改是否在执行状态,执行中
@@ -627,9 +628,9 @@ export default {
 						}
 
 						reqData.printResInfo = this.requestConfig.printResInfo;
-						console.log(reqData);
 						var body = { code: WS_COMMAND_SUBMIT_TEST, data: reqData };
 						this.websocket.send(JSON.stringify(body));
+						// this.websocket.send("成功连接到服务器");
 					};
 					//异常事件
 					this.websocket.onerror = err => {
@@ -696,8 +697,9 @@ export default {
 							if (resData.body != null) {
 								msg += ', ' + this.$t('commandTestResponseBody').replace('{body}', resData.body);
 							}
+							console.log('当前消息：' + resData);
 							if (this.requestConfig.printResInfo) {
-								this.addConsoleInfo(LOG_INFO, msg);
+								this.addConsoleInfo(LOG_INFO, resData);
 							}
 						} else if (data.code == WS_COMMAND_TEST_SUBMIT_PROGRESS) {
 							//显示任务进度
