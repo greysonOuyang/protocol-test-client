@@ -185,3 +185,7 @@ nbdist/
 !.vscode/extensions.json
 /logs/
 /node_modules/
+
+.vscode/launch.json
+
+.idea/vcs.xml
