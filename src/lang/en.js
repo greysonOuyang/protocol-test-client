@@ -10,6 +10,7 @@ export default {
 	tcpHostTips: "Request host cannot be empty",
 	tcpHostPlaceholder: "Request host,for example test.com 或 127.0.0.1",
 	tcpPortPlaceholder: "Request port,default(80/443)",
+	ModBusPortPlaceholder: "Request port, default 502",
 	certSetting: 'Certificate',
 	certDefault: 'Use default',
 	certPfx: 'Use PFX',
