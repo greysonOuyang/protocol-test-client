@@ -32,8 +32,32 @@
               <el-radio label="HTTP">HTTP/S</el-radio>
               <el-radio label="WebSocket">WebSocket/S</el-radio>
               <el-radio label="TCP">TCP/S</el-radio>
-              <!-- <el-radio label="ModBus">MODBUS TCP/IP</el-radio> -->
+              <el-radio label="UDP">UDP</el-radio>
             </el-radio-group>
+          </el-form-item>
+          <!-- UDP相关 -->
+          <el-form-item v-if="requestData.requestType == 'UDP'" label = "UDP">
+            <el-col :xs="24"
+                    :sm="14">
+              <el-form-item prop="host">
+                <el-input :placeholder="$t('tcpHostPlaceholder')"
+                          v-model="requestData.host">
+                </el-input>
+              </el-form-item>
+            </el-col>
+
+            <el-col :xs="0"
+                    :sm="1">&nbsp;</el-col>
+            <el-col :xs="24"
+                    :sm="7">
+              <el-form-item>
+                <el-input type="number"
+                          min="0"
+                          max="65535"
+                          :placeholder="$t('tcpPortPlaceholder')"
+                          v-model="requestData.port"></el-input>
+              </el-form-item>
+            </el-col>
           </el-form-item>
           <!-- HTTP相关 -->
           <el-form-item v-if="requestData.requestType == 'HTTP'"

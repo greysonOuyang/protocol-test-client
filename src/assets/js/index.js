@@ -9,6 +9,9 @@ const REQUEST_TYPE_WEB_SOCKET = "WebSocket";
 /**TCP请求类型*/
 const REQUEST_TYPE_TCP = "TCP";
 
+/** UDP 请求类型 */
+const REQUEST_TYPE_UDP = "UDP";
+
 const REQUEST_TYPE_MODBUS = "ModBus";
 /**证书类型,默认证书*/
 const REQUEST_CERT_DEFAULT = "DEFAULT";
@@ -436,6 +439,34 @@ export default {
               interval: trData.interval,
               protocolType: this.change.protocolType,
             };
+            // host
+            if (trData.host == null || trData.host == "") {
+              reqData.host = "127.0.0.1";
+            } else {
+              reqData.host = trData.host.trim();
+            }
+
+            /* PORT 如果非法(取值过大或者非数字或者空) 则根据以下规则取值: 先判断协议是否为TCP？ 否--UDP 9999, 是-- 1. 应用层协议是否为modbus?是--502, 否-->
+									1.1 是否有SSL? 是--443, 否--80 */
+            if (
+              trData.port == "" ||
+              trData < 0 ||
+              trData > 65535 ||
+              isNaN(parseInt(trData.port))
+            ) {
+              if (this.requestType == REQUEST_TYPE_TCP) {
+                if (this.change.protocolType == "modbus") {
+                  reqData.port = 502;
+                } else {
+                  reqData.port = trData.isSSL ? 443 : 80;
+                }
+              } else if (trData.requestType == REQUEST_TYPE_UDP) {
+                reqData.port = 9999;
+              }
+            } else {
+              // 输入值合法,取输入值
+              reqData.port = parseInt(trData.port);
+            }
 
             if (trData.requestType == REQUEST_TYPE_WEB_SOCKET) {
               reqData.webSocketVersion = trData.webSocketVersion;
@@ -453,12 +484,6 @@ export default {
               }
             }
             if (trData.requestType == REQUEST_TYPE_TCP) {
-              // host
-              if (trData.host == null || trData.host == "") {
-                reqData.host = "127.0.0.1";
-              } else {
-                reqData.host = trData.host.trim();
-              }
               // SSL
               if (trData.isSSL) {
                 reqData.isSSL = true;
@@ -475,29 +500,11 @@ export default {
                   reqData.certValue = trData.certValue.trim();
                 }
               }
-
-              /* PORT 如果非法(取值过大或者非数字或者空) 则根据以下规则取值: 1. 应用层协议是否为modbus?是--502, 否-->
-									1.1 是否有SSL? 是--443, 否--80 */
-
-              if (
-                trData.port == "" ||
-                trData < 0 ||
-                trData > 65535 ||
-                isNaN(parseInt(trData.port))
-              ) {
-                if (this.change.protocolType == "modbus") {
-                  reqData.port = 502;
-                } else {
-                  reqData.port = trData.isSSL ? 443 : 80;
-                }
-              } else {
-                // 输入值合法,取输入值
-                reqData.port = parseInt(trData.port);
-              }
             }
             if (trData.requestType == REQUEST_TYPE_HTTP) {
               reqData.method = trData.method;
             }
+            
 
             // 构建请求头
             if (
