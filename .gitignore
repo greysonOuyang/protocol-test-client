@@ -189,3 +189,5 @@ nbdist/
 .vscode/launch.json
 
 .idea/vcs.xml
+
+package-lock.json
