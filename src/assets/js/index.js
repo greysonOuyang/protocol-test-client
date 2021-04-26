@@ -1,5 +1,6 @@
 import AddOrUpdate from "../../components/protocol";
 import JsonConsole from "../../components/jsonConsole";
+import DialogForm from "../../components/common/dialogForm";
 import Vue from "vue";
 
 /**http请求类型*/
@@ -57,6 +58,7 @@ export default {
   components: {
     AddOrUpdate,
     JsonConsole,
+		DialogForm
   },
   data() {
     return {
@@ -64,6 +66,7 @@ export default {
         testInterface: "",
         protocolType: "none",
         testSystem: "",
+        gzIscsApplyFrame: "",
       },
       // 测试接口服务类别
       testSystemOpt: [
@@ -116,7 +119,35 @@ export default {
           label: "清远ATS",
         },
       ],
-      // 请求内容形式 1--JSON 2--参数
+      gzIscsApplyFrameOpt: [
+        {
+          value: "heart",
+          label: "心跳信息",
+        },
+        {
+          value: "train",
+          label: "列车信息",
+        },
+        {
+          value: "plan",
+          label: "计划信息",
+        },
+        {
+          value: "trainSchedule",
+          label: "首末班信息",
+        },
+        {
+          value: "doorStatus",
+          label: "车门隔离状态信息",
+        },
+      ],
+			form: {
+				name: "",
+				item: false
+		},
+      // 测试程序当前状态 0--客户端 1--服务端
+      systemStatus: 0,
+      // 请求内容形式 1--JSON 2--参数 3--配置
       contentFormat: 1,
       // 寄存器个数
       registerCount: "",
@@ -223,21 +254,42 @@ export default {
     };
   },
   methods: {
-    // 判断展示请求内容形式
+    // 判断请求内容形式 1--json 2--参数构造 3--预置
+    chooseContentFormat() {
+      if (this.contentFormat == 1) {
+        return 1;
+      } else if (this.contentFormat == 2) {
+        return 2;
+      } else if (this.contentFormat == 3) {
+        return 3;
+      }
+    },
+
+    // 判断具体展现哪个
     watchBodyShowWhich() {
-      if (
-        this.requestData.requestType == REQUEST_TYPE_TCP &&
-        this.change.protocolType == "modbus"
-      ) {
-        if (this.contentFormat == 2) {
-          // 展示参数
-          return 2;
+      if (this.requestData.requestType == REQUEST_TYPE_TCP) {
+        if (this.change.protocolType == "modbus") {
+          if (this.chooseContentFormat() == 1) {
+            // json
+            return "json";
+          } else if (this.chooseContentFormat() == 2) {
+            // 参数--功能码
+            return "modbus";
+          }
+        } else if (this.change.protocolType == "gzIscs") {
+          if (this.chooseContentFormat() == 1) {
+            // json
+            return "json";
+          } else if (this.chooseContentFormat() == 3) {
+            // 配置
+            return "gzIscs";
+          }
         } else {
-          return 1;
+          return "json";
         }
       } else {
-        // 展示json
-        return 1;
+        // 其余的只展示body
+        return "json";
       }
     },
 
@@ -250,22 +302,6 @@ export default {
     refreshList(item) {
       this.addOrUpdateVisible = false;
     },
-    // 返回数据信息加到控制台
-    addJsonConsole(data) {
-      this.showJsonFlag = true;
-      this.jsonData = data;
-
-      var time = new Date()
-        .toISOString()
-        .replace("T", " ")
-        .replace("Z", "");
-      let dialogClass = Vue.extend(JsonConsole);
-      this.jsonConsoleComp = new dialogClass().$mount();
-      var el = this.jsonConsoleComp.$el;
-      // var el = document.createElement("div");
-      this.consoleInfos.push(el);
-    },
-
     /**
      * 是否显示请求数量统计信息
      */
@@ -504,7 +540,6 @@ export default {
             if (trData.requestType == REQUEST_TYPE_HTTP) {
               reqData.method = trData.method;
             }
-            
 
             // 构建请求头
             if (
@@ -646,41 +681,70 @@ export default {
               var state =
                 resData.state == 1 ? this.$t("succee") : this.$t("fail");
               // 请求批次
-              var msg = this.$t("commandTestResponseCount").replace(
+              var responseMsg = {};
+              responseMsg.count = this.$t("commandTestResponseCount").replace(
                 "{count}",
                 resData.count
               );
+              // var msg = this.$t("commandTestResponseCount").replace(
+              //   "{count}",
+              //   resData.count
+              // );
               if (resData.index != 0) {
-                msg +=
-                  ", " +
-                  this.$t("commandTestResponseIndex").replace(
-                    "{index}",
-                    resData.index
-                  );
-              }
-
-              msg +=
-                ", " +
-                this.$t("commandTestResponseState").replace("{state}", state);
-              msg +=
-                ", " +
-                this.$t("commandTestResponseCode").replace(
-                  "{code}",
-                  resData.code
+                responseMsg.index = this.$t("commandTestResponseIndex").replace(
+                  "{index}",
+                  resData.index
                 );
-              if (resData.body != null) {
-                msg +=
-                  ", " +
-                  this.$t("commandTestResponseBody").replace(
-                    "{body}",
-                    resData.body
-                  );
+                // msg +=
+                //   ", " +
+                //   this.$t("commandTestResponseIndex").replace(
+                //     "{index}",
+                //     resData.index
+                //   );
               }
-              var dataMsg = JSON.stringify(resData);
-              // this.addJsonConsole(dataMsg);
-              console.log("当前消息：" + dataMsg);
+              responseMsg.state = this.$t("commandTestResponseState").replace(
+                "{state}",
+                state
+              );
+
+              // msg +=
+              //   ", " +
+              //   this.$t("commandTestResponseState").replace("{state}", state);
+              responseMsg.code = this.$t("commandTestResponseCode").replace(
+                "{code}",
+                resData.code
+              );
+              // msg +=
+              //   ", " +
+              //   this.$t("commandTestResponseCode").replace(
+              //     "{code}",
+              //     resData.code
+              //   );
+              if (resData.body != null) {
+                responseMsg.body = this.$t("commandTestResponseBody").replace(
+                  "{body}",
+                  resData.body
+                );
+                // msg +=
+                //   ", " +
+                //   this.$t("commandTestResponseBody").replace(
+                //     "{body}",
+                //     resData.body
+                //   );
+              }
+              var dataMsg = JSON.stringify(responseMsg);
+              var content = JSON.stringify(resData.body);
+
+              var responnseData = {
+                请求批次: resData.count,
+                第几次请求: resData.index,
+                请求状态: resData.state,
+                响应状态码: resData.code,
+                响应内容: content,
+              };
+              console.log("当前消息：" + responnseData);
               if (this.requestConfig.printResInfo) {
-                this.addConsoleInfo(LOG_INFO, msg, dataMsg);
+                this.addConsoleInfo(LOG_INFO, msg, responnseData);
               }
             } else if (data.code == WS_COMMAND_TEST_SUBMIT_PROGRESS) {
               //显示任务进度

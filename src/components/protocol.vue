@@ -87,7 +87,7 @@ export default {
   },
   methods: {
     // 编辑初始化页面内容
-    async init () {
+    init () {
       this.showDialog = true;
     },
     // 关闭对话框触发

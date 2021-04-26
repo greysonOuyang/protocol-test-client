@@ -20,6 +20,13 @@
     <el-container>
       <!-- 中心栏 -->
       <el-main id="main">
+        <el-switch class="switch"
+                   v-model="systemStatus"
+                   :active-value="1"
+                   :inactive-value="0"
+                   active-text="服务端"
+                   inactive-text="客户端">
+        </el-switch>
         <el-form :model="requestData"
                  label-width="120px"
                  label-position="right"
@@ -36,7 +43,8 @@
             </el-radio-group>
           </el-form-item>
           <!-- UDP相关 -->
-          <el-form-item v-if="requestData.requestType == 'UDP'" label = "UDP">
+          <el-form-item v-if="requestData.requestType == 'UDP'"
+                        label="UDP">
             <el-col :xs="24"
                     :sm="14">
               <el-form-item prop="host">
@@ -111,7 +119,8 @@
                         :label="'应用层协议：'">
             <el-col :xs="24"
                     :sm="8">
-              <el-select v-model="change.protocolType">
+              <el-select v-model="change.protocolType"
+                         style="width: 150px">
                 <el-option v-for="item in protocolTypeOpt"
                            :key="item.value"
                            :label="item.label"
@@ -147,6 +156,15 @@
                 </el-select>
               </el-form-item>
             </el-col>
+            <!-- <el-col :xs="24"
+                    :sm="6"
+                    style="align: middle">
+              <el-button type="primary"
+                         size="small"
+                         round
+                         @click="addModBus"
+                         >构造请求信息</el-button>
+            </el-col> -->
           </el-form-item>
           <!-- 请求地址 -->
           <el-form-item v-if="requestData.requestType == 'TCP'"
@@ -245,8 +263,45 @@
             </el-radio-group>
           </el-form-item>
 
+          <el-form-item v-if="change.protocolType == 'gzIscs'"
+                        label="请求形式:">
+            <el-radio-group v-model="contentFormat">
+              <el-radio :label="1">JSON</el-radio>
+              <el-radio :label="3">配置</el-radio>
+            </el-radio-group>
+          </el-form-item>
+
+          <!-- 构造广州综合监控ATS请求信息 -->
+          <el-row v-if="watchBodyShowWhich() == 'gzIscs'">
+            <el-col :xs="24"
+                    :sm="8">
+              <el-form-item label="消息种类">
+
+                <el-select v-model="change.gzIscsApplyFrame">
+                  <el-option v-for="item in gzIscsApplyFrameOpt"
+                             :key="item.value"
+                             :label="item.label"
+                             :value="item.value">
+                  </el-option>
+                </el-select>
+              </el-form-item>
+            </el-col>
+
+            <el-col :xs="24"
+                    :sm="8">
+              <el-form-item :label="'请求信息'">
+                <el-input placeholder="请求信息"
+                          v-model="functionCode"></el-input>
+              </el-form-item>
+            </el-col>
+            <el-button :disabled="!form.item"
+                       type="primary"
+                       size="small">详细配置</el-button>
+            <!-- <dialog-form></dialog-form> -->
+          </el-row>
+
           <!-- 构造Body ModBus -->
-          <el-row v-if="watchBodyShowWhich() == 2">
+          <el-row v-if="watchBodyShowWhich() == 'modbus'">
             <el-col :xs="24"
                     :sm="8">
               <el-form-item :label="'功能码'">
@@ -272,7 +327,7 @@
 
           <!-- 请求的body内容 json格式 -->
           <el-form-item :label="$t('requestBody')"
-                        v-if="watchBodyShowWhich() == 1">
+                        v-if="watchBodyShowWhich() == 'json'">
             <el-input type="textarea"
                       :placeholder="$t('requestBodyPlaceholder')"
                       v-model="requestData.body"></el-input>
@@ -594,6 +649,8 @@
 </template>
 
 <script>
+import DialogForm from './components/common/dialogForm.vue';
+
 export { default } from './assets/js/index';
 </script>
 
