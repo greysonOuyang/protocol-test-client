@@ -1,6 +1,6 @@
 import AddOrUpdate from "../../components/protocol";
 import JsonConsole from "../../components/jsonConsole";
-import DialogForm from "../../components/common/dialogForm";
+import InterfacceConfig from "../../components/common/interfacceConfig";
 import Vue from "vue";
 
 /**http请求类型*/
@@ -55,19 +55,23 @@ const WS_COMMAND_JVM_METRIC = 1000;
 
 export default {
   name: "Orion-Stress-Tester",
+  // 默认显示客户端tab
   components: {
     AddOrUpdate,
     JsonConsole,
-		DialogForm
+    InterfacceConfig,
   },
   data() {
     return {
+      activeName: "server",
       change: {
         testInterface: "",
         protocolType: "none",
         testSystem: "",
         gzIscsApplyFrame: "",
+        paramData: "",
       },
+
       // 测试接口服务类别
       testSystemOpt: [
         {
@@ -141,10 +145,10 @@ export default {
           label: "车门隔离状态信息",
         },
       ],
-			form: {
-				name: "",
-				item: false
-		},
+      form: {
+        name: "",
+        item: false,
+      },
       // 测试程序当前状态 0--客户端 1--服务端
       systemStatus: 0,
       // 请求内容形式 1--JSON 2--参数 3--配置

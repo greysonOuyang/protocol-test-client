@@ -6,6 +6,14 @@
 .el-textarea__inner::placeholder {
   color: #333 !important;
 }
+/*去掉el-tab-pane底部灰色线条*/
+.el-tabs__nav-wrap::after {
+  height: 0 important;
+}
+/*去掉el-tab-pane切换时的蓝色下划线*/
+.el-tabs__active-bar {
+  background: transparent important;
+}
 
 /* switch按钮样式 */
 .switch .el-switch__label {

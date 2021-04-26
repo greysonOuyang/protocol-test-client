@@ -1,114 +1,77 @@
 <template>
-  <el-card
-    class="el-card"
-    header="ele-form-dialog 示例"
-    shadow="never"
-  >
-    <div style="margin-bottom: 20px">
-      <el-button
-        @click="dialogFormVisible = true"
-        type="primary"
-      >新增</el-button>
-    </div>
-    <el-table
-      :data="tableData"
-      border
-      stripe
-      style="width: 100%"
-    >
-      <el-table-column
-        :key="desc.prop"
-        :label="desc.label"
-        :prop="desc.prop"
-        :width="desc.width"
-        v-for="desc of tableDesc"
-      ></el-table-column>
-    </el-table>
-    <!-- ↓ 这里是重点 -->
-    <ele-form-dialog
-      v-model="formData"
-      :formDesc="formDesc"
-      :request-fn="handleSubmit"
-      :rules="rules"
-      :visible.sync="dialogFormVisible"
-      @request-success="handleSuccess"
-      title="新增用户信息"
-    ></ele-form-dialog>
-  </el-card>
+	<el-form-item>
+		<el-dialog v-bind:title="title"
+               @close="addDialogClose"
+               :visible.sync="dialogFormVisible"
+               :close-on-click-modal="false">
+      <el-form ref="addFormRef"
+								v-bind:formDesc="formDesc"
+               :rules="rulesAddUser"
+               :model="desc in formDesc"
+               label-width="100px">
+        <el-form-item prop="username"
+                      label="用户姓名">
+          <el-input v-model="formData"></el-input>
+        </el-form-item>
+      
+        <el-form-item>
+          <el-button @click="dialogTableVisible = false">取消</el-button>
+          <el-button type="primary"
+                     @click="onAddUser">确定</el-button>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
+	</el-form-item>
 </template>
 
 <script>
 export default {
   name: 'FormDialog',
+	props: {
+  // 弹窗是否显示
+  visible: {
+    type: Boolean,
+    required: true,
+    default: false
+  },
+  // 弹框标题
+  title: String,
+  // 弹窗标题
+  width: {
+    type: String,
+    default: '50%'
+  },
+  // 弹窗其它属性
+  dialogAttrs: Object,
+  // 是否显示返回按钮, 这里是 false
+  isShowBackBtn: {
+    type: Boolean,
+    default: false
+  },
+  // 是否显示取消按钮, 这里是 true
+  isShowCancelBtn: {
+    type: Boolean,
+    default: true
+  }, 
+  // 表单数据
+  formData: {
+    type: Object,
+    required: true
+  },
+  // 表单项
+  formDesc: {
+    type: Object,
+    required: true
+  }
+  // ... 其它属性同 vue-ele-form 组件
+},
+
   data () {
     return {
-      // 控制是否显示
-      dialogFormVisible: false,
-      tableDesc: [
-        {
-          label: '日期',
-          prop: 'date',
-          width: 180
-        },
-        {
-          label: '姓名',
-          prop: 'name',
-          width: 180
-        },
-        {
-          label: '地址',
-          prop: 'address'
-        }
-      ],
-      tableData: [
-        {
-          date: '2016-05-02',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄'
-        }
-      ],
-      formData: {},
-      formDesc: {
-        name: {
-          type: 'input',
-          label: '姓名'
-        },
-        date: {
-          type: 'date',
-          label: '年龄',
-          valueFormatter (value) {
-            const date = new Date(value * 1000)
-            return date.getFullYear() + '/' + date.getMonth() + '/' + date.getDate()
-          }
-        },
-        address: {
-          type: 'input',
-          label: '地址'
-        }
-      },
-      // 校检规则
-      rules: {
-        name: { required: true, message: '姓名必填' },
-        date: { required: true, message: '日期必填' },
-        address: { required: true, message: '地址必填' }
-      }
+
     }
-  },
-  methods: {
-    handleSubmit (data) {
-      // 模拟异步请求
-      return new Promise((resolve) => {
-        resolve(data)
-      })
-    },
-    handleSuccess (data) {
-      this.tableData.push(data)
-      // 关闭弹窗
-      this.dialogFormVisible = false
-      // 重置formData
-      this.formData = {}
-      this.$message.success('创建成功')
-    }
-  }
+}, methods: {
+
+}
 }
 </script>
