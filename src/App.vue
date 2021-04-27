@@ -342,7 +342,7 @@
               <el-form-item label="SubProtocols"
                             v-if="requestData.requestType == 'WebSocket'">
                 <el-col :span="24">
-                  <el-form-item v-for="(item, index) in requestData.subPrnpmotocols"
+                  <el-form-item v-for="(item) in requestData.subPrnpmotocols"
                                 :key="item.key">
                     <el-col :xs="20"
                             :sm="21">
@@ -532,12 +532,57 @@
                      label-width="100px"
                      label-position="right"
                      ref="requestTable">
+              <!-- <el-row :gutter="20"
+                      type="flex"
+                      justify="space-between">
+                <el-col :span="16"
+                        class="box"></el-col>
+              </el-row> -->
+              <el-card class="el-card-custom">
+                <el-form-item label="端口"
+                              style="width: 80%; margin-left: 0px">
+                  <el-input v-model="requestData.port"></el-input>
+                </el-form-item>
+              </el-card>
 
               <interfacce-config></interfacce-config>
-              <el-form-item label="端口"
-                            style="width: 30%; margin-left: 0px">
-                <el-input v-model="requestData.port"></el-input>
+              <el-card header="数据录入"
+                       class="el-card-custom">
+                <el-table :data="change.paramData"
+                          border
+                          stripe
+                          style="width: 100%；margin-top: 100px">
+                  <el-table-column :key="item.prop"
+                                   :label="item.label"
+                                   :prop="item.prop"
+                                   :width="item.width"
+                                   v-for="item of paramDataOpt"></el-table-column>
+                </el-table>
+              </el-card>
+              <el-form-item>
+                <el-button style="margin-left: -80px;"
+                           type="primary"
+                           @click="submit()">启动服务端</el-button>
               </el-form-item>
+              <el-card class="el-card-custom">
+                <el-form-item label="输入数据">
+
+                </el-form-item>
+                <el-input class="input-data"
+                          type="textarea"
+                          :rows="2"
+                          size="medium"
+                          v-model="textarea">
+                </el-input>
+                <el-form-item label="输出数据">
+                </el-form-item>
+                <el-input type="textarea"
+                          :rows="2"
+                          v-model="textarea">
+                </el-input>
+
+              </el-card>
+
             </el-form>
           </el-tab-pane>
         </el-tabs>
@@ -594,7 +639,7 @@
                   </div>
                   <div class="small">
                     {{ $t("responseTotalTime") }}:{{ item.total }}ms
-                 </div>
+                  </div>
                   <div class="small">
                     {{ $t("responseMaxTime") }}:{{ item.max }}ms
                   </div>

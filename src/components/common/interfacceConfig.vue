@@ -1,7 +1,6 @@
 <template>
-  <el-card class="el-card"
-           header="接口配置"
-           shadow="never">
+  <el-card class="el-card-custom"
+           header="接口配置">
     <div style="margin-bottom: 20px">
       <el-button @click="dialogTableVisible = true"
                  type="primary">新增</el-button>
@@ -20,61 +19,34 @@
 
       <el-table-column label="输入"
                        width="180">
-        <template slot-scope="scope">
-          <span class="el-tag el-tag--info el-tag--mini"
-                style="cursor: pointer;"
-                @click="pwdChange(scope.row,scope.$index,true)">
-            查看
-          </span>
-
+        <template >
+          <el-button size="mini"
+                     type="info"
+                     @click="view()">查看</el-button>
         </template>
       </el-table-column>
+
       <el-table-column label="输出"
                        width="180">
-        <template slot-scope="scope">
-          <span class="el-tag el-tag--info el-tag--mini"
-                style="cursor: pointer;"
-                @click="pwdChange(scope.row,scope.$index,true)">
-            查看
-          </span>
-
+        <template >
+          <el-button size="mini"
+                     type="info"
+                     @click="view()">查看</el-button>
         </template>
       </el-table-column>
-      <el-table-column label="操作"
-                       width="200">
 
+      <el-table-column label="操作">
         <template slot-scope="scope">
-          <span class="el-tag el-tag--info el-tag--mini"
-                style="cursor: pointer;"
-                @click="pwdChange(scope.row,scope.$index,true)">
-            {{scope.row.isSet?'保存':"修改"}}
-          </span>
-          <span v-if="!scope.row.isSet"
-                class="el-tag el-tag--danger el-tag--mini"
-                style="cursor: pointer;">
-            删除
-          </span>
-          <span v-else
-                class="el-tag  el-tag--mini"
-                style="cursor: pointer;"
-                @click="pwdChange(scope.row,scope.$index,false)">
-            取消
-          </span>
+          <el-button size="mini"
+                     type="primary"
+                     @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+          <el-button size="mini"
+                     type="danger"
+                     @click="handleDelete(scope.$index, scope.row)">删除</el-button>
         </template>
       </el-table-column>
-    </el-table>
 
-    <el-table :data="paramData"
-              border
-              stripe
-              style="width: 100%；margin-top: 30px">
-      <el-table-column :key="item.prop"
-                       :label="item.label"
-                       :prop="item.prop"
-                       :width="item.width"
-                       v-for="item of paramDataOpt"></el-table-column>
     </el-table>
-    
 
     <!-- 添加用户弹框 -->
     <el-dialog title="添加接口"
@@ -103,22 +75,12 @@ export default {
   name: 'FormDialog',
   data () {
     return {
-      paramData: "",
       dialogTableVisible: false, // 添加用户弹框
       // 控制是否显示
       dialogFormVisible: false,
       interfaceId: "",
       interfaceName: "",
-      paramDataOpt: [{
-        prop: "paramName",
-        label: "参数名称",
-      }, {
-        prop: "paramLength",
-        label: "参数长度",
-      }, {
-        prop: "paramValue",
-        label: "参数值",
-      }],
+
       tableDesc: [
         {
           label: '接口ID',
@@ -145,10 +107,6 @@ export default {
         // }
       ],
       tableData: [
-        {
-          interfaceId: '1',
-          interfaceName: '计划信息'
-        }
       ],
       formData: {},
       formDesc: {
@@ -171,7 +129,25 @@ export default {
       },
     }
   },
+  mounted () {
+    this.$axios({
+      method: "get",
+      url: "http://localhost:7090/main/interface/findAll",
+    
+    }.then(response => {
+        this.tableData = response;
+        })
+    )
+  },
   methods: {
+    handleEdit (index, row) {
+      // TODO
+      console.log(index, row);
+    },
+    handleDelete (index, row) {
+      // TODO
+      console.log(index, row);
+    },
     handleSubmit (data) {
       // 模拟异步请求
       return new Promise((resolve) => {
@@ -179,6 +155,22 @@ export default {
       })
     },
     addInterfaceConfig () {
+
+      this.$axios({
+        method: "post",
+        url: "http://localhost:7090/main/interface/add", // 接口地址
+        data: {
+          id: this.interfaceId,
+          name: this.interfaceName
+        }
+      })
+        .then(response => {
+          console.log(response, "success");   // 成功的返回      
+        })
+        .catch(error => console.log(error, "error")); // 失败的返回
+
+
+
       var data = {};
       data.interfaceId = this.interfaceId;
       data.interfaceName = this.interfaceName;

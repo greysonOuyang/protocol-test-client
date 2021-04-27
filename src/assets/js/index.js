@@ -145,6 +145,16 @@ export default {
           label: "车门隔离状态信息",
         },
       ],
+			paramDataOpt: [{
+        prop: "paramName",
+        label: "参数名称",
+      }, {
+        prop: "paramLength",
+        label: "参数长度",
+      }, {
+        prop: "paramValue",
+        label: "参数值",
+      }],
       form: {
         name: "",
         item: false,
