@@ -542,7 +542,7 @@
               <interfacce-config></interfacce-config>
               <el-card header="数据录入"
                        class="el-card-custom">
-                <el-table :data="change.paramData"
+                <el-table :data="paramTable"
                           border
                           stripe
                           style="width: 100%；margin-top: 100px">

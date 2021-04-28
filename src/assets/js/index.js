@@ -151,6 +151,9 @@ export default {
         {
           prop: "paramLength",
           label: "参数长度",
+        },{
+          prop: "fieldType",
+          label: "参数类型",
         },
         {
           prop: "paramValue",
@@ -161,6 +164,7 @@ export default {
         name: "",
         item: false,
       },
+      paramTable: [],
       inputText: "",
       outputText: "",
       // 测试程序当前状态 0--客户端 1--服务端

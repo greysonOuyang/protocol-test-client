@@ -55,10 +55,10 @@
                :close-on-click-modal="false">
       <el-form>
         <el-form-item label="接口ID">
-          <el-input v-model="interfaceId"></el-input>
+          <el-input v-model="interfaceData.interfaceId"></el-input>
         </el-form-item>
         <el-form-item label="接口名称">
-          <el-input v-model="interfaceName"></el-input>
+          <el-input v-model="interfaceData.interfaceName"></el-input>
         </el-form-item>
         <el-form-item>
           <el-button @click="dialogTableVisible = false">取消</el-button>
@@ -114,6 +114,7 @@ export default {
       dialogTableVisible: false, // 添加用户弹框
       // 控制是否显示
       dialogFormVisible: false,
+      interfaceData: {},
       interfaceId: "",
       interfaceName: "",
 
@@ -131,24 +132,6 @@ export default {
       ],
       tableData: [],
       formData: {},
-      formDesc: {
-        name: {
-          type: 'input',
-          label: '姓名'
-        },
-        date: {
-          type: 'date',
-          label: '年龄',
-          valueFormatter (value) {
-            const date = new Date(value * 1000)
-            return date.getFullYear() + '/' + date.getMonth() + '/' + date.getDate()
-          }
-        },
-        address: {
-          type: 'input',
-          label: '地址'
-        }
-      },
     }
   },
   created () {
@@ -201,18 +184,6 @@ export default {
             'Content-type': 'multipart/form-data'
           }
         axios.post("/api/excelUtil/importExcel",form, headers);
-        // this.$axios({
-        //   method: "post",
-        //   url: "/api/excelUtil/importExcel",
-        //   headers: {
-        //     'Content-type': 'multipart/form-data'
-        //   },
-        //   data: form
-        // }).then(
-        //   res => {
-
-        //   }, err => {
-        //   });
       }
     },
     isRequestSuccess (data) {
@@ -270,8 +241,8 @@ export default {
     },
     addInterfaceConfig () {
       var data = {
-        interfaceId: this.interfaceId,
-        interfaceName: this.interfaceName
+        interfaceId: this.interfaceData.interfaceId,
+        interfaceName: this.interfaceData.interfaceName
       }
       axios.post('/main/interface/add', data).then(
         response => {
@@ -283,17 +254,9 @@ export default {
           }
         }
       )
-
-      this.dialogTableVisible = false;
-    },
-    handleSuccess (data) {
-      this.tableData.push(data)
-      // 关闭弹窗
-
-      this.dialogTableVisible = false;
       // 重置formData
-      this.formData = {}
-      this.$message.success('创建成功');
+      this.interfaceData = {}
+      this.dialogTableVisible = false;
     }
   }
 }
