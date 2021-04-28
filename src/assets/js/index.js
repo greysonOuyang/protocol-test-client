@@ -143,28 +143,6 @@ export default {
           label: "车门隔离状态信息",
         },
       ],
-      paramDataOpt: [
-        {
-          prop: "paramName",
-          label: "参数名称",
-        },
-        {
-          prop: "paramLength",
-          label: "参数长度",
-        },{
-          prop: "fieldType",
-          label: "参数类型",
-        },
-        {
-          prop: "paramValue",
-          label: "参数值",
-        },
-      ],
-      form: {
-        name: "",
-        item: false,
-      },
-      paramTable: [],
       inputText: "",
       outputText: "",
       // 测试程序当前状态 0--客户端 1--服务端

@@ -540,19 +540,7 @@
               </el-card>
 
               <interfacce-config></interfacce-config>
-              <el-card header="数据录入"
-                       class="el-card-custom">
-                <el-table :data="paramTable"
-                          border
-                          stripe
-                          style="width: 100%；margin-top: 100px">
-                  <el-table-column :key="item.prop"
-                                   :label="item.label"
-                                   :prop="item.prop"
-                                   :width="item.width"
-                                   v-for="item of paramDataOpt"></el-table-column>
-                </el-table>
-              </el-card>
+              
               <el-form-item>
                 <el-button style="margin-left: -80px;"
                            type="primary"
@@ -699,7 +687,6 @@
 </template>
 
 <script>
-import InterfacceConfig from './components/common/interfacceConfig.vue';
 
 export { default } from './assets/js/index';
 </script>
