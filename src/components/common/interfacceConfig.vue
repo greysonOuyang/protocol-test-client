@@ -236,8 +236,31 @@ export default {
       console.log(index, row);
     },
     handleDelete (index, row) {
+      // start
+      console.log("index",index);
+      console.log("row",row);
+      var arr = [];
+
+      var data = {
+        id: row.interfaceId
+      }
+      arr.push(data);
+      console.log("arr=",arr);
+      axios.post('/main/interface/delete', arr).then(
+              response => {
+                if (this.isRequestSuccess(response)) {
+                  this.$message.success('删除成功');
+                  this.getInterfaceTableData();
+                } else {
+                  this.$message.success('删除失败');
+                }
+              }
+      )
+
+      this.dialogTableVisible = false;
+      // end
       // TODO
-      console.log(index, row);
+     // console.log(index, row);
     },
     handleSubmit (data) {
       // 模拟异步请求
