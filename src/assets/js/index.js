@@ -1,4 +1,3 @@
-import AddOrUpdate from "../../components/protocol";
 import JsonConsole from "../../components/jsonConsole";
 import InterfacceConfig from "../../components/common/interfacceConfig";
 import Vue from "vue";
@@ -57,7 +56,6 @@ export default {
   name: "Orion-Stress-Tester",
   // 默认显示客户端tab
   components: {
-    AddOrUpdate,
     JsonConsole,
     InterfacceConfig,
   },
@@ -145,20 +143,26 @@ export default {
           label: "车门隔离状态信息",
         },
       ],
-			paramDataOpt: [{
-        prop: "paramName",
-        label: "参数名称",
-      }, {
-        prop: "paramLength",
-        label: "参数长度",
-      }, {
-        prop: "paramValue",
-        label: "参数值",
-      }],
+      paramDataOpt: [
+        {
+          prop: "paramName",
+          label: "参数名称",
+        },
+        {
+          prop: "paramLength",
+          label: "参数长度",
+        },
+        {
+          prop: "paramValue",
+          label: "参数值",
+        },
+      ],
       form: {
         name: "",
         item: false,
       },
+      inputText: "",
+      outputText: "",
       // 测试程序当前状态 0--客户端 1--服务端
       systemStatus: 0,
       // 请求内容形式 1--JSON 2--参数 3--配置
@@ -175,8 +179,6 @@ export default {
       showJsonFlag: false,
       // json数据
       jsonData: {},
-      // 新增或编辑组件显示隐藏
-      addOrUpdateVisible: false,
       // 是否显示请求统计信息
       isStatistics: false,
       //请求统计的信息
@@ -307,15 +309,6 @@ export default {
       }
     },
 
-    addModBus() {
-      this.addOrUpdateVisible = true;
-      this.$nextTick(() => {
-        this.$refs.addOrUpdate.init();
-      });
-    }, // 刷新列表 用于监听子组件新增编辑后触发
-    refreshList(item) {
-      this.addOrUpdateVisible = false;
-    },
     /**
      * 是否显示请求数量统计信息
      */

@@ -532,12 +532,6 @@
                      label-width="100px"
                      label-position="right"
                      ref="requestTable">
-              <!-- <el-row :gutter="20"
-                      type="flex"
-                      justify="space-between">
-                <el-col :span="16"
-                        class="box"></el-col>
-              </el-row> -->
               <el-card class="el-card-custom">
                 <el-form-item label="端口"
                               style="width: 80%; margin-left: 0px">
@@ -572,13 +566,13 @@
                           type="textarea"
                           :rows="2"
                           size="medium"
-                          v-model="textarea">
+                          v-model="inputText">
                 </el-input>
                 <el-form-item label="输出数据">
                 </el-form-item>
                 <el-input type="textarea"
                           :rows="2"
-                          v-model="textarea">
+                          v-model="outputText">
                 </el-input>
 
               </el-card>

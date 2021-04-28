@@ -19,7 +19,7 @@
 
       <el-table-column label="输入"
                        width="180">
-        <template >
+        <template>
           <el-button size="mini"
                      type="info"
                      @click="view()">查看</el-button>
@@ -28,7 +28,7 @@
 
       <el-table-column label="输出"
                        width="180">
-        <template >
+        <template>
           <el-button size="mini"
                      type="info"
                      @click="view()">查看</el-button>
@@ -71,6 +71,8 @@
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
   name: 'FormDialog',
   data () {
@@ -92,22 +94,8 @@ export default {
           prop: 'interfaceName',
           width: 200
         }
-        // },
-        // {
-        //   label: '输入',
-        //   prop: 'input'
-        // },
-        // {
-        //   label: '输出',
-        //   prop: 'output'
-        // },
-        // {
-        //   label: '操作',
-        //   prop: 'operation'
-        // }
       ],
-      tableData: [
-      ],
+      tableData: [],
       formData: {},
       formDesc: {
         name: {
@@ -129,17 +117,27 @@ export default {
       },
     }
   },
-  mounted () {
-    this.$axios({
-      method: "get",
-      url: "http://localhost:7090/main/interface/findAll",
-    
-    }.then(response => {
-        this.tableData = response;
-        })
-    )
+  created () {
+    this.getInterfaceTableData();
+
   },
   methods: {
+    isRequestSuccess (data) {
+      var res = JSON.stringify(data.data);
+      var result = JSON.parse(res);
+      if (result.result == "SUCCESS") {
+        return true;
+      } else {
+        return false;
+      }
+    },
+    getInterfaceTableData () {
+      axios.get(
+        '/main/interface/findAll'
+      ).then(response => {
+        this.tableData = eval(JSON.stringify(response.data));
+      });
+    },
     handleEdit (index, row) {
       // TODO
       console.log(index, row);
@@ -155,35 +153,31 @@ export default {
       })
     },
     addInterfaceConfig () {
-
-      this.$axios({
-        method: "post",
-        url: "http://localhost:7090/main/interface/add", // 接口地址
-        data: {
-          id: this.interfaceId,
-          name: this.interfaceName
+      var data = {
+        interfaceId: this.interfaceId,
+        interfaceName: this.interfaceName
+      }
+      axios.post('/main/interface/add', data).then(
+        response => {
+          if (this.isRequestSuccess(response)) {
+            this.$message.success('创建成功');
+            this.getInterfaceTableData();
+          } else {
+            this.$message.success('创建失败');
+          }
         }
-      })
-        .then(response => {
-          console.log(response, "success");   // 成功的返回      
-        })
-        .catch(error => console.log(error, "error")); // 失败的返回
+      )
 
-
-
-      var data = {};
-      data.interfaceId = this.interfaceId;
-      data.interfaceName = this.interfaceName;
-      this.handleSuccess(data);
+      this.dialogTableVisible = false;
     },
     handleSuccess (data) {
       this.tableData.push(data)
       // 关闭弹窗
 
-      this.dialogTableVisible = false
+      this.dialogTableVisible = false;
       // 重置formData
       this.formData = {}
-      this.$message.success('创建成功')
+      this.$message.success('创建成功');
     }
   }
 }
