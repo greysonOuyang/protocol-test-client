@@ -72,10 +72,20 @@
       <el-dialog title="上传Excel"
                  :visible.sync="uploadExcelTabVisiable"
                  :close-on-click-modal="false">
-        <el-upload drag
+        <el-upload class="upload-excel"
+        accept=".xlsx"
+                   drag
+                   action="http://127.0.0.1:7090/api/excelUtil/importExcel"
+                   multiple>
+          <i class="el-icon-upload"></i>
+          <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+          <div class="el-upload__tip"
+               slot="tip">只能上传.xlsx文件</div>
+        </el-upload>
+        <!-- <el-upload drag
                    class="upload-excel"
-                   :auto-upload="false"
-                   :action="UploadUrl()"
+                   :auto-upload="true"
+                   action="/api/excelUtil/importExcel"
                    :limit=limitNum
                    accept=".xlsx"
                    :on-change="fileChange"
@@ -91,7 +101,7 @@
                    type="primary"
                    @click="uploadFile">立即上传</el-button>
         <el-button size="small"
-                   @click="uploadExcelTabVisiable = false">取消</el-button>
+                   @click="uploadExcelTabVisiable = false">取消</el-button> -->
       </el-dialog>
     </el-card>
     <el-card header="数据录入"
@@ -210,6 +220,7 @@ export default {
       return ""
     },
     uploadFile () {
+      this.$refs.upload.submit();
       if (this.fileList.length === 0) {
         this.$message.warning('请上传文件');
       } else {
