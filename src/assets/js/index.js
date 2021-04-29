@@ -1,6 +1,7 @@
 import JsonConsole from "../../components/jsonConsole";
 import InterfacceConfig from "../../components/common/interfacceConfig";
 import Vue from "vue";
+import axios from "axios";
 
 /**http请求类型*/
 const REQUEST_TYPE_HTTP = "HTTP";

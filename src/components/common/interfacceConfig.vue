@@ -1,26 +1,57 @@
 <template>
   <div>
+
+    <el-card class="el-card-port">
+      <el-form-item label="端口"
+                    style="width: 80%; margin-left: 0px">
+        <el-input v-model="port"></el-input>
+      </el-form-item>
+    </el-card>
+
     <el-card class="el-card-custom"
              header="接口配置">
       <div style="margin-bottom: 20px">
         <el-button @click="dialogTableVisible = true"
-                   type="primary">新增</el-button>
+                   type="primary"
+                   size="mini">新增</el-button>
         <el-button type="primary"
+                   icon="el-icon-plus"
+                   size="mini"
+                   @click="handleAddDetails">添加</el-button>
+        <el-button type="success"
+                   icon="el-icon-delete"
+                   size="mini"
+                   @click="handleDeleteDetails">删除</el-button>
+        <el-button type="primary"
+                   size="mini"
                    @click="uploadExcelTabVisiable = true">导入</el-button>
-        <el-button type="primary">导出</el-button>
+        <el-button type="primary"
+                   size="mini">导出</el-button>
       </div>
+      <!-- 接口表 -->
       <el-table :data="tableData"
                 border
-                stripe
-                style="width: 100%">
-        <el-table-column :key="desc.prop"
-                         :label="desc.label"
-                         :prop="desc.prop"
-                         :width="desc.width"
-                         v-for="desc of tableDesc"></el-table-column>
-
+                highlight-current-row
+                style="width: 100%"
+                @row-click="openDetails"
+                :row-class-name="rowClassName"
+                ref="tb"
+                @current-change="handleCuurntChange"
+                @selection-change="handleSelectionChange">
+        <el-table-column type="selection"
+                         width="55">
+        </el-table-column>
+        <el-table-column label="序号"
+                         align="center"
+                         prop="index"
+                         width="50">
+        </el-table-column>
+        <el-table-column prop="interfaceId"
+                         label="接口Id"></el-table-column>
+        <el-table-column prop="interfaceName"
+                         label="接口名称"></el-table-column>
         <el-table-column label="输入"
-                         width="180">
+                         width="140">
           <template>
             <el-button size="mini"
                        type="info"
@@ -29,7 +60,7 @@
         </el-table-column>
 
         <el-table-column label="输出"
-                         width="180">
+                         width="140">
           <template>
             <el-button size="mini"
                        type="info"
@@ -41,14 +72,27 @@
           <template slot-scope="scope">
             <el-button size="mini"
                        type="primary"
+                       icon="el-icon-edit"
                        @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
             <el-button size="mini"
                        type="danger"
+                       icon="el-icon-delete"
                        @click="handleDelete(scope.$index, scope.row)">删除</el-button>
           </template>
         </el-table-column>
 
       </el-table>
+      <!-- 分页 -->
+      <div class="block"
+           style="text-align: right">
+        <el-pagination @size-change="handleSizeChange"
+                       @current-change="handleCurrentChange"
+                       :current-page="currentPage1"
+                       :page-sizes="[10, 20, 30, 40]"
+                       :page-size="10"
+                       layout="total, sizes, prev, pager, next, jumper"
+                       :total="tableData.length"></el-pagination>
+      </div>
 
       <!-- 添加用户弹框 -->
       <el-dialog title="添加接口"
@@ -62,9 +106,9 @@
             <el-input v-model="interfaceData.interfaceName"></el-input>
           </el-form-item>
           <el-form-item>
-            <el-button @click="dialogTableVisible = false">取消</el-button>
             <el-button type="primary"
                        @click="addInterfaceConfig()">确定</el-button>
+            <el-button @click="dialogTableVisible = false">取消</el-button>
           </el-form-item>
         </el-form>
       </el-dialog>
@@ -72,16 +116,6 @@
       <el-dialog title="上传Excel"
                  :visible.sync="uploadExcelTabVisiable"
                  :close-on-click-modal="false">
-        <!-- <el-upload class="upload-excel"
-        accept=".xlsx"
-                   drag
-                   action="http://127.0.0.1:7090/api/excelUtil/importExcel"
-                   multiple>
-          <i class="el-icon-upload"></i>
-          <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
-          <div class="el-upload__tip"
-               slot="tip">只能上传.xlsx文件</div>
-        </el-upload> -->
         <el-upload drag
                    class="upload-excel"
                    :auto-upload="false"
@@ -104,7 +138,13 @@
                    @click="uploadExcelTabVisiable = false">取消</el-button>
       </el-dialog>
     </el-card>
-    <el-card header="数据录入"
+    <el-form-item style="text-align: right">
+      <el-button type="primary"
+                 @click="submit()">启动服务端</el-button>
+    </el-form-item>
+    <!-- 参数表 -->
+    <el-card :header="paramHeader"
+             v-model="paramHeader"
              class="el-card-custom">
       <el-table :data="paramTable"
                 border
@@ -128,15 +168,27 @@ export default {
   components: {
 
   },
+  mounted () {
+    this.getInterfaceTableData();
+  },
+
   data () {
     return {
+      /** 当前选中行 */
+      currentRow: null,
+      paramHeader: '输出参数',
+      //选中的从表数据
+      checkedDetail: [],
+      // 启动端口
+      port: '',
+      index: '',
       /** 组件可视化相关 */
       uploadExcelTabVisiable: false, // excel上传组件
       dialogTableVisible: false, // “添加接口”弹窗组件
       /** excel上传相关 */
       // 上传excel文件列表
       file: null,
-      limitNum: 1,
+      limitNum: 5,
       // 文件列表
       fileList: [],
       // 添加接口表单
@@ -155,7 +207,12 @@ export default {
         }
       ],
       // 接口表数据
-      tableData: [],
+      tableData: [
+      ],
+      /* 分页相关 */
+      currentPage1: 1,
+      pageSize: 10,
+      pageList: [],
       // 数据录入表格相关
       paramDataOpt: [
         {
@@ -183,6 +240,85 @@ export default {
     // this.getParamTableData();
   },
   methods: {
+    openDetails (row, event, column) {
+      console.log("输出rowID:")
+      console.log(row.id);
+    },
+    // 启动服务端
+    submit () {
+      var ovj = JSON.stringify(this.currentRow);
+      console.log("当前端口是：" + this.port);
+      var requestData = {
+        port: this.port,
+        interfaceId: this.currentRow.interfaceId
+      }
+      console.log(this.requestData)
+      axios.post('/main/start/server', requestData).then(res => {
+
+      })
+    },
+    /**
+     * 选中多行
+     */
+    handleDeleteDetails () {
+      if (this.checkedDetail.length == 0) {
+        this.$alert("请先选择要删除的数据", "提示", {
+          confirmButtonText: "确定",
+        });
+      } else {
+        // this.handleDelete(scope.$index, scope.row)
+        this.tableData.splice(this.checkedDetail[0].index - 1, 1);
+      }
+    },
+    /**
+     * 选中单行
+     */
+    handleCuurntChange (val) {
+      this.currentRow = val;
+      var data = JSON.stringify(val);
+      this.requestData.interfaceId = this.currentRow.getInterfaceId;
+      console.log("当前行是：")
+    },
+    handleAddDetails () {
+      if (this.tableData == undefined) {
+        this.tableData = new Array();
+      }
+
+      this.tableData.push({
+        interfaceId: '',
+        interfaceName: ''
+      });
+    },
+    rowClassName ({ row, rowIndex }) {
+
+      row.index = rowIndex + 1;
+    },
+    handleSizeChange: function (pageSize) {
+      this.pageSize = pageSize;
+      this.handleCurrentChange(this.currentPage1);
+    },
+    handleCurrentChange: function (currentPage) {
+      this.currentPage1 = currentPage;
+      this.currentChangePage(this.tableData, currentPage);
+    },
+    currentChangePage (list, currentPage) {
+      let from = (currentPage - 1) * this.pageSize;
+      let to = currentPage * this.pageSize;
+      this.pageList = [];
+      for (; from < to; from++) {
+        if (list[from]) {
+          this.pageList.push(list[from]);
+        }
+      }
+    },
+    handleSelectionChange (selection) {
+      if (selection.length > 1) {
+        this.$refs.tb.clearSelection();
+        this.$refs.tb.toggleRowSelection(selection.pop());
+      } else {
+        this.checkedDetail = selection;
+      }
+    },
     // 文件状态改变时的钩子
     fileChange (file, fileList) {
       console.log("测试")
@@ -224,9 +360,6 @@ export default {
         this.$message.warning('请上传文件');
       } else {
         let form = new FormData();
-        var obj = {
-          "name": "value"
-        }
         for (let i = 0; i < this.fileList.length; i++) {
           form.append('file' + (i + 1), this.fileList[i]);
         }
@@ -253,7 +386,8 @@ export default {
       axios.get(
         '/main/interface/findAll'
       ).then(response => {
-        this.tableData = eval(JSON.stringify(response.data));
+        this.tableData = response.data;
+        this.currentChangePage(this.tableData, 1);
       });
     },
     handleEdit (index, row) {

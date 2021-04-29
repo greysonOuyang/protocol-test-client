@@ -532,20 +532,8 @@
                      label-width="100px"
                      label-position="right"
                      ref="requestTable">
-              <el-card class="el-card-custom">
-                <el-form-item label="端口"
-                              style="width: 80%; margin-left: 0px">
-                  <el-input v-model="requestData.port"></el-input>
-                </el-form-item>
-              </el-card>
 
               <interfacce-config></interfacce-config>
-              
-              <el-form-item>
-                <el-button style="margin-left: -80px;"
-                           type="primary"
-                           @click="submit()">启动服务端</el-button>
-              </el-form-item>
               <el-card class="el-card-custom">
                 <el-form-item label="输入数据">
 
