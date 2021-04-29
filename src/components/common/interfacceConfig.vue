@@ -72,7 +72,7 @@
       <el-dialog title="上传Excel"
                  :visible.sync="uploadExcelTabVisiable"
                  :close-on-click-modal="false">
-        <el-upload class="upload-excel"
+        <!-- <el-upload class="upload-excel"
         accept=".xlsx"
                    drag
                    action="http://127.0.0.1:7090/api/excelUtil/importExcel"
@@ -81,10 +81,10 @@
           <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
           <div class="el-upload__tip"
                slot="tip">只能上传.xlsx文件</div>
-        </el-upload>
-        <!-- <el-upload drag
+        </el-upload> -->
+        <el-upload drag
                    class="upload-excel"
-                   :auto-upload="true"
+                   :auto-upload="false"
                    action="/api/excelUtil/importExcel"
                    :limit=limitNum
                    accept=".xlsx"
@@ -101,7 +101,7 @@
                    type="primary"
                    @click="uploadFile">立即上传</el-button>
         <el-button size="small"
-                   @click="uploadExcelTabVisiable = false">取消</el-button> -->
+                   @click="uploadExcelTabVisiable = false">取消</el-button>
       </el-dialog>
     </el-card>
     <el-card header="数据录入"
@@ -220,7 +220,6 @@ export default {
       return ""
     },
     uploadFile () {
-      this.$refs.upload.submit();
       if (this.fileList.length === 0) {
         this.$message.warning('请上传文件');
       } else {
@@ -228,8 +227,9 @@ export default {
         var obj = {
           "name": "value"
         }
-        form.append('file', this.fileList);
-        console.log(this.fileList);
+        for (let i = 0; i < this.fileList.length; i++) {
+          form.append('file' + (i + 1), this.fileList[i]);
+        }
         let config = {
           headers: {
             'Content-Type': 'multipart/form-data;boundary = ' + new Date().getTime()
