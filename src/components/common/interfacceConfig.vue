@@ -368,8 +368,18 @@ export default {
             'Content-Type': 'multipart/form-data;boundary = ' + new Date().getTime()
           }
         }
-        axios.post("/api/excelUtil/importExcel", form, config);
+        axios.post("/api/excelUtil/importExcel", form, config).then(
+        response => {
+          if (this.isRequestSuccess(response)) {
+            this.$message.success('导入成功');
+            this.getInterfaceTableData();
+          } else {
+            this.$message.success('导入失败');
+          }
+        }
+      )
       }
+      this.uploadExcelTabVisiable = false;
     },
     // 判断请求是否成功
     isRequestSuccess (data) {
@@ -414,7 +424,7 @@ export default {
             this.$message.success('删除失败');
           }
         }
-      )
+      );
 
       this.dialogTableVisible = false;
     },
