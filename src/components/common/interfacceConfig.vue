@@ -296,7 +296,12 @@ export default {
 
     },
     handleClearMulti(){
-      axios.post('/main/interface/deleteAll').then(
+      this.$confirm('接口配置不易，请主人三思而后行，真的要清空嘛?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(()=>
+              axios.post('/main/interface/deleteAll').then(
               response => {
                 if (this.isRequestSuccess(response)) {
                   this.$message.success('清空成功，请重新导入数据');
@@ -305,7 +310,13 @@ export default {
                   this.$message.success('删除失败，请重新尝试');
                 }
               }
-      );
+      ).catch(() => {
+                this.$message({
+                  type: 'info',
+                  message: '已取消删除'
+                });
+              }))
+
     },
     /**
      * 选中多行删除
