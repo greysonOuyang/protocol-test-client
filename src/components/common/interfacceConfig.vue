@@ -20,6 +20,10 @@
                    @click="uploadExcelTabVisiable = true">导入</el-button>
         <el-button type="primary"
                    size="mini">导出</el-button>
+        <el-button type="success"
+                   icon="el-icon-delete"
+                   size="mini"
+                   @click="handleClearMulti">清空</el-button>
       </div>
       <!-- 接口表 -->
       <el-table :data="tableData"
@@ -152,7 +156,7 @@
       <el-table :data="paramTable"
                 border
                 stripe
-                style="width: 100%；margin-top: 100px">
+                style="width: 100%;margin-top: 100px">
         <el-table-column :key="item.prop"
                          :label="item.label"
                          :prop="item.prop"
@@ -291,6 +295,18 @@ export default {
       })
 
     },
+    handleClearMulti(){
+      axios.post('/main/interface/deleteAll').then(
+              response => {
+                if (this.isRequestSuccess(response)) {
+                  this.$message.success('清空成功，请重新导入数据');
+                  this.getInterfaceTableData();
+                } else {
+                  this.$message.success('删除失败，请重新尝试');
+                }
+              }
+      );
+    },
     /**
      * 选中多行删除
      */
@@ -302,7 +318,10 @@ export default {
       } else {
         var requestData = [];
         for (const v of this.multipleSelection) {
-          requestData.push(v.interfaceId);
+          var data = {
+            id: v.interfaceId
+          }
+          requestData.push(data);
         }
         this.doDeleteInterfaceRow(requestData);
         this.tableData.splice(this.multipleSelection[0].index - 1, 1);
@@ -435,6 +454,7 @@ export default {
     },
     /* 删除接口表一行数据 */
     doDeleteInterfaceRow (arr) {
+      console.log("arr----",arr)
       axios.post('/main/interface/delete', arr).then(
         response => {
           if (this.isRequestSuccess(response)) {
