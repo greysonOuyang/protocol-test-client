@@ -116,7 +116,7 @@
                    type="primary"
                    @click="uploadFile">立即上传</el-button>
         <el-button size="small"
-                   @click="uploadExcelTabVisiable = false">取消</el-button>
+                   @click="cancelUpload()">取消</el-button>
       </el-dialog>
     </el-card>
     <el-card class="el-card-custom">
@@ -388,6 +388,7 @@ export default {
           response => {
             if (this.isRequestSuccess(response)) {
               this.$message.success('导入成功');
+              this.fileList = [];
               this.getInterfaceTableData();
             } else {
               this.$message.success('导入失败');
@@ -396,6 +397,12 @@ export default {
         )
       }
       this.uploadExcelTabVisiable = false;
+    },
+    cancelUpload () {
+      this.uploadExcelTabVisiable = false;
+      if (this.fileList.length != 0) {
+        this.fileList = [];
+      }
     },
     // 判断请求是否成功
     isRequestSuccess (data) {
