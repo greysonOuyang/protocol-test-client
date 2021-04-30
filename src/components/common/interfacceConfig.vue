@@ -1,27 +1,20 @@
 <template>
   <div>
 
-    <el-card class="el-card-port">
-      <el-form-item label="端口"
-                    style="width: 80%; margin-left: 0px">
-        <el-input v-model="port"></el-input>
-      </el-form-item>
-    </el-card>
-
     <el-card class="el-card-custom"
              header="接口配置">
       <div style="margin-bottom: 20px">
         <el-button @click="dialogTableVisible = true"
                    type="primary"
+                   icon="el-icon-plus"
                    size="mini">新增</el-button>
         <el-button type="primary"
-                   icon="el-icon-plus"
                    size="mini"
                    @click="handleAddDetails">添加</el-button>
         <el-button type="success"
                    icon="el-icon-delete"
                    size="mini"
-                   @click="handleDeleteDetails">删除</el-button>
+                   @click="handleDeleteMulti">删除</el-button>
         <el-button type="primary"
                    size="mini"
                    @click="uploadExcelTabVisiable = true">导入</el-button>
@@ -34,9 +27,8 @@
                 highlight-current-row
                 style="width: 100%"
                 @row-click="openDetails"
-                :row-class-name="rowClassName"
                 ref="tb"
-                @current-change="handleCuurntChange"
+                @current-change="handleCurrentChange"
                 @selection-change="handleSelectionChange">
         <el-table-column type="selection"
                          width="55">
@@ -82,17 +74,6 @@
         </el-table-column>
 
       </el-table>
-      <!-- 分页 -->
-      <div class="block"
-           style="text-align: right">
-        <el-pagination @size-change="handleSizeChange"
-                       @current-change="handleCurrentChange"
-                       :current-page="currentPage1"
-                       :page-sizes="[10, 20, 30, 40]"
-                       :page-size="10"
-                       layout="total, sizes, prev, pager, next, jumper"
-                       :total="tableData.length"></el-pagination>
-      </div>
 
       <!-- 添加用户弹框 -->
       <el-dialog title="添加接口"
@@ -138,10 +119,32 @@
                    @click="uploadExcelTabVisiable = false">取消</el-button>
       </el-dialog>
     </el-card>
-    <el-form-item style="text-align: right">
-      <el-button type="primary"
-                 @click="submit()">启动服务端</el-button>
-    </el-form-item>
+    <el-card class="el-card-custom">
+      <el-row>
+        <el-col :xs="24"
+                :sm="12">
+          <el-form-item label="端口"
+                        style="width: 60%; margin-left: 0px">
+            <el-input v-model="port"></el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :xs="24"
+                :sm="12">
+          <el-form-item style="text-align: right">
+
+            <el-button v-if="!state"
+                       type="primary"
+                       @click="startServer()">启动服务端</el-button>
+            <el-button v-if="state"
+                       type="success"
+                       round
+                       @click="stopServer()">停止服务</el-button>
+          </el-form-item>
+        </el-col>
+      </el-row>
+
+    </el-card>
+
     <!-- 参数表 -->
     <el-card :header="paramHeader"
              v-model="paramHeader"
@@ -168,16 +171,22 @@ export default {
   components: {
 
   },
-  mounted () {
+  activated () {
     this.getInterfaceTableData();
+
+  },
+  mounted () {
   },
 
   data () {
     return {
+      // 服务器状态：0--待启动  1-- 已启动
+      state: false,
       /** 当前选中行 */
       currentRow: null,
       paramHeader: '输出参数',
-      //选中的从表数据
+      //选中多行
+      multipleSelection: [],
       checkedDetail: [],
       // 启动端口
       port: '',
@@ -216,18 +225,18 @@ export default {
       // 数据录入表格相关
       paramDataOpt: [
         {
-          prop: "paramName",
+          prop: "field",
           label: "参数名称",
         },
         {
-          prop: "paramLength",
+          prop: "length",
           label: "参数长度",
         }, {
-          prop: "fieldType",
+          prop: "type",
           label: "参数类型",
         },
         {
-          prop: "paramValue",
+          prop: "value",
           label: "参数值",
         },
       ],
@@ -240,84 +249,91 @@ export default {
     // this.getParamTableData();
   },
   methods: {
+
     openDetails (row, event, column) {
       console.log("输出rowID:")
       console.log(row.id);
     },
     // 启动服务端
-    submit () {
-      var ovj = JSON.stringify(this.currentRow);
-      console.log("当前端口是：" + this.port);
-      var requestData = {
-        port: this.port,
-        interfaceId: this.currentRow.interfaceId
+    startServer () {
+      if (this.port == '' || this.currentRow == null) {
+        this.$alert("请点击表格中的一行作为启动接口并填写端口号", "提示", {
+          confirmButtonText: "确定",
+        });
+      } else {
+        var requestData = {
+          port: this.port,
+          interfaceId: this.currentRow.interfaceId
+        }
+        axios.post('/main/start/server', requestData).then(res => {
+          if (this.isRequestSuccess(res)) {
+            this.state = true;
+            this.$message.success('启动成功');
+          } else {
+            if (res.data != null && res.data.message != null) {
+              this.$message.error('启动发生错误：' + res.data.message);
+            }
+          }
+        });
       }
-      console.log(this.requestData)
-      axios.post('/main/start/server', requestData).then(res => {
 
+    },
+    stopServer () {
+      console.log(this.state)
+      this.state = false;
+      axios.get('/main/stop/server').then(res => {
+        var isClose = res.data;
+        if (isClose) {
+          this.state = 0;
+        } else {
+          this.$message.error('关闭服务器失败，请重试或者联系管理员');
+        }
       })
+
     },
     /**
-     * 选中多行
+     * 选中多行删除
      */
-    handleDeleteDetails () {
-      if (this.checkedDetail.length == 0) {
+    handleDeleteMulti () {
+      if (this.multipleSelection.length == 0) {
         this.$alert("请先选择要删除的数据", "提示", {
           confirmButtonText: "确定",
         });
       } else {
-        // this.handleDelete(scope.$index, scope.row)
-        this.tableData.splice(this.checkedDetail[0].index - 1, 1);
+        var requestData = [];
+        for (const v of this.multipleSelection) {
+          requestData.push(v.interfaceId);
+        }
+        this.doDeleteInterfaceRow(requestData);
+        this.tableData.splice(this.multipleSelection[0].index - 1, 1);
       }
     },
     /**
      * 选中单行
      */
-    handleCuurntChange (val) {
-      this.currentRow = val;
-      var data = JSON.stringify(val);
-      this.requestData.interfaceId = this.currentRow.getInterfaceId;
-      console.log("当前行是：")
+    handleCurrentChange (val) {
+      if (val == null) {
+        // current-change被调用两次的 bug
+        console.log(val)
+      } else {
+        this.currentRow = val;
+        this.getInterfaceTableData();
+        this.paramTable = val.output;
+      }
+
     },
     handleAddDetails () {
       if (this.tableData == undefined) {
         this.tableData = new Array();
       }
-
       this.tableData.push({
         interfaceId: '',
         interfaceName: ''
       });
     },
-    rowClassName ({ row, rowIndex }) {
-
-      row.index = rowIndex + 1;
-    },
-    handleSizeChange: function (pageSize) {
-      this.pageSize = pageSize;
-      this.handleCurrentChange(this.currentPage1);
-    },
-    handleCurrentChange: function (currentPage) {
-      this.currentPage1 = currentPage;
-      this.currentChangePage(this.tableData, currentPage);
-    },
-    currentChangePage (list, currentPage) {
-      let from = (currentPage - 1) * this.pageSize;
-      let to = currentPage * this.pageSize;
-      this.pageList = [];
-      for (; from < to; from++) {
-        if (list[from]) {
-          this.pageList.push(list[from]);
-        }
-      }
-    },
-    handleSelectionChange (selection) {
-      if (selection.length > 1) {
-        this.$refs.tb.clearSelection();
-        this.$refs.tb.toggleRowSelection(selection.pop());
-      } else {
-        this.checkedDetail = selection;
-      }
+    /* 多选interface表row */
+    handleSelectionChange (val) {
+      this.multipleSelection = val;
     },
     // 文件状态改变时的钩子
     fileChange (file, fileList) {
@@ -369,15 +385,15 @@ export default {
           }
         }
         axios.post("/api/excelUtil/importExcel", form, config).then(
-        response => {
-          if (this.isRequestSuccess(response)) {
-            this.$message.success('导入成功');
-            this.getInterfaceTableData();
-          } else {
-            this.$message.success('导入失败');
+          response => {
+            if (this.isRequestSuccess(response)) {
+              this.$message.success('导入成功');
+              this.getInterfaceTableData();
+            } else {
+              this.$message.success('导入失败');
+            }
           }
-        }
-      )
+        )
       }
       this.uploadExcelTabVisiable = false;
     },
@@ -397,7 +413,6 @@ export default {
         '/main/interface/findAll'
       ).then(response => {
         this.tableData = response.data;
-        this.currentChangePage(this.tableData, 1);
       });
     },
     handleEdit (index, row) {
@@ -415,6 +430,11 @@ export default {
       }
       arr.push(data);
       console.log("arr=", arr);
+      this.doDeleteInterfaceRow(arr);
+      this.dialogTableVisible = false;
+    },
+    /* 删除接口表一行数据 */
+    doDeleteInterfaceRow (arr) {
       axios.post('/main/interface/delete', arr).then(
         response => {
           if (this.isRequestSuccess(response)) {
@@ -425,8 +445,6 @@ export default {
           }
         }
       );
-
-      this.dialogTableVisible = false;
     },
     // 添加一个接口
     addInterfaceConfig () {
@@ -450,12 +468,8 @@ export default {
     }
   },
   // 获取参数表数据
-  getParamTableData () {
-    axios.get(
-      '/main/interface/findAll'
-    ).then(response => {
-      this.paramTable = eval(JSON.stringify(response.data));
-    });
-  }
+  // getParamTableData () {
+  //   this.paramTable = this.multipleSelection.output;
+  // }
 }
 </script>
