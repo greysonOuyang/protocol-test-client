@@ -269,16 +269,8 @@ export default {
           port: this.port,
           interfaceId: this.currentRow.interfaceId
         }
-        axios.post('/main/start/server', requestData).then(res => {
-          if (this.isRequestSuccess(res)) {
-            this.state = true;
-            this.$message.success('启动成功');
-          } else {
-            if (res.data != null && res.data.message != null) {
-              this.$message.error('启动发生错误：' + res.data.message);
-            }
-          }
-        });
+        axios.post('/main/start/server', requestData);
+        this.state = true;
       }
 
     },
@@ -295,27 +287,27 @@ export default {
       })
 
     },
-    handleClearMulti(){
+    handleClearMulti () {
       this.$confirm('接口配置不易，请主人三思而后行，真的要清空嘛?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
-      }).then(()=>
-              axios.post('/main/interface/deleteAll').then(
-              response => {
-                if (this.isRequestSuccess(response)) {
-                  this.$message.success('清空成功，请重新导入数据');
-                  this.getInterfaceTableData();
-                } else {
-                  this.$message.success('删除失败，请重新尝试');
-                }
-              }
-      ).catch(() => {
-                this.$message({
-                  type: 'info',
-                  message: '已取消删除'
-                });
-              }))
+      }).then(() =>
+        axios.post('/main/interface/deleteAll').then(
+          response => {
+            if (this.isRequestSuccess(response)) {
+              this.$message.success('清空成功，请重新导入数据');
+              this.getInterfaceTableData();
+            } else {
+              this.$message.success('删除失败，请重新尝试');
+            }
+          }
+        ).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          });
+        }))
 
     },
     /**
@@ -472,7 +464,7 @@ export default {
     },
     /* 删除接口表一行数据 */
     doDeleteInterfaceRow (arr) {
-      console.log("arr----",arr)
+      console.log("arr----", arr)
       axios.post('/main/interface/delete', arr).then(
         response => {
           if (this.isRequestSuccess(response)) {
