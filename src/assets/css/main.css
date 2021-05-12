@@ -54,7 +54,12 @@
   height: 80%;
   /*overflow-y: auto;*/
   display: flex;
-  flex-direction: column; /* 起作用的是这个，没有的话会变成下图的样子，卡片跑到右边去了 */
+  flex-direction: column; /* el-card */
+}
+
+.edit-cell {
+  min-height: 35px;
+  cursor: pointer;
 }
 /* 通用样式 */
 a {

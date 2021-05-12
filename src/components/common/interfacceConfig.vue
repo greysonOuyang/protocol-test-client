@@ -8,17 +8,19 @@
                    type="primary"
                    icon="el-icon-plus"
                    size="mini">新增</el-button>
-        <el-button type="primary"
+        <!-- <el-button type="primary"
                    size="mini"
-                   @click="handleAddDetails">添加</el-button>
-        <el-button type="success"
+                   @click="handleAddDetails">添加</el-button> -->
+        <el-button type="danger"
                    icon="el-icon-delete"
                    size="mini"
                    @click="handleDeleteMulti">删除</el-button>
         <el-button type="primary"
                    size="mini"
+                   icon="el-icon-upload2"
                    @click="uploadExcelTabVisiable = true">导入</el-button>
         <el-button type="primary"
+                   icon="el-icon-download"
                    size="mini">导出</el-button>
         <el-button type="success"
                    icon="el-icon-delete"
@@ -136,11 +138,9 @@
                 :sm="12">
           <el-form-item style="text-align: right">
 
-            <el-button v-if="!state"
-                       type="primary"
+            <el-button type="primary"
                        @click="startServer()">启动服务端</el-button>
-            <el-button v-if="state"
-                       type="success"
+            <el-button type="success"
                        round
                        @click="stopServer()">停止服务</el-button>
           </el-form-item>
@@ -153,6 +153,19 @@
     <el-card :header="paramHeader"
              v-model="paramHeader"
              class="el-card-custom">
+      <!-- <div style="margin-bottom: 30px">
+        <el-switch style="display: block"
+                   v-model="editModeEnabled"
+                   active-color="#13ce66"
+                   inactive-color="#ff4949"
+                   active-text="Edit enabled"
+                   inactive-text="Edit disabled">
+        </el-switch>
+      </div> -->
+      <el-button @click="saveParamData"
+                 type="primary"
+                 icon="el-icon-check"
+                 size="mini">保存修改</el-button>
       <el-table :data="paramTable"
                 border
                 stripe
@@ -161,19 +174,27 @@
                          :label="item.label"
                          :prop="item.prop"
                          :width="item.width"
-                         v-for="item of paramDataOpt"></el-table-column>
+                         v-for="item in paramDataOpt">
+          <editable-cell slot-scope="{row}"
+                         :can-edit="editModeEnabled"
+                         v-model="row[item.prop]">
+            <span slot="content">{{row[item.prop]}}</span>
+          </editable-cell>
+        </el-table-column>
       </el-table>
     </el-card>
+
   </div>
 </template>
 
 <script>
 import axios from 'axios';
+import EditableCell from "./EditeableCell";
 
 export default {
   name: 'interfacceConfig',
   components: {
-
+    EditableCell
   },
   activated () {
     this.getInterfaceTableData();
@@ -184,8 +205,7 @@ export default {
 
   data () {
     return {
-      // 服务器状态：0--待启动  1-- 已启动
-      state: false,
+      editModeEnabled: false,
       /** 当前选中行 */
       currentRow: null,
       paramHeader: '输出参数',
@@ -253,7 +273,14 @@ export default {
     // this.getParamTableData();
   },
   methods: {
-
+    saveParamData () {
+      var requestData = {
+        interfaceId: this.currentRow.interfaceId,
+        output: this.paramTable
+      }
+      console.log(this.paramTable);
+      axios.post('/main/param/save', requestData);
+    },
     openDetails (row, event, column) {
       console.log("输出rowID:")
       console.log(row.id);
@@ -270,17 +297,20 @@ export default {
           interfaceId: this.currentRow.interfaceId
         }
         axios.post('/main/start/server', requestData);
-        this.state = true;
+        window.sessionStorage.setItem('state', true);
       }
 
     },
+    // 服务器状态：true--已启动  false-- 待启动
+    isServerOn () {
+      return window.sessionStorage.getItem('state');
+    },
     stopServer () {
-      console.log(this.state)
-      this.state = false;
-      axios.get('/main/stop/server').then(res => {
+      window.sessionStorage.setItem('state', false);
+      axios.get('/main/stop/server',).then(res => {
         var isClose = res.data;
         if (isClose) {
-          this.state = 0;
+          window.sessionStorage.setItem('state', false);
         } else {
           this.$message.error('关闭服务器失败，请重试或者联系管理员');
         }
@@ -342,7 +372,6 @@ export default {
         this.getInterfaceTableData();
         this.paramTable = val.output;
       }
-
     },
     handleAddDetails () {
       if (this.tableData == undefined) {
@@ -464,7 +493,6 @@ export default {
     },
     /* 删除接口表一行数据 */
     doDeleteInterfaceRow (arr) {
-      console.log("arr----", arr)
       axios.post('/main/interface/delete', arr).then(
         response => {
           if (this.isRequestSuccess(response)) {

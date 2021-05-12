@@ -531,7 +531,7 @@
             <el-form v-model="requestData"
                      label-width="100px"
                      label-position="right"
-                     ref="requestTable">
+                     ref="requestServerTable">
 
               <interfacce-config></interfacce-config>
               <el-card class="el-card-custom">
