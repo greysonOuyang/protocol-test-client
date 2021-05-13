@@ -1,5 +1,5 @@
-import JsonConsole from "../../components/jsonConsole";
-import InterfacceConfig from "../../components/common/interfacceConfig";
+import JsonConsole from "../../components/common/jsonConsole";
+import Server from "../../components/server";
 import Vue from "vue";
 import axios from "axios";
 
@@ -58,7 +58,7 @@ export default {
   // 默认显示客户端tab
   components: {
     JsonConsole,
-    InterfacceConfig,
+    Server,
   },
   data() {
     return {

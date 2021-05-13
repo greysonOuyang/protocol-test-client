@@ -24,7 +24,7 @@
               </el-option>
             </el-select>
           </el-form-item>
-          
+
         </el-col>
 
       </el-row>
@@ -92,19 +92,25 @@
                 @current-change="selectCurrentCol"
                 @selection-change="handleSelectionChange">
         <el-table-column type="selection"
-                         width="55">
+                         width="60">
         </el-table-column>
         <el-table-column label="序号"
                          align="center"
                          prop="index"
-                         width="50">
+                         width="60">
+
         </el-table-column>
         <el-table-column prop="interfaceId"
-                         label="接口Id"></el-table-column>
+                         label="接口Id"
+                         width="200"
+                         align='center'></el-table-column>
         <el-table-column prop="interfaceName"
-                         label="接口名称"></el-table-column>
+                         label="接口名称"
+                         width="200"
+                         align='center'></el-table-column>
         <el-table-column label="输入"
-                         width="140">
+                         width="150"
+                         align='center'>
           <template slot-scope="scope">
             <el-button size="mini"
                        type="info"
@@ -113,7 +119,8 @@
         </el-table-column>
 
         <el-table-column label="输出"
-                         width="140">
+                         width="150"
+                         align='center'>
           <template slot-scope="scope">
             <el-button size="mini"
                        type="info"
@@ -121,16 +128,25 @@
           </template>
         </el-table-column>
 
-        <el-table-column label="操作">
+        <el-table-column label="操作"
+                         width="120"
+                         align='center'>
           <template slot-scope="scope">
             <el-button size="mini"
                        type="danger"
-                       icon="el-icon-delete"
-                       @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+                       circle
+                       icon="el-icon-remove-outline"
+                       @click="handleDelete(scope.$index, scope.row)"></el-button>
           </template>
         </el-table-column>
 
       </el-table>
+      <!-- <div class="block">
+        <span class="demonstration"></span>
+        <el-pagination layout="prev, pager, next"
+                       :total="50">
+        </el-pagination>
+      </div> -->
 
       <!-- 添加用户弹框 -->
       <el-dialog title="添加接口"
@@ -180,7 +196,6 @@
 
     <!-- 参数表 -->
     <el-card :header="paramHeader"
-             v-model="paramHeader"
              class="el-card-custom">
       <div style="margin-bottom: 30px">
         <el-button @click="saveParamData"
@@ -222,10 +237,10 @@
 
 <script>
 import axios from 'axios';
-import EditableCell from "./EditeableCell";
+import EditableCell from "./common/EditeableCell";
 
 export default {
-  name: 'interfacceConfig',
+  name: 'server',
   components: {
     EditableCell
   },
@@ -246,7 +261,7 @@ export default {
       interfaceIdInEdit: '',
       editModeEnabled: false,
       /** 当前选中行 */
-      paramHeader: '输出参数',
+      paramHeader: '参数表',
       //选中多行
       multipleSelection: [],
       checkedDetail: [],
@@ -412,10 +427,12 @@ export default {
       this.interfaceIdInEdit = val.interfaceId;
     },
     viewOutPut (index, row) {
+      this.paramHeader = '输出参数';
       this.paramTable = row.output;
       this.paramType = 'output';
     },
     viewInPut (index, row) {
+      this.paramHeader = '输入参数';
       this.paramTable = row.input;
       this.paramType = 'input';
     },
