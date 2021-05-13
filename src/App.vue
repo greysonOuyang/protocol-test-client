@@ -532,27 +532,7 @@
                      label-width="100px"
                      label-position="right"
                      ref="requestServerTable">
-
               <interfacce-config></interfacce-config>
-              <el-card class="el-card-custom">
-                <el-form-item label="输入数据">
-
-                </el-form-item>
-                <el-input class="input-data"
-                          type="textarea"
-                          :rows="2"
-                          size="medium"
-                          v-model="inputText">
-                </el-input>
-                <el-form-item label="输出数据">
-                </el-form-item>
-                <el-input type="textarea"
-                          :rows="2"
-                          v-model="outputText">
-                </el-input>
-
-              </el-card>
-
             </el-form>
           </el-tab-pane>
         </el-tabs>

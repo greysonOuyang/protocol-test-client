@@ -1,5 +1,63 @@
 <template>
   <div>
+    <!-- 启动 -->
+    <el-card class="el-card-custom">
+      <el-row>
+        <el-col :xs="24"
+                :sm="12">
+          <el-form-item label="端口"
+                        style="width: 60%; margin-left: 0px">
+            <el-input v-model="port"></el-input>
+          </el-form-item>
+
+        </el-col>
+        <el-col :xs="24"
+                :sm="12">
+          <el-form-item label="请选择接口"
+                        style="width: 60%; margin-left: 0px">
+            <el-select v-model="currentInterfaceId"
+                       placeholder="请选择">
+              <el-option v-for="item in tableData"
+                         :key="item.interfaceId"
+                         :label="item.interfaceName"
+                         :value="item.interfaceId">
+              </el-option>
+            </el-select>
+          </el-form-item>
+          
+        </el-col>
+
+      </el-row>
+      <el-form-item style="text-align: right">
+
+        <el-button type="primary"
+                   @click="startServer()">启动服务端</el-button>
+        <el-button type="success"
+                   round
+                   @click="stopServer()">停止服务</el-button>
+      </el-form-item>
+
+    </el-card>
+
+    <!-- 控制台 -->
+    <!-- <el-card v-if="this.state = true" class="el-card-custom">
+                <el-form-item label="输入数据">
+
+                </el-form-item>
+                <el-input class="input-data"
+                          type="textarea"
+                          :rows="2"
+                          size="medium"
+                          v-model="inputText">
+                </el-input>
+                <el-form-item label="输出数据">
+                </el-form-item>
+                <el-input type="textarea"
+                          :rows="2"
+                          v-model="outputText">
+                </el-input>
+
+              </el-card> -->
 
     <el-card class="el-card-custom"
              header="接口配置">
@@ -8,9 +66,6 @@
                    type="primary"
                    icon="el-icon-plus"
                    size="mini">新增</el-button>
-        <!-- <el-button type="primary"
-                   size="mini"
-                   @click="handleAddDetails">添加</el-button> -->
         <el-button type="danger"
                    icon="el-icon-delete"
                    size="mini"
@@ -34,7 +89,7 @@
                 style="width: 100%"
                 @row-click="openDetails"
                 ref="tb"
-                @current-change="handleCurrentChange"
+                @current-change="selectCurrentCol"
                 @selection-change="handleSelectionChange">
         <el-table-column type="selection"
                          width="55">
@@ -50,28 +105,24 @@
                          label="接口名称"></el-table-column>
         <el-table-column label="输入"
                          width="140">
-          <template>
+          <template slot-scope="scope">
             <el-button size="mini"
                        type="info"
-                       @click="view()">查看</el-button>
+                       @click="viewInPut(scope.$index, scope.row)">查看</el-button>
           </template>
         </el-table-column>
 
         <el-table-column label="输出"
                          width="140">
-          <template>
+          <template slot-scope="scope">
             <el-button size="mini"
                        type="info"
-                       @click="view()">查看</el-button>
+                       @click="viewOutPut(scope.$index, scope.row)">查看</el-button>
           </template>
         </el-table-column>
 
         <el-table-column label="操作">
           <template slot-scope="scope">
-            <el-button size="mini"
-                       type="primary"
-                       icon="el-icon-edit"
-                       @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
             <el-button size="mini"
                        type="danger"
                        icon="el-icon-delete"
@@ -87,7 +138,8 @@
                  :close-on-click-modal="false">
         <el-form>
           <el-form-item label="接口ID">
-            <el-input v-model="interfaceData.interfaceId"></el-input>
+            <el-input v-model="interfaceData.interfaceId"
+                      placeholder="请填写唯一值"></el-input>
           </el-form-item>
           <el-form-item label="接口名称">
             <el-input v-model="interfaceData.interfaceName"></el-input>
@@ -125,51 +177,32 @@
                    @click="cancelUpload()">取消</el-button>
       </el-dialog>
     </el-card>
-    <el-card class="el-card-custom">
-      <el-row>
-        <el-col :xs="24"
-                :sm="12">
-          <el-form-item label="端口"
-                        style="width: 60%; margin-left: 0px">
-            <el-input v-model="port"></el-input>
-          </el-form-item>
-        </el-col>
-        <el-col :xs="24"
-                :sm="12">
-          <el-form-item style="text-align: right">
-
-            <el-button type="primary"
-                       @click="startServer()">启动服务端</el-button>
-            <el-button type="success"
-                       round
-                       @click="stopServer()">停止服务</el-button>
-          </el-form-item>
-        </el-col>
-      </el-row>
-
-    </el-card>
 
     <!-- 参数表 -->
     <el-card :header="paramHeader"
              v-model="paramHeader"
              class="el-card-custom">
-      <!-- <div style="margin-bottom: 30px">
-        <el-switch style="display: block"
+      <div style="margin-bottom: 30px">
+        <el-button @click="saveParamData"
+                   type="primary"
+                   icon="el-icon-check"
+                   size="mini">保存修改</el-button>
+        <el-button type="primary"
+                   size="mini"
+                   @click="handleAddDetails">添加</el-button>
+        <!-- <el-switch style="display: block"
                    v-model="editModeEnabled"
                    active-color="#13ce66"
                    inactive-color="#ff4949"
                    active-text="Edit enabled"
                    inactive-text="Edit disabled">
-        </el-switch>
-      </div> -->
-      <el-button @click="saveParamData"
-                 type="primary"
-                 icon="el-icon-check"
-                 size="mini">保存修改</el-button>
+        </el-switch> -->
+      </div>
+
       <el-table :data="paramTable"
                 border
                 stripe
-                style="width: 100%;margin-top: 100px">
+                style="width: 100%;">
         <el-table-column :key="item.prop"
                          :label="item.label"
                          :prop="item.prop"
@@ -205,9 +238,14 @@ export default {
 
   data () {
     return {
+      // 当前参数表展示的参数类型
+      paramType: '',
+      // 启动时选择的接口 值是接口Id
+      currentInterfaceId: '',
+      // 修改表数据时选中的接口
+      interfaceIdInEdit: '',
       editModeEnabled: false,
       /** 当前选中行 */
-      currentRow: null,
       paramHeader: '输出参数',
       //选中多行
       multipleSelection: [],
@@ -272,13 +310,23 @@ export default {
     this.getInterfaceTableData();
     // this.getParamTableData();
   },
+  watch () {
+    // paramTable: {
+    //   deep: true,
+    //     handler: (val) => {
+
+    //     }
+    // }
+  },
   methods: {
     saveParamData () {
-      var requestData = {
-        interfaceId: this.currentRow.interfaceId,
-        output: this.paramTable
+      var requestData = {};
+      requestData.interfaceId = this.interfaceIdInEdit;
+      if (this.paramType == 'input') {
+        requestData.input = this.paramTable
+      } else if (this.paramType == 'output') {
+        requestData.output = this.paramTable
       }
-      console.log(this.paramTable);
       axios.post('/main/param/save', requestData);
     },
     openDetails (row, event, column) {
@@ -287,14 +335,14 @@ export default {
     },
     // 启动服务端
     startServer () {
-      if (this.port == '' || this.currentRow == null) {
+      if (this.port == '' || this.currentInterfaceId == null) {
         this.$alert("请点击表格中的一行作为启动接口并填写端口号", "提示", {
           confirmButtonText: "确定",
         });
       } else {
         var requestData = {
           port: this.port,
-          interfaceId: this.currentRow.interfaceId
+          interfaceId: this.currentInterfaceId
         }
         axios.post('/main/start/server', requestData);
         window.sessionStorage.setItem('state', true);
@@ -360,26 +408,26 @@ export default {
         this.tableData.splice(this.multipleSelection[0].index - 1, 1);
       }
     },
-    /**
-     * 选中单行
-     */
-    handleCurrentChange (val) {
-      if (val == null) {
-        // current-change被调用两次的 bug
-        console.log(val)
-      } else {
-        this.currentRow = val;
-        this.getInterfaceTableData();
-        this.paramTable = val.output;
-      }
+    selectCurrentCol (val) {
+      this.interfaceIdInEdit = val.interfaceId;
+    },
+    viewOutPut (index, row) {
+      this.paramTable = row.output;
+      this.paramType = 'output';
+    },
+    viewInPut (index, row) {
+      this.paramTable = row.input;
+      this.paramType = 'input';
     },
     handleAddDetails () {
-      if (this.tableData == undefined) {
-        this.tableData = new Array();
+      if (this.paramTable == undefined) {
+        this.paramTable = new Array();
       }
-      this.tableData.push({
-        interfaceId: '',
-        interfaceName: ''
+      this.paramTable.push({
+        field: '',
+        length: '',
+        type: '',
+        value: ''
       });
     },
     /* 多选interface表row */
@@ -525,9 +573,5 @@ export default {
       this.dialogTableVisible = false;
     }
   },
-  // 获取参数表数据
-  // getParamTableData () {
-  //   this.paramTable = this.multipleSelection.output;
-  // }
 }
 </script>
