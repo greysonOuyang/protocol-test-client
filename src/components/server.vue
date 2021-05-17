@@ -192,7 +192,6 @@
           <el-form-item label="站台数">
             <el-input v-model="interfaceData.stationCount"></el-input>
           </el-form-item>
-          </el-form-item>
           <el-form-item label="列车趟数">
             <el-input v-model="interfaceData.trainCount"></el-input>
           </el-form-item>
