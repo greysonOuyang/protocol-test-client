@@ -1,23 +1,27 @@
 <template>
-  <div @click="onFieldClick" class="edit-cell">
+  <div @click="onFieldClick"
+       class="edit-cell">
     <el-tooltip v-if="!editMode && !showInput"
                 :placement="toolTipPlacement"
                 :open-delay="toolTipDelay"
                 :content="toolTipContent">
-      <div tabindex="0" @keyup.enter="onFieldClick">
+      <div tabindex="0"
+           class="cell-content"
+           :class="{'edit-enabled-cell': canEdit}"
+           @keyup.enter="onFieldClick">
         <slot name="content"></slot>
       </div>
 
     </el-tooltip>
     <component :is="editableComponent"
                v-if="editMode || showInput"
-              ref="input"
-              @focus="onFieldClick"
-              @keyup.enter.native="onInputExit"
-              v-on="listeners"
-              v-bind="$attrs"
-              v-model="model">
-        <slot name="edit-component-slot"></slot>
+               ref="input"
+               @focus="onFieldClick"
+               @keyup.enter.native="onInputExit"
+               v-on="listeners"
+               v-bind="$attrs"
+               v-model="model">
+      <slot name="edit-component-slot"></slot>
     </component>
   </div>
 </template>
@@ -32,7 +36,7 @@ export default {
     },
     toolTipContent: {
       type: String,
-      default: "Click to edit"
+      default: "点击编辑按钮"
     },
     toolTipDelay: {
       type: Number,
@@ -53,23 +57,27 @@ export default {
     closeEvent: {
       type: String,
       default: "blur"
+    },
+    canEdit: {
+      type: Boolean,
+      default: false
     }
   },
-  data() {
+  data () {
     return {
       editMode: false
     };
   },
   computed: {
     model: {
-      get() {
+      get () {
         return this.value;
       },
-      set(val) {
+      set (val) {
         this.$emit("input", val);
       }
     },
-    listeners() {
+    listeners () {
       return {
         [this.closeEvent]: this.onInputExit,
         ...this.$listeners
@@ -77,24 +85,34 @@ export default {
     }
   },
   methods: {
-    onFieldClick() {
-      this.editMode = true;
-      this.$nextTick(() => {
-        let inputRef = this.$refs.input;
-        if (inputRef) {
-          inputRef.focus();
-        }
-      });
+    onFieldClick () {
+      if (this.canEdit) {
+        this.editMode = true;
+        this.$nextTick(() => {
+          let inputRef = this.$refs.input;
+          if (inputRef && inputRef.focus) {
+            inputRef.focus();
+          }
+        });
+      }
     },
-    onInputExit() {
+    onInputExit () {
       this.editMode = false;
     },
-    onInputChange(val) {
+    onInputChange (val) {
       this.$emit("input", val);
     }
   }
 };
 </script>
 <style>
-
+.cell-content {
+  min-height: 40px;
+  padding-left: 5px;
+  padding-top: 5px;
+  border: 1px solid transparent;
+}
+.edit-enabled-cell {
+  border: 1px dashed #409eff;
+}
 </style>

@@ -270,29 +270,42 @@
       </el-row>
 
       <!-- 构造Body ModBus -->
-      <el-row v-if="watchBodyShowWhich() == 'modbus'">
-        <el-col :xs="24"
-                :sm="8">
-          <el-form-item :label="'功能码'">
-            <el-input :placeholder="'例如：0x04'"
-                      v-model="functionCode"></el-input>
-          </el-form-item>
-        </el-col>
-        <el-col :xs="24"
-                :sm="8">
-          <el-form-item :label="'起始地址'">
-            <el-input :placeholder="'例如：0x000x'"
-                      v-model="startAddress"></el-input>
-          </el-form-item>
-        </el-col>
-        <el-col :xs="24"
-                :sm="8">
-          <el-form-item :label="'寄存器个数'">
-            <el-input :placeholder="'例如：0x000x'"
-                      v-model="registerCount"></el-input>
-          </el-form-item>
-        </el-col>
-      </el-row>
+      <div class="modBusParam"
+           v-if="watchBodyShowWhich() == 'modbus'">
+        <el-row>
+          <el-col :xs="24"
+                  :sm="12">
+            <el-form-item :label="'功能码'">
+              <el-input :placeholder="'例如：0x04--读，0x10--写'"
+                        v-model="functionCode"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :xs="24"
+                  :sm="12">
+            <el-form-item :label="'起始地址'">
+              <el-input :placeholder="'例如：0x000x'"
+                        v-model="startAddress"></el-input>
+            </el-form-item>
+          </el-col>
+
+        </el-row>
+        <el-row>
+          <el-col :xs="24"
+                  :sm="12">
+            <el-form-item :label="'寄存器个数'">
+              <el-input :placeholder="'例如：3'"
+                        v-model="registerCount"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :xs="24"
+                  :sm="12">
+            <el-form-item :label="'写入数据'">
+              <el-input :placeholder="'例如：000A'"
+                        v-model="writeData"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </div>
 
       <!-- 请求的body内容 json格式 -->
       <el-form-item :label="$t('requestBody')"

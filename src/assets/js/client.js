@@ -1,5 +1,5 @@
-import JsonConsole from "../../components/common/jsonConsole";
-import Server from "../../components/server";
+import JsonConsole from "@/components/common/JsonConsole";
+import Server from "@/components/Server";
 import Vue from "vue";
 import axios from "axios";
 
@@ -62,7 +62,6 @@ export default {
   },
   data() {
     return {
-      activeName: "server",
       change: {
         testInterface: "",
         protocolType: "none",
@@ -156,6 +155,7 @@ export default {
       startAddress: "",
       // 功能码
       functionCode: "",
+      writeData: "",
       // json控制台组件
       jsonConsoleComp: null,
       // 是否展示json控制台

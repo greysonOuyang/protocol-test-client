@@ -1,64 +1,5 @@
 <template>
   <div id="interfaceConfig">
-    <!-- 启动 -->
-    <el-card class="el-card-custom">
-      <el-row>
-        <el-col :xs="24"
-                :sm="12">
-          <el-form-item label="端口"
-                        style="width: 60%; margin-left: 0px">
-            <el-input v-model="port"></el-input>
-          </el-form-item>
-
-        </el-col>
-        <el-col :xs="24"
-                :sm="12">
-          <el-form-item label="请选择接口"
-                        style="width: 60%; margin-left: 0px">
-            <el-select v-model="currentInterfaceId"
-                       placeholder="请选择">
-              <el-option v-for="item in tableData"
-                         :key="item.interfaceId"
-                         :label="item.interfaceName"
-                         :value="item.interfaceId">
-              </el-option>
-            </el-select>
-          </el-form-item>
-
-        </el-col>
-
-      </el-row>
-      <el-form-item style="text-align: right">
-
-        <el-button type="primary"
-                   @click="startServer()">启动服务端</el-button>
-        <el-button type="success"
-                   round
-                   @click="stopServer()">停止服务</el-button>
-      </el-form-item>
-
-    </el-card>
-    <interface-config ref="interfaceRef">
-    </interface-config>
-    <!-- 控制台 -->
-    <!-- <el-card v-if="this.state = true" class="el-card-custom">
-                <el-form-item label="输入数据">
-
-                </el-form-item>
-                <el-input class="input-data"
-                          type="textarea"
-                          :rows="2"
-                          size="medium"
-                          v-model="inputText">
-                </el-input>
-                <el-form-item label="输出数据">
-                </el-form-item>
-                <el-input type="textarea"
-                          :rows="2"
-                          v-model="outputText">
-                </el-input>
-
-              </el-card> -->
     <el-card class="el-card-custom"
              header="接口配置">
       <div style="margin-bottom: 20px">
@@ -104,10 +45,6 @@
                          label="接口Id"
                          width="200"
                          align='center'></el-table-column>
-        <!-- <el-table-column prop="interfaceType"
-                         label="消息类型"
-                         width="200"
-                         align='center'></el-table-column> -->
         <el-table-column prop="interfaceName"
                          label="接口名称"
                          width="200"
@@ -248,7 +185,7 @@ export default {
     EditableCell
   },
   activated () {
-    // this.getInterfaceTableData();
+    this.getInterfaceTableData();
   },
   mounted () {
   },
@@ -341,38 +278,6 @@ export default {
     openDetails (row, event, column) {
       console.log("输出rowID:")
       console.log(row.id);
-    },
-    // 启动服务端
-    startServer () {
-      if (this.port == '' || this.currentInterfaceId == null) {
-        this.$alert("请点击表格中的一行作为启动接口并填写端口号", "提示", {
-          confirmButtonText: "确定",
-        });
-      } else {
-        var requestData = {
-          port: this.port,
-          interfaceId: this.currentInterfaceId
-        }
-        axios.post('/main/start/server', requestData);
-        window.sessionStorage.setItem('state', true);
-      }
-
-    },
-    // 服务器状态：true--已启动  false-- 待启动
-    isServerOn () {
-      return window.sessionStorage.getItem('state');
-    },
-    stopServer () {
-      window.sessionStorage.setItem('state', false);
-      axios.get('/main/stop/server',).then(res => {
-        var isClose = res.data;
-        if (isClose) {
-          window.sessionStorage.setItem('state', false);
-        } else {
-          this.$message.error('关闭服务器失败，请重试或者联系管理员');
-        }
-      })
-
     },
     handleClearMulti () {
       this.$confirm('接口配置不易，请主人三思而后行，真的要清空嘛?', '提示', {
