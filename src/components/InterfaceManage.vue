@@ -1,177 +1,184 @@
 <template>
   <div id="interfaceConfig">
-    <el-card class="el-card-custom"
-             header="接口配置">
-      <div style="margin-bottom: 20px">
-        <el-button @click="dialogTableVisible = true"
-                   type="primary"
-                   icon="el-icon-plus"
-                   size="mini">新增</el-button>
-        <el-button type="danger"
-                   icon="el-icon-delete"
-                   size="mini"
-                   @click="handleDeleteMulti">删除</el-button>
-        <el-button type="primary"
-                   size="mini"
-                   icon="el-icon-upload2"
-                   @click="uploadExcelTabVisiable = true">导入</el-button>
-        <el-button type="primary"
-                   icon="el-icon-download"
-                   size="mini">导出</el-button>
-        <el-button type="success"
-                   icon="el-icon-delete"
-                   size="mini"
-                   @click="handleClearMulti">清空</el-button>
-      </div>
-      <!-- 接口表 -->
-      <el-table :data="tableData"
-                border
-                highlight-current-row
-                style="width: 100%"
-                @row-click="openDetails"
-                ref="tb"
-                @current-change="selectCurrentCol"
-                @selection-change="handleSelectionChange">
-        <el-table-column type="selection"
-                         width="60">
-        </el-table-column>
-        <el-table-column label="序号"
-                         align="center"
-                         prop="index"
-                         width="60">
+    <div id="server">
+      <el-card class="el-card-custom"
+               header="服务端接口配置">
+        <div style="margin-bottom: 20px">
+          <el-button @click="dialogTableVisible = true"
+                     type="primary"
+                     icon="el-icon-plus"
+                     size="mini">新增</el-button>
+          <el-button type="danger"
+                     icon="el-icon-delete"
+                     size="mini"
+                     @click="handleDeleteMulti">删除</el-button>
+          <el-button type="primary"
+                     size="mini"
+                     icon="el-icon-upload2"
+                     @click="uploadExcelTabVisiable = true">导入</el-button>
+          <el-button type="primary"
+                     icon="el-icon-download"
+                     size="mini">导出</el-button>
+          <el-button type="success"
+                     icon="el-icon-delete"
+                     size="mini"
+                     @click="handleClearMulti">清空</el-button>
+        </div>
+        <!-- 接口表 -->
+        <el-table :data="tableData"
+                  border
+                  highlight-current-row
+                  style="width: 100%"
+                  @row-click="openDetails"
+                  ref="tb"
+                  @current-change="selectCurrentCol"
+                  @selection-change="handleSelectionChange">
+          <el-table-column type="selection"
+                           width="60">
+          </el-table-column>
+          <el-table-column label="序号"
+                           align="center"
+                           prop="index"
+                           width="60">
 
-        </el-table-column>
-        <el-table-column prop="interfaceId"
-                         label="接口Id"
-                         width="200"
-                         align='center'></el-table-column>
-        <el-table-column prop="interfaceName"
-                         label="接口名称"
-                         width="200"
-                         align='center'></el-table-column>
-        <el-table-column label="输入"
-                         width="150"
-                         align='center'>
-          <template slot-scope="scope">
-            <el-button size="mini"
-                       type="info"
-                       @click="viewInPut(scope.$index, scope.row)">查看</el-button>
-          </template>
-        </el-table-column>
+          </el-table-column>
+          <el-table-column prop="interfaceId"
+                           label="接口Id"
+                           width="200"
+                           align='center'></el-table-column>
+          <el-table-column prop="interfaceName"
+                           label="接口名称"
+                           width="200"
+                           align='center'></el-table-column>
+          <el-table-column label="输入"
+                           width="150"
+                           align='center'>
+            <template slot-scope="scope">
+              <el-button size="mini"
+                         type="info"
+                         @click="viewInPut(scope.$index, scope.row)">查看</el-button>
+            </template>
+          </el-table-column>
 
-        <el-table-column label="输出"
-                         width="150"
-                         align='center'>
-          <template slot-scope="scope">
-            <el-button size="mini"
-                       type="info"
-                       @click="viewOutPut(scope.$index, scope.row)">查看</el-button>
-          </template>
-        </el-table-column>
+          <el-table-column label="输出"
+                           width="150"
+                           align='center'>
+            <template slot-scope="scope">
+              <el-button size="mini"
+                         type="info"
+                         @click="viewOutPut(scope.$index, scope.row)">查看</el-button>
+            </template>
+          </el-table-column>
 
-        <el-table-column label="操作"
-                         width="120"
-                         align='center'>
-          <template slot-scope="scope">
-            <el-button size="mini"
-                       type="danger"
-                       circle
-                       icon="el-icon-remove-outline"
-                       @click="handleDelete(scope.$index, scope.row)"></el-button>
-          </template>
-        </el-table-column>
+          <el-table-column label="操作"
+                           width="120"
+                           align='center'>
+            <template slot-scope="scope">
+              <el-button size="mini"
+                         type="danger"
+                         circle
+                         icon="el-icon-remove-outline"
+                         @click="handleDelete(scope.$index, scope.row)"></el-button>
+            </template>
+          </el-table-column>
 
-      </el-table>
-      <!-- <div class="block">
+        </el-table>
+        <!-- <div class="block">
         <span class="demonstration"></span>
         <el-pagination layout="prev, pager, next"
                        :total="50">
         </el-pagination>
       </div> -->
 
-      <!-- 添加用户弹框 -->
-      <el-dialog title="添加接口"
-                 :visible.sync="dialogTableVisible"
-                 :close-on-click-modal="false">
-        <el-form>
-          <el-form-item label="接口ID">
-            <el-input v-model="interfaceData.interfaceId"
-                      placeholder="请填写唯一值"></el-input>
-          </el-form-item>
-          <el-form-item label="接口名称">
-            <el-input v-model="interfaceData.interfaceName"></el-input>
-          </el-form-item>
-          <el-form-item>
-            <el-button type="primary"
-                       @click="addInterfaceConfig()">确定</el-button>
-            <el-button @click="dialogTableVisible = false">取消</el-button>
-          </el-form-item>
-        </el-form>
-      </el-dialog>
+        <!-- 添加用户弹框 -->
+        <el-dialog title="添加接口"
+                   :visible.sync="dialogTableVisible"
+                   :close-on-click-modal="false">
+          <el-form>
+            <el-form-item label="接口ID">
+              <el-input v-model="interfaceData.interfaceId"
+                        placeholder="请填写唯一值"></el-input>
+            </el-form-item>
+            <el-form-item label="接口名称">
+              <el-input v-model="interfaceData.interfaceName"></el-input>
+            </el-form-item>
+            <el-form-item>
+              <el-button type="primary"
+                         @click="addInterfaceConfig()">确定</el-button>
+              <el-button @click="dialogTableVisible = false">取消</el-button>
+            </el-form-item>
+          </el-form>
+        </el-dialog>
 
-      <el-dialog title="上传Excel"
-                 :visible.sync="uploadExcelTabVisiable"
-                 :close-on-click-modal="false">
-        <el-upload drag
-                   class="upload-excel"
-                   :auto-upload="false"
-                   action="/api/excelUtil/importExcel"
-                   :limit=limitNum
-                   accept=".xlsx"
-                   :on-change="fileChange"
-                   :on-exceed="exceedFile"
-                   :on-success="handleSuccess"
-                   :on-error="handleError"
-                   :file-list="fileList">
-          <i class="el-icon-upload"></i>
-          <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
-        </el-upload>
-        <br />
-        <el-button size="small"
-                   type="primary"
-                   @click="uploadFile">立即上传</el-button>
-        <el-button size="small"
-                   @click="cancelUpload()">取消</el-button>
-      </el-dialog>
-    </el-card>
+        <el-dialog title="上传Excel"
+                   :visible.sync="uploadExcelTabVisiable"
+                   :close-on-click-modal="false">
+          <el-upload drag
+                     class="upload-excel"
+                     :auto-upload="false"
+                     action="/api/excelUtil/importExcel"
+                     :limit=limitNum
+                     accept=".xlsx"
+                     :on-change="fileChange"
+                     :on-exceed="exceedFile"
+                     :on-success="handleSuccess"
+                     :on-error="handleError"
+                     :file-list="fileList">
+            <i class="el-icon-upload"></i>
+            <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+          </el-upload>
+          <br />
+          <el-button size="small"
+                     type="primary"
+                     @click="uploadFile">立即上传</el-button>
+          <el-button size="small"
+                     @click="cancelUpload()">取消</el-button>
+        </el-dialog>
+      </el-card>
 
-    <!-- 参数表 -->
-    <el-card :header="paramHeader"
-             class="el-card-custom">
-      <div style="margin-bottom: 30px">
-        <el-button @click="saveParamData"
-                   type="primary"
-                   icon="el-icon-check"
-                   size="mini">保存修改</el-button>
-        <el-button type="primary"
-                   size="mini"
-                   @click="handleAddDetails">添加</el-button>
-        <!-- <el-switch style="display: block"
+      <!-- 参数表 -->
+      <el-card :header="paramHeader"
+               class="el-card-custom">
+        <div style="margin-bottom: 30px">
+          <el-button @click="saveParamData"
+                     type="primary"
+                     icon="el-icon-check"
+                     size="mini">保存修改</el-button>
+          <el-button type="primary"
+                     size="mini"
+                     @click="handleAddDetails">添加</el-button>
+          <!-- <el-switch style="display: block"
                    v-model="editModeEnabled"
                    active-color="#13ce66"
                    inactive-color="#ff4949"
                    active-text="Edit enabled"
                    inactive-text="Edit disabled">
         </el-switch> -->
-      </div>
+        </div>
 
-      <el-table :data="paramTable"
-                border
-                stripe
-                style="width: 100%;">
-        <el-table-column :key="item.prop"
-                         :label="item.label"
-                         :prop="item.prop"
-                         :width="item.width"
-                         v-for="item in paramDataOpt">
-          <editable-cell slot-scope="{row}"
-                         :can-edit="editModeEnabled"
-                         v-model="row[item.prop]">
-            <span slot="content">{{row[item.prop]}}</span>
-          </editable-cell>
-        </el-table-column>
-      </el-table>
-    </el-card>
+        <el-table :data="paramTable"
+                  border
+                  stripe
+                  style="width: 100%;">
+          <el-table-column :key="item.prop"
+                           :label="item.label"
+                           :prop="item.prop"
+                           :width="item.width"
+                           v-for="item in paramDataOpt">
+            <editable-cell slot-scope="{row}"
+                           :can-edit="editModeEnabled"
+                           v-model="row[item.prop]">
+              <span slot="content">{{row[item.prop]}}</span>
+            </editable-cell>
+          </el-table-column>
+        </el-table>
+      </el-card>
+    </div>
+    <div id="client">
+      <el-card class="el-card-custom"
+               header="客户端接口配置">
+      </el-card>
+    </div>
   </div>
 </template>
 
