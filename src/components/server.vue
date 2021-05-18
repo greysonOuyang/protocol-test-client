@@ -65,6 +65,10 @@
         <el-button @click="addDialogVisible = true"
                    type="primary"
                    size="mini">添加计划信息</el-button>
+        <el-button type="primary"
+                   icon="el-icon-download"
+                   size="mini"
+                    @click="downLoadExcelTabVisiable">模板文件下载</el-button>
         <el-button @click="dialogTableVisible = true"
                    type="primary"
                    icon="el-icon-plus"
@@ -77,9 +81,7 @@
                    size="mini"
                    icon="el-icon-upload2"
                    @click="uploadExcelTabVisiable = true">导入</el-button>
-        <el-button type="primary"
-                   icon="el-icon-download"
-                   size="mini">导出</el-button>
+
         <el-button type="success"
                    icon="el-icon-delete"
                    size="mini"
@@ -202,7 +204,6 @@
           </el-form-item>
         </el-form>
       </el-dialog>
-
       <el-dialog title="上传Excel"
                  :visible.sync="uploadExcelTabVisiable"
                  :close-on-click-modal="false">
@@ -585,6 +586,56 @@ export default {
     UploadUrl: function () {
       // 因为action参数是必填项，我们使用二次确认进行文件上传时，直接填上传文件的url会因为没有参数导致api报404，所以这里将action设置为一个返回为空的方法就行，避免抛错
       return ""
+    },
+    downLoadExcelTabVisiable(){
+       var data = {
+        interfaceName: "planInfo"
+      }
+        axios.post("/api/excelUtil/exportExcel",data,{responseType: 'arraybuffer'}).then(res => {
+    // 处理返回的文件流
+    　　　　　　// let blob = new Blob([res.data], {type: "application/vnd.ms-excel"}); 
+
+　　　　　　// let objectUrl = URL.createObjectURL(blob); 
+
+　　　　　　// window.location.href = objectUrl; 
+    const content = res.data;
+    const blob = new Blob([res.data], {type: "application/vnd.ms-excel"});
+    var date ="表格数据模板"+
+     new Date().getFullYear() +
+     "" +
+     (new Date().getMonth() + 1) +
+     "" +
+     new Date().getDate();
+    const fileName = date + name + ".xls";
+    if ("download" in document.createElement("a")) {
+     // 非IE下载
+     const elink = document.createElement("a");
+     elink.download = fileName;
+     elink.style.display = "none";
+     elink.href = URL.createObjectURL(blob);
+     document.body.appendChild(elink);
+     elink.click();
+     URL.revokeObjectURL(elink.href); // 释放URL 对象
+     document.body.removeChild(elink);
+    } else {
+     // IE10+下载
+     navigator.msSaveBlob(blob, fileName);
+    }
+   })
+        
+        
+        
+        // .then(
+        //   response => {
+        //     if (this.isRequestSuccess(response)) {
+        //       this.$message.success('导出成功');
+        //       this.fileList = [];
+        //       this.getInterfaceTableData();
+        //     } else {
+        //       this.$message.success('导出失败');
+        //     }
+        //   }
+        // )
     },
     uploadFile () {
       if (this.fileList.length === 0) {
