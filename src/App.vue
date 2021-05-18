@@ -33,11 +33,10 @@
                        name="server">
             <server></server>
           </el-tab-pane>
-          <el-tab-pane label="接口配置"
+          <!-- <el-tab-pane label="接口配置"
                        name="configInterface">
             <interface-manage></interface-manage>
-            <!-- <interfacce-config></interfacce-config> -->
-          </el-tab-pane>
+          </el-tab-pane> -->
         </el-tabs>
 
       </el-main>

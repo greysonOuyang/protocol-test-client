@@ -30,14 +30,27 @@
         </el-col>
 
       </el-row>
-      <el-form-item style="text-align: right">
+      <el-row>
+        <!-- <el-col :xs="24"
+                :sm="12">
+          <div>
+            <p>当前服务启动端口为：{{port}}, 接口为{{tableData.interfaceName}}</p>
+          </div>
+        </el-col> -->
+        <!-- <el-col :xs="24"
+                :sm="12">
 
-        <el-button type="primary"
-                   @click="startServer()">启动服务端</el-button>
-        <el-button type="success"
-                   round
-                   @click="stopServer()">停止服务</el-button>
-      </el-form-item>
+        </el-col> -->
+        <el-form-item style="text-align: right">
+          <el-button v-if="!ServerStatus"
+                     type="primary"
+                     @click="startServer()">启动服务端</el-button>
+          <el-button v-if="ServerStatus"
+                     type="success"
+                     round
+                     @click="stopServer()">停止服务</el-button>
+        </el-form-item>
+      </el-row>
 
     </el-card>
     <!-- 控制台 -->
@@ -230,7 +243,8 @@
     </el-card>
 
     <!-- 参数表 -->
-    <el-card :header="paramHeader"
+    <el-card v-if="paramTabVisiable"
+             :header="paramHeader"
              class="el-card-custom">
       <div style="margin-bottom: 20px">
         <el-switch v-model="editModeEnabled"
@@ -310,13 +324,16 @@ export default {
     EditableCell
   },
   activated () {
-    // this.getInterfaceTableData();
   },
   mounted () {
   },
-
+  beforeDestroy () {
+  },
   data () {
     return {
+      paramTabVisiable: false,
+      // netty服务端状态 true启动完成 false 关闭状态
+      ServerStatus: false,
       // 隐藏接口Id列
       idShow: false,
       // 当前参数表展示的参数类型
@@ -422,14 +439,15 @@ export default {
   },
   created () {
     this.getInterfaceTableData();
-    // this.getParamTableData();
+  },
+  activated () {
   },
   methods: {
+    // 取消参数表编辑
     cancelParamEdit () {
       this.editModeEnabled = false;
-      location.reload();
-      // this.reload();
-      // this.getInterfaceTableData();
+      this.paramTable = [];
+      this.getInterfaceTableData();
     },
     saveParamData () {
       var requestData = {};
@@ -454,30 +472,39 @@ export default {
           confirmButtonText: "确定",
         });
       } else {
+        window.sessionStorage.setItem('port', this.port);
         var requestData = {
           port: this.port,
           interfaceId: this.currentInterfaceId
         }
         axios.post('/main/start/server', requestData);
-        window.sessionStorage.setItem('state', true);
+        this.$message.success('启动中...');
+        var interval = setInterval(() => {
+          let port = window.sessionStorage.getItem('port')
+          axios.get('/main/server/status', { params: { 'port': port } }).then(
+            res => {
+              this.ServerStatus = res.data;
+            }
+          );
+          if (this.ServerStatus) {
+            clearInterval(interval);
+          }
+        }, 2000);
       }
 
     },
-    // 服务器状态：true--已启动  false-- 待启动
-    isServerOn () {
-      return window.sessionStorage.getItem('state');
-    },
     stopServer () {
-      window.sessionStorage.setItem('state', false);
-      axios.get('/main/stop/server',).then(res => {
+      let port = window.sessionStorage.getItem('port');
+      // window.sessionStorage.setItem('state', false);
+      axios.get('/main/stop/server', { params: { 'port': port } }).then(res => {
         var isClose = res.data;
         if (isClose) {
-          window.sessionStorage.setItem('state', false);
+          this.ServerStatus = false;
+          this.$message.success('关闭成功');
         } else {
           this.$message.error('关闭服务器失败，请重试或者联系管理员');
         }
-      })
-
+      });
     },
     handleClearMulti () {
       this.$confirm('接口配置不易，请主人三思而后行，真的要清空嘛?', '提示', {
@@ -526,11 +553,13 @@ export default {
       this.interfaceIdInEdit = val.interfaceId;
     },
     viewOutPut (index, row) {
+      this.paramTabVisiable = true;
       this.paramHeader = '输出参数';
       this.paramTable = row.output;
       this.paramType = 'output';
     },
     viewInPut (index, row) {
+      this.paramTabVisiable = true;
       this.paramHeader = '输入参数';
       this.paramTable = row.input;
       this.paramType = 'input';
@@ -552,15 +581,10 @@ export default {
     },
     // 文件状态改变时的钩子
     fileChange (file, fileList) {
-      console.log("测试")
-      console.log(file.raw);
       this.fileList.push(file.raw);
-      console.log(this.fileList);
     },
     // 上传文件之前的钩子, 参数为上传的文件,若返回 false 或者返回 Promise 且被 reject，则停止上传
     beforeUploadFile (file) {
-      console.log('before upload');
-      console.log(file);
       let extension = file.name.substring(file.name.lastIndexOf('.') + 1);
       let size = file.size / 1024 / 1024;
       if (extension !== 'xlsx') {
