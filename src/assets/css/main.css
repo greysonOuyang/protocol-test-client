@@ -54,7 +54,7 @@ img {
     display: none !important;
   }
   #aside {
-    padding-top: 40px !important;
+    padding-top: 60px !important;
     width: 100% !important;
   }
   #main {
@@ -100,7 +100,7 @@ img {
 
 /* 电脑导航栏 */
 #pc-bar {
-  position: fixed;
+  /* position: fixed; */
   width: 100%;
   top: 0;
   width: 100%;
@@ -153,7 +153,6 @@ img {
 
 #main {
   color: #333;
-  padding-top: 80px;
   max-width: 1024px;
   margin-left: auto;
   margin-right: auto;

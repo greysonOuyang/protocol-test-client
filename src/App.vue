@@ -1,6 +1,6 @@
 <template>
   <el-container id="app">
-     <router-view v-if="isRouterAlive"></router-view>
+    <!-- <router-view v-if="isRouterAlive"></router-view> -->
     <!-- 手机导航栏 -->
     <div id="mobile-bar">
       <img src="./assets/logo.png"
@@ -62,23 +62,23 @@ export default {
     NavMenu,
     InterfaceManage,
   },
-  provide(){
-		return {
-			reload: this.reload
-		}
-	},
+  provide () {
+    return {
+      reload: this.reload
+    }
+  },
   data () {
     return {
       activeName: "server",
       isCollapse: true,
-      isRouterAlive:true,
+      isRouterAlive: true,
     }
   },
   methods: {
-    reload(){
-			this.isRouterAlive=false
-			this.$nextTick(()=>this.isRouterAlive=true)
-		},
+    reload () {
+      this.isRouterAlive = false
+      this.$nextTick(() => this.isRouterAlive = true)
+    },
     handleOpen (key, keyPath) {
       console.log(key, keyPath);
     },
