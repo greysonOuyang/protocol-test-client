@@ -62,7 +62,7 @@
     <el-card class="el-card-custom"
              header="接口配置">
       <div style="margin-bottom: 20px">
-        <el-button @click="addDialogVisible = true"
+        <el-button @click="btnAddPlanInfo()"
                    type="primary"
                    size="mini">添加计划信息</el-button>
         <el-button @click="dialogTableVisible = true"
@@ -668,25 +668,28 @@ export default {
         }
       );
     },
-    // 基于一个计划信息接口模板, 添加一个计划信息接口，
-    addPlanInfo () {
+    btnAddPlanInfo () {
       if (this.multipleSelection.length == 0) {
         this.$alert("请先选择一个接口数据", "提示", {
           confirmButtonText: "确定",
         });
       } else {
-        var requestData = this.interfaceData;
-        requestData.interfaceType = "计划信息";
-        for (const v of this.multipleSelection) {
-          requestData.interfaceId = v.interfaceId;
-        }
-        axios.post('interfaceCtrl/planInfo/create', requestData);
-        this.$message.success('新增成功');
-        // 重置formData
-        this.interfaceData = {}
-        this.addDialogVisible = false;
-      }
+        this.addDialogVisible = true;
 
+      }
+    },
+    // 基于一个计划信息接口模板, 添加一个计划信息接口，
+    addPlanInfo () {
+      var requestData = this.interfaceData;
+      requestData.interfaceType = "计划信息";
+      for (const v of this.multipleSelection) {
+        requestData.interfaceId = v.interfaceId;
+      }
+      axios.post('interfaceCtrl/planInfo/create', requestData);
+      this.$message.success('新增成功');
+      // 重置formData
+      this.interfaceData = {}
+      this.addDialogVisible = false;
     },
     // 添加一个接口
     addInterfaceConfig () {
