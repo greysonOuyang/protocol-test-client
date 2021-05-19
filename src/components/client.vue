@@ -232,7 +232,8 @@
                     label="请求形式:">
         <el-radio-group v-model="contentFormat">
           <el-radio :label="1">JSON</el-radio>
-          <el-radio :label="2">参数</el-radio>
+          <el-radio :label="2">读取操作参数</el-radio>
+          <el-radio :label="3">控制命令操作</el-radio>
         </el-radio-group>
       </el-form-item>
 
@@ -269,21 +270,21 @@
         </el-col>
       </el-row>
 
-      <!-- 构造Body ModBus -->
+      <!-- 构造Body ModBus 读取操作-->
       <div class="modBusParam"
-           v-if="watchBodyShowWhich() == 'modbus'">
+           v-if="watchBodyShowWhich() == 'modbusRead'">
         <el-row>
           <el-col :xs="24"
                   :sm="12">
             <el-form-item :label="'功能码'">
-              <el-input :placeholder="'例如：0x04--读，0x10--写'"
+              <el-input :placeholder="'例如：0x04--读'"
                         v-model="functionCode"></el-input>
             </el-form-item>
           </el-col>
           <el-col :xs="24"
                   :sm="12">
             <el-form-item :label="'起始地址'">
-              <el-input :placeholder="'例如：0x000x'"
+              <el-input :placeholder="'例如：1'"
                         v-model="startAddress"></el-input>
             </el-form-item>
           </el-col>
@@ -306,6 +307,74 @@
           </el-col>
         </el-row>
       </div>
+      <!-- 构造Body ModBus 控制命令操作-->
+    <div class="modBusParam"
+           v-if="watchBodyShowWhich() == 'modbusOperator'">
+        <el-row>
+          <el-col :xs="24"
+                  :sm="12">
+            <el-form-item :label="'功能码'">
+              <el-input :placeholder="'例如：0x10--写'"
+                        v-model="functionCode"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :xs="24"
+                  :sm="12">
+            <el-form-item :label="'起始地址'">
+              <el-input :placeholder="'例如：10672'"
+                        v-model="startAddress"></el-input>
+            </el-form-item>
+          </el-col>
+
+        </el-row>
+        <el-row>
+          <el-col :xs="24"
+                  :sm="12">
+            <el-form-item :label="'寄存器个数'">
+              <el-input :placeholder="'例如：373'"
+                        v-model="registerCount"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :xs="24"
+                  :sm="12">
+            <el-form-item :label="'播放文本时长'">
+              <el-input :placeholder="'请输入播放时长，1-127分钟'"
+                        v-model="contextSlect.showTime"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+         <el-row>
+         <el-input type="textarea" :rows="4" placeholder="请输入文本下发内容"  v-model="contextSlect.textcont">
+                <el-row></el-row>
+          </el-input>
+       </el-row>
+        <el-row>
+          <!-- TODO 如果是终止后两个不用展示 -->
+           <el-form-item :label="'是否启动'">
+               <el-radio v-model="contextSlect.isOpen" label="1" >启动</el-radio>
+               <el-radio v-model="contextSlect.isOpen" label="0" >终止</el-radio>
+            </el-form-item>
+            <el-form-item :label="'选择显示方式'">
+              <el-radio v-model="contextSlect.showType" label="0" >底部滚动</el-radio>
+              <el-radio v-model="contextSlect.showType" label="1" >全屏显示</el-radio>
+            </el-form-item>
+            <el-form-item :label="'是否有时限控制'">
+              <el-radio v-model="contextSlect.limitStyle" label="0" >不控制</el-radio>
+              <el-radio v-model="contextSlect.limitStyle" label="1" >启用时限控制</el-radio>
+            </el-form-item>
+            <el-form-item :label="'请选择优先级'">
+              <el-radio-group v-model="contextSlect.priority">
+                  <el-radio :label="0">线网级</el-radio>
+                  <el-radio :label="1">线路级</el-radio>
+                  <el-radio :label="2">车站级</el-radio>
+                  <el-radio :label="3">车载级</el-radio>
+                  <el-radio :label="4">区域级</el-radio>
+                  <el-radio :label="5">设备级</el-radio>
+               </el-radio-group>
+            </el-form-item>
+       </el-row>
+      </div>
+
 
       <!-- 请求的body内容 json格式 -->
       <el-form-item :label="$t('requestBody')"

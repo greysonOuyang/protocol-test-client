@@ -69,7 +69,15 @@ export default {
         gzIscsApplyFrame: "",
         paramData: "",
       },
-
+      contextSlect:{
+        isOpen: '1',
+        showType: '1',
+        limitStyle: '1',
+        priority: '1',
+        textcont: '',
+        showTime: '10',
+      },
+        
       // 测试接口服务类别
       testSystemOpt: [
         {
@@ -273,7 +281,11 @@ export default {
             return "json";
           } else if (this.chooseContentFormat() == 2) {
             // 参数--功能码
-            return "modbus";
+            return "modbusRead";
+          }
+          else if (this.chooseContentFormat() == 3) {
+            // 参数--功能码
+            return "modbusOperator";
           }
         } else if (this.change.protocolType == "gzIscs") {
           if (this.chooseContentFormat() == 1) {
@@ -553,6 +565,7 @@ export default {
 												1.1.2 参数,内容组装为1.2 应用层协议为 1.2.1modbus协议 */
 
             if (trData.requestType == REQUEST_TYPE_TCP) {
+              console.log("我输出了：" + this.contentFormat)
               if (this.contentFormat == 1) {
                 if (trData.body != null && trData.body.trim() != "") {
                   reqData.body = trData.body.trim();
@@ -560,11 +573,31 @@ export default {
               } else if (this.contentFormat == 2) {
                 if (this.change.protocolType == "modbus") {
                   var body = {};
-
                   var code = this.functionCode;
                   body.functionCode = this.functionCode;
                   body.registerCount = this.registerCount;
                   body.startAddress = this.startAddress;
+                  body.isOpen = this.contextSlect.isOpen;
+                  body.showType = this.contextSlect.showType;
+                  body.limitStyle = this.contextSlect.limitStyle;
+                  body.priority = this.contextSlect.priority;
+                  body.textCont = this.contextSlect.textcont;
+                  body.showTime = this.contextSlect.showTime;
+                  reqData.body = body;
+                }
+              } else if (this.contentFormat == 3) {
+                if (this.change.protocolType == "modbus") {
+                  var body = {};
+                  var code = this.functionCode;
+                  body.functionCode = this.functionCode;
+                  body.registerCount = this.registerCount;
+                  body.startAddress = this.startAddress;
+                  body.isOpen = this.contextSlect.isOpen;
+                  body.showType = this.contextSlect.showType;
+                  body.limitStyle = this.contextSlect.limitStyle;
+                  body.priority = this.contextSlect.priority;
+                  body.textCont = this.contextSlect.textcont;
+                  body.showTime = this.contextSlect.showTime;
                   reqData.body = body;
                 }
               }
