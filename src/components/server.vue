@@ -513,7 +513,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() =>
-        axios.post('/main/interface/deleteAll').then(
+        axios.post('/interfaceCtrl/interface/deleteAll').then(
           response => {
             if (this.isRequestSuccess(response)) {
               this.$message.success('清空成功，请重新导入数据');
@@ -708,7 +708,7 @@ export default {
     // 获取接口表数据
     getInterfaceTableData () {
       axios.get(
-        '/main/interface/findAll'
+        '/interfaceCtrl/interface/findAll'
       ).then(response => {
         this.tableData = response.data;
       });
@@ -733,7 +733,7 @@ export default {
     },
     /* 删除接口表一行数据 */
     doDeleteInterfaceRow (arr) {
-      axios.post('/main/interface/delete', arr).then(
+      axios.post('/interfaceCtrl/interface/delete', arr).then(
         response => {
           if (this.isRequestSuccess(response)) {
             this.$message.success('删除成功');
@@ -773,7 +773,7 @@ export default {
         interfaceType: this.interfaceData.interfaceType,
         interfaceName: this.interfaceData.interfaceName
       }
-      axios.post('/main/interface/add', data).then(
+      axios.post('/interfaceCtrl/interface/add', data).then(
         response => {
           if (this.isRequestSuccess(response)) {
             this.$message.success('创建成功');

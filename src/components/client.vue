@@ -308,7 +308,7 @@
         </el-row>
       </div>
       <!-- 构造Body ModBus 控制命令操作-->
-    <div class="modBusParam"
+      <div class="modBusParam"
            v-if="watchBodyShowWhich() == 'modbusOperator'">
         <el-row>
           <el-col :xs="24"
@@ -343,38 +343,46 @@
             </el-form-item>
           </el-col>
         </el-row>
-         <el-row>
-         <el-input type="textarea" :rows="4" placeholder="请输入文本下发内容"  v-model="contextSlect.textcont">
-                <el-row></el-row>
+        <el-row>
+          <el-input type="textarea"
+                    :rows="4"
+                    placeholder="请输入文本下发内容"
+                    v-model="contextSlect.textcont">
+            <el-row></el-row>
           </el-input>
-       </el-row>
+        </el-row>
         <el-row>
           <!-- TODO 如果是终止后两个不用展示 -->
-           <el-form-item :label="'是否启动'">
-               <el-radio v-model="contextSlect.isOpen" label="1" >启动</el-radio>
-               <el-radio v-model="contextSlect.isOpen" label="0" >终止</el-radio>
-            </el-form-item>
-            <el-form-item :label="'选择显示方式'">
-              <el-radio v-model="contextSlect.showType" label="0" >底部滚动</el-radio>
-              <el-radio v-model="contextSlect.showType" label="1" >全屏显示</el-radio>
-            </el-form-item>
-            <el-form-item :label="'是否有时限控制'">
-              <el-radio v-model="contextSlect.limitStyle" label="0" >不控制</el-radio>
-              <el-radio v-model="contextSlect.limitStyle" label="1" >启用时限控制</el-radio>
-            </el-form-item>
-            <el-form-item :label="'请选择优先级'">
-              <el-radio-group v-model="contextSlect.priority">
-                  <el-radio :label="0">线网级</el-radio>
-                  <el-radio :label="1">线路级</el-radio>
-                  <el-radio :label="2">车站级</el-radio>
-                  <el-radio :label="3">车载级</el-radio>
-                  <el-radio :label="4">区域级</el-radio>
-                  <el-radio :label="5">设备级</el-radio>
-               </el-radio-group>
-            </el-form-item>
-       </el-row>
+          <el-form-item :label="'是否启动'">
+            <el-radio v-model="contextSlect.isOpen"
+                      label="1">启动</el-radio>
+            <el-radio v-model="contextSlect.isOpen"
+                      label="0">终止</el-radio>
+          </el-form-item>
+          <el-form-item :label="'选择显示方式'">
+            <el-radio v-model="contextSlect.showType"
+                      label="0">底部滚动</el-radio>
+            <el-radio v-model="contextSlect.showType"
+                      label="1">全屏显示</el-radio>
+          </el-form-item>
+          <el-form-item :label="'是否有时限控制'">
+            <el-radio v-model="contextSlect.limitStyle"
+                      label="0">不控制</el-radio>
+            <el-radio v-model="contextSlect.limitStyle"
+                      label="1">启用时限控制</el-radio>
+          </el-form-item>
+          <el-form-item :label="'请选择优先级'">
+            <el-radio-group v-model="contextSlect.priority">
+              <el-radio :label="0">线网级</el-radio>
+              <el-radio :label="1">线路级</el-radio>
+              <el-radio :label="2">车站级</el-radio>
+              <el-radio :label="3">车载级</el-radio>
+              <el-radio :label="4">区域级</el-radio>
+              <el-radio :label="5">设备级</el-radio>
+            </el-radio-group>
+          </el-form-item>
+        </el-row>
       </div>
-
 
       <!-- 请求的body内容 json格式 -->
       <el-form-item :label="$t('requestBody')"
@@ -581,6 +589,9 @@
                    @click="executeCancel">{{
               $t("btnCancel")
             }}</el-button>
+        <el-button 
+        type="primary"
+                   @click="saveInterface">保存接口</el-button>
       </el-form-item>
     </el-form>
     <div v-show="isExecuted">
@@ -699,5 +710,5 @@
 </template>
 
 <script>
-export { default } from '../../src/assets/js/client';
+export { default } from '../assets/js/Client';
 </script>

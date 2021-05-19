@@ -244,19 +244,19 @@
                  :visible.sync="clientInterfaceVisiable"
                  :close-on-click-modal="false">
         <el-form>
-          <el-form-item label="消息类型">
-            <el-select v-model="interfaceData.interfaceType"
+          <el-form-item label="请求方式">
+            <el-select v-model="requestMethod"
                        placeholder="请选择">
-              <el-option v-for="item in messageTypeOpt"
-                         :key="item.type"
-                         :label="item.description"
-                         :value="item.description">
+              <el-option v-for="item in requestMethodOpt"
+                         :key="item.prop"
+                         :label="item.label"
+                         :value="item.prop">
               </el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="接口名称">
-            <el-input v-model="interfaceData.interfaceName"></el-input>
-          </el-form-item>
+          <el-form label="请求地址">
+            <el-input v-model="url" ></el-input>
+          </el-form>
           <el-form-item>
             <el-button type="primary"
                        @click="addInterfaceConfig()">确定</el-button>
@@ -275,7 +275,7 @@ import axios from 'axios';
 import EditableCell from "./common/EditeableCell";
 
 export default {
-  name: 'server',
+  name: 'interfaceConfig',
   components: {
     EditableCell
   },
@@ -287,6 +287,30 @@ export default {
 
   data () {
     return {
+      url: '请求地址',
+      // 请求方法
+      requestMethod: '',
+      requestMethodOpt: [
+        {
+          prop: 'GET',
+          label: 'GET'
+        },{
+          prop: 'POST',
+          label: 'POST'
+        },{
+          prop: 'DELETE',
+          label: 'DELETE'
+        },{
+          prop: 'PUT',
+          label: 'PUT'
+        },{
+          prop: 'PATCH',
+          label: 'PATCH'
+        },
+      ],
+      // 客户端接口表
+      clientInterfaceTable: [],
+      clientInterfaceOpt: [],
       clientInterfaceVisiable: false,
       requestType: '',
       currentMode: 'server',
@@ -405,7 +429,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() =>
-        axios.post('/main/interface/deleteAll').then(
+        axios.post('/interfaceCtrl/interface/deleteAll').then(
           response => {
             if (this.isRequestSuccess(response)) {
               this.$message.success('清空成功，请重新导入数据');
@@ -552,7 +576,7 @@ export default {
     // 获取接口表数据
     getInterfaceTableData () {
       axios.get(
-        '/main/interface/findAll'
+        '/interfaceCtrl/interface/findAll'
       ).then(response => {
         this.tableData = response.data;
       });
@@ -577,7 +601,7 @@ export default {
     },
     /* 删除接口表一行数据 */
     doDeleteInterfaceRow (arr) {
-      axios.post('/main/interface/delete', arr).then(
+      axios.post('/interfaceCtrl/interface/delete', arr).then(
         response => {
           if (this.isRequestSuccess(response)) {
             this.$message.success('删除成功');
@@ -594,7 +618,7 @@ export default {
         interfaceId: this.interfaceData.interfaceId,
         interfaceName: this.interfaceData.interfaceName
       }
-      axios.post('/main/interface/add', data).then(
+      axios.post('/interfaceCtrl/interface/add', data).then(
         response => {
           if (this.isRequestSuccess(response)) {
             this.$message.success('创建成功');
