@@ -19,8 +19,15 @@
     <div id="server"
          v-if="currentMode == 'server'">
       <el-card class="el-card-custom"
-               header="服务端接口配置">
+               header="接口配置">
         <div style="margin-bottom: 20px">
+          <el-button @click="btnAddPlanInfo()"
+                     type="primary"
+                     size="mini">添加计划信息</el-button>
+          <el-button type="primary"
+                     icon="el-icon-download"
+                     size="mini"
+                     @click="downLoadExcelTabVisiable">模板文件下载</el-button>
           <el-button @click="dialogTableVisible = true"
                      type="primary"
                      icon="el-icon-plus"
@@ -33,9 +40,7 @@
                      size="mini"
                      icon="el-icon-upload2"
                      @click="uploadExcelTabVisiable = true">导入</el-button>
-          <el-button type="primary"
-                     icon="el-icon-download"
-                     size="mini">导出</el-button>
+
           <el-button type="success"
                      icon="el-icon-delete"
                      size="mini"
@@ -46,29 +51,32 @@
                   border
                   highlight-current-row
                   style="width: 100%"
-                  @row-click="openDetails"
                   ref="tb"
                   @current-change="selectCurrentCol"
                   @selection-change="handleSelectionChange">
           <el-table-column type="selection"
                            width="60">
           </el-table-column>
-          <el-table-column label="序号"
-                           align="center"
-                           prop="index"
-                           width="60">
+          <!-- <el-table-column label="序号"
+                         align="center"
+                         prop="index"
+                         width="60">
 
-          </el-table-column>
+        </el-table-column> -->
           <el-table-column prop="interfaceId"
                            label="接口Id"
-                           width="200"
+                           v-if="idShow"
+                           align='center'></el-table-column>
+          <el-table-column prop="interfaceType"
+                           label="消息类型"
+                           width="180"
                            align='center'></el-table-column>
           <el-table-column prop="interfaceName"
                            label="接口名称"
-                           width="200"
+                           width="190"
                            align='center'></el-table-column>
           <el-table-column label="输入"
-                           width="150"
+                           width="110"
                            align='center'>
             <template slot-scope="scope">
               <el-button size="mini"
@@ -78,7 +86,7 @@
           </el-table-column>
 
           <el-table-column label="输出"
-                           width="150"
+                           width="110"
                            align='center'>
             <template slot-scope="scope">
               <el-button size="mini"
@@ -88,7 +96,7 @@
           </el-table-column>
 
           <el-table-column label="操作"
-                           width="120"
+                           width="90"
                            align='center'>
             <template slot-scope="scope">
               <el-button size="mini"
@@ -108,13 +116,19 @@
       </div> -->
 
         <!-- 添加用户弹框 -->
-        <el-dialog title="添加接口"
+        <el-dialog title="新增接口"
                    :visible.sync="dialogTableVisible"
                    :close-on-click-modal="false">
           <el-form>
-            <el-form-item label="接口ID">
-              <el-input v-model="interfaceData.interfaceId"
-                        placeholder="请填写唯一值"></el-input>
+            <el-form-item label="消息类型">
+              <el-select v-model="interfaceData.interfaceType"
+                         placeholder="请选择">
+                <el-option v-for="item in messageTypeOpt"
+                           :key="item.type"
+                           :label="item.description"
+                           :value="item.description">
+                </el-option>
+              </el-select>
             </el-form-item>
             <el-form-item label="接口名称">
               <el-input v-model="interfaceData.interfaceName"></el-input>
@@ -127,6 +141,27 @@
           </el-form>
         </el-dialog>
 
+        <!-- 新增模拟多趟车弹框 -->
+        <el-dialog title="新增接口"
+                   :visible.sync="addDialogVisible"
+                   :close-on-click-modal="false">
+          <el-form>
+            <el-form-item label="接口名称">
+              <el-input v-model="interfaceData.interfaceName"></el-input>
+            </el-form-item>
+            <el-form-item label="站台数">
+              <el-input v-model="interfaceData.stationCount"></el-input>
+            </el-form-item>
+            <el-form-item label="列车趟数">
+              <el-input v-model="interfaceData.trainCount"></el-input>
+            </el-form-item>
+            <el-form-item>
+              <el-button type="primary"
+                         @click="addPlanInfo()">确定</el-button>
+              <el-button @click="addDialogVisible = false">取消</el-button>
+            </el-form-item>
+          </el-form>
+        </el-dialog>
         <el-dialog title="上传Excel"
                    :visible.sync="uploadExcelTabVisiable"
                    :close-on-click-modal="false">
@@ -154,23 +189,32 @@
       </el-card>
 
       <!-- 参数表 -->
-      <el-card :header="paramHeader"
+      <el-card v-if="paramTabVisiable"
+               :header="paramHeader"
                class="el-card-custom">
-        <div style="margin-bottom: 30px">
-          <el-button @click="saveParamData"
+        <div style="margin-bottom: 20px">
+          <el-switch v-model="editModeEnabled"
+                     style="margin-right: 20px"
+                     active-color="#13ce6"
+                     inactive-color="#ff4949"
+                     active-text="编辑"
+                     inactive-text="查看">
+          </el-switch>
+          <el-button v-if="editModeEnabled"
+                     @click="saveParamData"
                      type="primary"
                      icon="el-icon-check"
-                     size="mini">保存修改</el-button>
+                     size="mini">保存</el-button>
+          <el-button @click="cancelParamEdit"
+                     v-if="editModeEnabled"
+                     type="primary"
+                     icon="el-icon-check"
+                     size="mini">取消</el-button>
           <el-button type="primary"
                      size="mini"
+                     icon="el-icon-plus"
                      @click="handleAddDetails">添加</el-button>
-          <!-- <el-switch style="display: block"
-                   v-model="editModeEnabled"
-                   active-color="#13ce66"
-                   inactive-color="#ff4949"
-                   active-text="Edit enabled"
-                   inactive-text="Edit disabled">
-        </el-switch> -->
+
         </div>
 
         <el-table :data="paramTable"
@@ -186,6 +230,28 @@
                            :can-edit="editModeEnabled"
                            v-model="row[item.prop]">
               <span slot="content">{{row[item.prop]}}</span>
+            </editable-cell>
+          </el-table-column>
+          <el-table-column label="参数类型">
+            <editable-cell slot-scope="{row}"
+                           editable-component="el-select"
+                           :can-edit="editModeEnabled"
+                           close-event="change"
+                           v-model="row.type">
+
+              <el-tag size="medium"
+                      type="primary"
+                      slot="content">
+                {{row.type}}
+              </el-tag>
+
+              <template slot="edit-component-slot">
+                <el-option v-for="item in paramTypeOpt"
+                           :key="item.type"
+                           :label="item.type"
+                           :value="item.type">
+                </el-option>
+              </template>
             </editable-cell>
           </el-table-column>
         </el-table>
@@ -227,11 +293,10 @@
                   border
                   stripe
                   style="width: 100%;">
-          <el-table-column :key="item.prop"
+          <el-table-column v-for="item in clientInterfaceOpt"
+                           :key="item.prop"
                            :label="item.label"
-                           :prop="item.prop"
-                           :width="item.width"
-                           v-for="item in clientInterfaceOpt">
+                           :prop="item.prop">
             <editable-cell slot-scope="{row}"
                            :can-edit="editModeEnabled"
                            v-model="row[item.prop]">
@@ -241,29 +306,32 @@
         </el-table>
 
         <el-dialog title="新增接口"
-                 :visible.sync="clientInterfaceVisiable"
-                 :close-on-click-modal="false">
-        <el-form>
-          <el-form-item label="请求方式">
-            <el-select v-model="requestMethod"
-                       placeholder="请选择">
-              <el-option v-for="item in requestMethodOpt"
-                         :key="item.prop"
-                         :label="item.label"
-                         :value="item.prop">
-              </el-option>
-            </el-select>
-          </el-form-item>
-          <el-form label="请求地址">
-            <el-input v-model="url" ></el-input>
+                   :visible.sync="clientInterfaceVisiable"
+                   :close-on-click-modal="false">
+          <el-form v-model="clientInterfaceForm">
+            <el-form-item :label="selectTitle">
+              <el-select v-model="clientInterfaceForm.currentSelect"
+                         placeholder="请选择">
+                <el-option v-for="item in selectOption"
+                           :key="item.prop"
+                           :label="item.label"
+                           :value="item.prop">
+                </el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="请求名称">
+              <el-input v-model="clientInterfaceForm.requestName"></el-input>
+            </el-form-item>
+            <el-form-item label="请求地址">
+              <el-input v-model="clientInterfaceForm.url"></el-input>
+            </el-form-item>
+            <el-form-item>
+              <el-button type="primary"
+                         @click="addClientInterface()">确定</el-button>
+              <el-button @click="clientInterfaceVisiable = false">取消</el-button>
+            </el-form-item>
           </el-form>
-          <el-form-item>
-            <el-button type="primary"
-                       @click="addInterfaceConfig()">确定</el-button>
-            <el-button @click="dialogTableVisible = false">取消</el-button>
-          </el-form-item>
-        </el-form>
-      </el-dialog>
+        </el-dialog>
 
       </el-card>
     </div>
@@ -276,6 +344,7 @@ import EditableCell from "./common/EditeableCell";
 
 export default {
   name: 'interfaceConfig',
+  inject: ['reload'],
   components: {
     EditableCell
   },
@@ -287,30 +356,67 @@ export default {
 
   data () {
     return {
-      url: '请求地址',
-      // 请求方法
-      requestMethod: '',
+      messageTypeOpt: [
+        {
+          type: '0x01',
+          description: '心跳信息'
+        }, {
+          type: '0x02',
+          description: '列车信息'
+        }, {
+          type: '0x03',
+          description: '计划信息'
+        }, {
+          type: '0x04',
+          description: '首末班信息'
+        }, {
+          type: '0x05',
+          description: '车门隔离状态信息'
+        }, {
+          type: '0x06',
+          description: '站台门隔离状态信息'
+        },
+      ],
+      clientInterfaceForm: {},
+      // 选择项
       requestMethodOpt: [
         {
           prop: 'GET',
           label: 'GET'
-        },{
+        }, {
           prop: 'POST',
           label: 'POST'
-        },{
+        }, {
           prop: 'DELETE',
           label: 'DELETE'
-        },{
+        }, {
           prop: 'PUT',
           label: 'PUT'
-        },{
+        }, {
           prop: 'PATCH',
           label: 'PATCH'
         },
       ],
       // 客户端接口表
       clientInterfaceTable: [],
-      clientInterfaceOpt: [],
+      httpInterfaceOpt: [
+        {
+          prop: "requestName",
+          label: "请求名称",
+        },
+        {
+          prop: "requestMethod",
+          label: "请求方式",
+        },
+        {
+          prop: "url",
+          label: "请求地址",
+        }, {
+          prop: "content",
+          label: "请求内容",
+        },
+
+      ],
       clientInterfaceVisiable: false,
       requestType: '',
       currentMode: 'server',
@@ -336,30 +442,46 @@ export default {
         prop: 'server',
         label: '服务端'
       }],
+
+      addDialogVisible: false,
+      paramTabVisiable: false,
+      // 隐藏接口Id列
+      idShow: false,
       // 当前参数表展示的参数类型
       paramType: '',
-      // 启动时选择的接口 值是接口Id
-      currentInterfaceId: '',
       // 修改表数据时选中的接口
       interfaceIdInEdit: '',
+      // 表格是否支持编辑
       editModeEnabled: false,
       /** 当前选中行 */
       paramHeader: '参数表',
       //选中多行
       multipleSelection: [],
       checkedDetail: [],
-      // 启动端口
-      port: '',
       index: '',
       /** 组件可视化相关 */
       uploadExcelTabVisiable: false, // excel上传组件
       dialogTableVisible: false, // “添加接口”弹窗组件
+
       /** excel上传相关 */
       // 上传excel文件列表
       file: null,
       limitNum: 5,
       // 文件列表
       fileList: [],
+      paramTypeOpt: [
+        {
+          type: 'Int',
+        }, {
+          type: 'String',
+        }, {
+          type: 'Hex',
+        }, {
+          type: 'ASCII',
+        }, {
+          type: 'Time',
+        }
+      ],
       // 添加接口表单
       interfaceData: {},
       // 接口配置表格相关
@@ -392,10 +514,6 @@ export default {
           prop: "length",
           label: "参数长度",
         }, {
-          prop: "type",
-          label: "参数类型",
-        },
-        {
           prop: "value",
           label: "参数值",
         },
@@ -406,9 +524,14 @@ export default {
   },
   created () {
     this.getInterfaceTableData();
-    // this.getParamTableData();
   },
   methods: {
+    // 取消参数表编辑
+    cancelParamEdit () {
+      this.editModeEnabled = false;
+      this.paramTable = [];
+      this.getInterfaceTableData();
+    },
     saveParamData () {
       var requestData = {};
       requestData.interfaceId = this.interfaceIdInEdit;
@@ -418,10 +541,8 @@ export default {
         requestData.output = this.paramTable
       }
       axios.post('/main/param/save', requestData);
-    },
-    openDetails (row, event, column) {
-      console.log("输出rowID:")
-      console.log(row.id);
+      this.$message.success('保存成功');
+      this.editModeEnabled = false;
     },
     handleClearMulti () {
       this.$confirm('接口配置不易，请主人三思而后行，真的要清空嘛?', '提示', {
@@ -470,16 +591,19 @@ export default {
       this.interfaceIdInEdit = val.interfaceId;
     },
     viewOutPut (index, row) {
+      this.paramTabVisiable = true;
       this.paramHeader = '输出参数';
       this.paramTable = row.output;
       this.paramType = 'output';
     },
     viewInPut (index, row) {
+      this.paramTabVisiable = true;
       this.paramHeader = '输入参数';
       this.paramTable = row.input;
       this.paramType = 'input';
     },
     handleAddDetails () {
+      this.editModeEnabled = true;
       if (this.paramTable == undefined) {
         this.paramTable = new Array();
       }
@@ -496,15 +620,10 @@ export default {
     },
     // 文件状态改变时的钩子
     fileChange (file, fileList) {
-      console.log("测试")
-      console.log(file.raw);
       this.fileList.push(file.raw);
-      console.log(this.fileList);
     },
     // 上传文件之前的钩子, 参数为上传的文件,若返回 false 或者返回 Promise 且被 reject，则停止上传
     beforeUploadFile (file) {
-      console.log('before upload');
-      console.log(file);
       let extension = file.name.substring(file.name.lastIndexOf('.') + 1);
       let size = file.size / 1024 / 1024;
       if (extension !== 'xlsx') {
@@ -529,6 +648,56 @@ export default {
     UploadUrl: function () {
       // 因为action参数是必填项，我们使用二次确认进行文件上传时，直接填上传文件的url会因为没有参数导致api报404，所以这里将action设置为一个返回为空的方法就行，避免抛错
       return ""
+    },
+    downLoadExcelTabVisiable () {
+      var data = {
+        interfaceName: "planInfo"
+      }
+      axios.post("/api/excelUtil/exportExcel", data, { responseType: 'arraybuffer' }).then(res => {
+        // 处理返回的文件流
+        // let blob = new Blob([res.data], {type: "application/vnd.ms-excel"}); 
+
+        // let objectUrl = URL.createObjectURL(blob); 
+
+        // window.location.href = objectUrl; 
+        const content = res.data;
+        const blob = new Blob([res.data], { type: "application/vnd.ms-excel" });
+        var date = "表格数据模板" +
+          new Date().getFullYear() +
+          "" +
+          (new Date().getMonth() + 1) +
+          "" +
+          new Date().getDate();
+        const fileName = date + name + ".xls";
+        if ("download" in document.createElement("a")) {
+          // 非IE下载
+          const elink = document.createElement("a");
+          elink.download = fileName;
+          elink.style.display = "none";
+          elink.href = URL.createObjectURL(blob);
+          document.body.appendChild(elink);
+          elink.click();
+          URL.revokeObjectURL(elink.href); // 释放URL 对象
+          document.body.removeChild(elink);
+        } else {
+          // IE10+下载
+          navigator.msSaveBlob(blob, fileName);
+        }
+      })
+
+
+
+      // .then(
+      //   response => {
+      //     if (this.isRequestSuccess(response)) {
+      //       this.$message.success('导出成功');
+      //       this.fileList = [];
+      //       this.getInterfaceTableData();
+      //     } else {
+      //       this.$message.success('导出失败');
+      //     }
+      //   }
+      // )
     },
     uploadFile () {
       if (this.fileList.length === 0) {
@@ -586,16 +755,11 @@ export default {
       console.log(index, row);
     },
     handleDelete (index, row) {
-      // start
-      console.log("index", index);
-      console.log("row", row);
       var arr = [];
-
       var data = {
         id: row.interfaceId
       }
       arr.push(data);
-      console.log("arr=", arr);
       this.doDeleteInterfaceRow(arr);
       this.dialogTableVisible = false;
     },
@@ -607,15 +771,37 @@ export default {
             this.$message.success('删除成功');
             this.getInterfaceTableData();
           } else {
-            this.$message.success('删除失败');
+            this.$message.error('删除失败');
           }
         }
       );
     },
+    btnAddPlanInfo () {
+      if (this.multipleSelection.length == 0) {
+        this.$alert("请先选择一个接口数据", "提示", {
+          confirmButtonText: "确定",
+        });
+      } else {
+        this.addDialogVisible = true;
+      }
+    },
+    // 基于一个计划信息接口模板, 添加一个计划信息接口，
+    addPlanInfo () {
+      var requestData = this.interfaceData;
+      requestData.interfaceType = "计划信息";
+      for (const v of this.multipleSelection) {
+        requestData.interfaceId = v.interfaceId;
+      }
+      axios.post('interfaceCtrl/planInfo/create', requestData);
+      this.$message.success('新增成功');
+      // 重置formData
+      this.interfaceData = {}
+      this.addDialogVisible = false;
+    },
     // 添加一个接口
     addInterfaceConfig () {
       var data = {
-        interfaceId: this.interfaceData.interfaceId,
+        interfaceType: this.interfaceData.interfaceType,
         interfaceName: this.interfaceData.interfaceName
       }
       axios.post('/interfaceCtrl/interface/add', data).then(
@@ -631,7 +817,54 @@ export default {
       // 重置formData
       this.interfaceData = {}
       this.dialogTableVisible = false;
+    },
+    addClientInterface () {
+      var data = {
+        requestType: this.requestType,
+      }
+      if (this.requestType == 'HTTP') {
+        data.requestMethod = this.clientInterfaceForm.currentSelect,
+          data.url = this.clientInterfaceForm.url
+        data.requestName = this.clientInterfaceForm.requestName;
+        axios.post('/interfaceCtrl/interface/save', data);
+      }
+      this.clientInterfaceVisiable = false;
+      this.clientInterfaceForm = {}
+      if (this.requestType == 'HTTP') {
+        this.getAllHttp();
+      }
+    },
+    getAllHttp () {
+      axios.get('/interfaceCtrl/interface/http/getAll').then(
+        res => {
+          this.clientInterfaceTable = res.data;
+        }
+      );
+    },
+  },
+  watch: {
+    requestType (val) {
+      if (this.requestType == 'HTTP') {
+        this.getAllHttp();
+      }
     }
   },
+  computed: {
+    selectTitle: function () {
+      if (this.requestType == 'HTTP') {
+        return '请求形式'
+      }
+    },
+    selectOption: function () {
+      if (this.requestType == 'HTTP') {
+        return this.requestMethodOpt;
+      }
+    },
+    clientInterfaceOpt: function () {
+      if (this.requestType == 'HTTP') {
+        return this.httpInterfaceOpt;
+      }
+    },
+  }
 }
 </script>

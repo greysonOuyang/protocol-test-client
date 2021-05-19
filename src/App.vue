@@ -68,7 +68,7 @@ export default {
   },
   data () {
     return {
-      activeName: "server",
+      activeName: "configInterface",
       isCollapse: true,
       isRouterAlive: true,
     }
