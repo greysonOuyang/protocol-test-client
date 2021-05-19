@@ -589,9 +589,6 @@
                    @click="executeCancel">{{
               $t("btnCancel")
             }}</el-button>
-        <el-button 
-        type="primary"
-                   @click="saveInterface">保存接口</el-button>
       </el-form-item>
     </el-form>
     <div v-show="isExecuted">

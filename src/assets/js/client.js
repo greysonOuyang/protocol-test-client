@@ -442,10 +442,6 @@ export default {
         return num;
       }
     },
-    /** 保存接口 */
-    saveInterface() {
-      
-    },
     /**
      * 执行请求
      */
