@@ -1,6 +1,23 @@
 <template>
-  <div id="interfaceConfig">
-    <div id="server">
+  <el-form label-width="120px"
+           label-position="right"
+           ref="interfaceConfigTable">
+    <el-form-item label="模式"
+                  style="width: 60%; margin-left: 0px">
+      <el-select v-model="currentMode"
+                 placeholder="请选择">
+        <el-option v-for="item in modeOpt"
+                   :key="item.prop"
+                   :label="item.label"
+                   :value="item.prop">
+        </el-option>
+        <!-- <el-option value="客户端">客户端</el-option>
+        <el-option value="服务端">服务端</el-option> -->
+      </el-select>
+    </el-form-item>
+
+    <div id="server"
+         v-if="currentMode == 'server'">
       <el-card class="el-card-custom"
                header="服务端接口配置">
         <div style="margin-bottom: 20px">
@@ -174,12 +191,83 @@
         </el-table>
       </el-card>
     </div>
-    <div id="client">
+    <div id="client"
+         v-if="currentMode == 'client'">
       <el-card class="el-card-custom"
                header="客户端接口配置">
+        <!-- 请求类型选择 -->
+        <!-- <el-form-item label="请求形式">
+          <el-radio-group v-model="requestType"
+                          placeholder="请选择">
+            <el-radio label="HTTP">HTTP/S</el-radio>
+            <el-radio label="WebSocket">WebSocket/S</el-radio>
+            <el-radio label="TCP">TCP/S</el-radio>
+            <el-radio label="UDP">UDP</el-radio>
+          </el-radio-group>
+        </el-form-item> -->
+        <el-form-item label="请求形式">
+          <el-select v-model="requestType"
+                     placeholder="请选择">
+            <el-option v-for="item in requestTypeOpt"
+                       :key="item.prop"
+                       :label="item.label"
+                       :value="item.prop">
+            </el-option>
+          </el-select>
+        </el-form-item>
+
+        <el-form-item>
+          <el-button @click="clientInterfaceVisiable = true"
+                     type="primary"
+                     icon="el-icon-plus"
+                     size="mini">新增</el-button>
+        </el-form-item>
+
+        <el-table :data="clientInterfaceTable"
+                  border
+                  stripe
+                  style="width: 100%;">
+          <el-table-column :key="item.prop"
+                           :label="item.label"
+                           :prop="item.prop"
+                           :width="item.width"
+                           v-for="item in clientInterfaceOpt">
+            <editable-cell slot-scope="{row}"
+                           :can-edit="editModeEnabled"
+                           v-model="row[item.prop]">
+              <span slot="content">{{row[item.prop]}}</span>
+            </editable-cell>
+          </el-table-column>
+        </el-table>
+
+        <el-dialog title="新增接口"
+                 :visible.sync="clientInterfaceVisiable"
+                 :close-on-click-modal="false">
+        <el-form>
+          <el-form-item label="消息类型">
+            <el-select v-model="interfaceData.interfaceType"
+                       placeholder="请选择">
+              <el-option v-for="item in messageTypeOpt"
+                         :key="item.type"
+                         :label="item.description"
+                         :value="item.description">
+              </el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="接口名称">
+            <el-input v-model="interfaceData.interfaceName"></el-input>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary"
+                       @click="addInterfaceConfig()">确定</el-button>
+            <el-button @click="dialogTableVisible = false">取消</el-button>
+          </el-form-item>
+        </el-form>
+      </el-dialog>
+
       </el-card>
     </div>
-  </div>
+  </el-form>
 </template>
 
 <script>
@@ -199,6 +287,31 @@ export default {
 
   data () {
     return {
+      clientInterfaceVisiable: false,
+      requestType: '',
+      currentMode: 'server',
+      requestTypeOpt: [
+        {
+          prop: 'HTTP',
+          label: 'HTTP/S'
+        }, {
+          prop: 'WebSocket',
+          label: 'WebSocket/S'
+        }, {
+          prop: 'TCP',
+          label: 'TCP/S'
+        }, {
+          prop: 'UDP',
+          label: 'UDP'
+        },
+      ],
+      modeOpt: [{
+        prop: 'client',
+        label: '客户端'
+      }, {
+        prop: 'server',
+        label: '服务端'
+      }],
       // 当前参数表展示的参数类型
       paramType: '',
       // 启动时选择的接口 值是接口Id

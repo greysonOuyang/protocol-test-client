@@ -249,7 +249,7 @@
       <div style="margin-bottom: 20px">
         <el-switch v-model="editModeEnabled"
                    style="margin-right: 20px"
-                   active-color="#13ce66"
+                   active-color="#13ce6"
                    inactive-color="#ff4949"
                    active-text="编辑"
                    inactive-text="查看">
@@ -565,6 +565,7 @@ export default {
       this.paramType = 'input';
     },
     handleAddDetails () {
+      this.editModeEnabled = true;
       if (this.paramTable == undefined) {
         this.paramTable = new Array();
       }
