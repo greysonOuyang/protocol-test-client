@@ -324,7 +324,8 @@
                    :visible.sync="clientInterfaceVisiable"
                    :close-on-click-modal="false">
           <el-form v-model="clientInterfaceForm">
-            <el-form-item v-if="this.requestType == 'HTTP'" :label="selectTitle">
+            <el-form-item v-if="this.requestType == 'HTTP'"
+                          :label="selectTitle">
               <el-select v-model="clientInterfaceForm.currentSelect"
                          placeholder="请选择">
                 <el-option v-for="item in selectOption"
@@ -966,6 +967,7 @@ export default {
   },
   watch: {
     requestType (val) {
+      this.clientInterfaceTable = [];
       if (this.requestType == 'HTTP') {
         this.getAllHttp();
       }
