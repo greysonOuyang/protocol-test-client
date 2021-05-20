@@ -323,7 +323,7 @@
         <el-dialog title="新增接口"
                    :visible.sync="clientInterfaceVisiable"
                    :close-on-click-modal="false">
-          <el-form v-model="clientInterfaceForm" >
+          <el-form v-model="clientInterfaceForm">
             <el-form-item v-if="this.requestType == 'HTTP'"
                           :label="selectTitle">
               <el-select v-model="clientInterfaceForm.currentSelect"
@@ -361,20 +361,62 @@
                    :visible.sync="requestConfigDialog"
                    :close-on-click-modal="false">
 
-          <el-table :data="configTableData">
-            <el-table-column v-for="item in ConfigOpt"
-                             :prop="item.key"
+          <el-row>
+            <el-table border
+                      :data="configTableData">
+              <el-table-column v-for="item in ConfigOpt"
+                               :prop="item.key"
+                               :label="item.label"
+                               :key="item.key">
+                <!-- <el-input v-model="configTableData.item.key"></el-input> -->
+              </el-table-column>
+            </el-table>
+          </el-row>
+          <el-form v-model="configForm">
+            <el-row>
+              <!-- <el-col :xs="24"
+                      :sm="12">
+                
+              </el-col>
+              <el-col :xs="24"
+                      :sm="12">
+                
+              </el-col> -->
+              <el-form-item label="配置Key">
+                <el-input placeholder="请输入英文单词,建议驼峰命名"
+                          v-model="configForm.configKey"></el-input>
+              </el-form-item>
+              <el-form-item label="配置名称">
+                <el-input v-model="configForm.configName"></el-input>
+              </el-form-item>
+            </el-row>
+            <el-row>
+              <!-- <el-col :xs="24"
+                      :sm="12">
+                
+              </el-col>
+              <el-col :xs="24"
+                      :sm="12">
+                
+              </el-col> -->
+              <el-form-item label="配置类型">
+                <el-select v-model="configForm.configType"
+                           placeholder="选择类型">
+                  <el-option v-for="item in configTypeOpt"
+                             :key="item.prop"
                              :label="item.label"
-                             :key="item.key">
-              <!-- <el-input v-model="configTableData.item.key"></el-input> -->
-            </el-table-column>
-          </el-table>
-          <el-form-item label="配置Key">
-            <el-input v-model="configKey"></el-input>
-          </el-form-item>
-          <el-form-item label="配置名称">
-            <el-input v-model="configName"></el-input>
-          </el-form-item>
+                             :value="item.prop">
+                  </el-option>
+                </el-select>
+              </el-form-item>
+              <el-form-item v-if="configForm.configType != 'input'" label="配置类型对应值">
+                <el-input placeholder="多个值之间用中文分号分割"
+                          v-model="configForm.configValue"></el-input>
+              </el-form-item>
+
+            </el-row>
+          </el-form>
+
           <el-button type="primary"
                      @click="addConfigRow()">添加配置</el-button>
           <el-button type="primary"
@@ -404,8 +446,21 @@ export default {
 
   data () {
     return {
+      configForm: {},
       configKey: '',
       configName: '',
+      configTypeOpt: [
+        {
+          prop: 'select',
+          label: '下拉框'
+        }, {
+          prop: 'input',
+          label: '输入框'
+        }, {
+          prop: 'singleSelect',
+          label: '单选框'
+        },
+      ],
       // 配置项
       ConfigOpt: [
         {
@@ -414,6 +469,12 @@ export default {
         }, {
           key: 'configName',
           label: '配置名称'
+        },{
+          key: 'configType',
+          label: '配置类型'
+        }, {
+          key: 'configValue',
+          label: '类型对应值'
         },
       ],
       // 表单配置项数据
@@ -954,15 +1015,10 @@ export default {
         }
       );
     },
-    // 添加一行配置项
+    // 添加一行配置项 todo config表单
     addConfigRow () {
-      var data = {
-        configKey: this.configKey,
-        configName: this.configName
-      }
-      this.configTableData.push(data);
-      this.configKey = '';
-      this.configName = '';
+      this.configTableData.push(this.configForm);
+      this.configForm = {}
     }
   },
   watch: {
