@@ -260,7 +260,7 @@
     <div id="client"
          v-if="currentMode == 'client'">
       <el-card class="el-card-custom"
-               header="客户端接口配置">
+               header="接口配置">
         <!-- 请求类型选择 -->
         <!-- <el-form-item label="请求形式">
           <el-radio-group v-model="requestType"
@@ -282,28 +282,42 @@
           </el-select>
         </el-form-item>
 
-        <el-form-item>
-          <el-button @click="clientInterfaceVisiable = true"
-                     type="primary"
-                     icon="el-icon-plus"
-                     size="mini">新增</el-button>
-        </el-form-item>
+        <div v-if="clientInterfaceOpt != null && clientInterfaceOpt.length != 0">
+          <el-form-item>
+            <el-button @click="clientInterfaceVisiable = true"
+                       type="primary"
+                       icon="el-icon-plus"
+                       size="mini">新增</el-button>
+            <el-button @click="btnConfigRequest()"
+                       type="primary"
+                       icon="el-icon-plus"
+                       size="mini">配置请求</el-button>
+          </el-form-item>
 
-        <el-table :data="clientInterfaceTable"
-                  border
-                  stripe
-                  style="width: 100%;">
-          <el-table-column v-for="item in clientInterfaceOpt"
-                           :key="item.prop"
-                           :label="item.label"
-                           :prop="item.prop">
-            <editable-cell slot-scope="{row}"
-                           :can-edit="editModeEnabled"
-                           v-model="row[item.prop]">
-              <span slot="content">{{row[item.prop]}}</span>
-            </editable-cell>
-          </el-table-column>
-        </el-table>
+          <!-- 客户端的接口表格 -->
+          <el-table :data="clientInterfaceTable"
+                    border
+                    stripe
+                    style="width: 100%;"
+                    @selection-change="handleSelectionChange">
+            <el-table-column type="selection"
+                             width="60">
+            </el-table-column>
+            <el-table-column prop="id"
+                             label="id"
+                             align='center'></el-table-column>
+            <el-table-column v-for="item in clientInterfaceOpt"
+                             :key="item.prop"
+                             :label="item.label"
+                             :prop="item.prop">
+              <editable-cell slot-scope="{row}"
+                             :can-edit="editModeEnabled"
+                             v-model="row[item.prop]">
+                <span slot="content">{{row[item.prop]}}</span>
+              </editable-cell>
+            </el-table-column>
+          </el-table>
+        </div>
 
         <el-dialog title="新增接口"
                    :visible.sync="clientInterfaceVisiable"
@@ -325,6 +339,9 @@
             <el-form-item label="请求地址">
               <el-input v-model="clientInterfaceForm.url"></el-input>
             </el-form-item>
+            <el-form-item label="请求JSON">
+            <el-input v-model="clientInterfaceForm.content" type="textaria"></el-input>
+          </el-form-item>
             <el-form-item>
               <el-button type="primary"
                          @click="addClientInterface()">确定</el-button>
@@ -333,6 +350,30 @@
           </el-form>
         </el-dialog>
 
+        <el-dialog title="配置请求"
+                   :visible.sync="requestConfigDialog"
+                   :close-on-click-modal="false">
+
+          <el-table :data="configTableData">
+            <el-table-column v-for="item in ConfigOpt"
+                             :prop="item.key"
+                             :label="item.label"
+                             :key="item.key">
+              <!-- <el-input v-model="configTableData.item.key"></el-input> -->
+            </el-table-column>
+          </el-table>
+          <el-form-item label="配置Key">
+            <el-input v-model="configKey"></el-input>
+          </el-form-item>
+          <el-form-item label="配置名称">
+            <el-input v-model="configName"></el-input>
+          </el-form-item>
+          <el-button type="primary"
+                     @click="addConfigRow()">添加配置</el-button>
+          <el-button type="primary"
+                     @click="saveConfigRequest()">保存</el-button>
+          <el-button @click="requestConfigDialog = false">取消</el-button>
+        </el-dialog>
       </el-card>
     </div>
   </el-form>
@@ -356,6 +397,20 @@ export default {
 
   data () {
     return {
+      configKey: '',
+      configName: '',
+      // 配置项
+      ConfigOpt: [
+        {
+          key: 'configKey',
+          label: '配置Key'
+        }, {
+          key: 'configName',
+          label: '配置名称'
+        },
+      ],
+      // 表单配置项数据
+      configTableData: [],
       messageTypeOpt: [
         {
           type: '0x01',
@@ -397,7 +452,9 @@ export default {
           label: 'PATCH'
         },
       ],
-      // 客户端接口表
+      // 客户端接口表展示内容
+      // clientInterfaceShowData: [],
+      // 客户端接口表数据
       clientInterfaceTable: [],
       httpInterfaceOpt: [
         {
@@ -414,12 +471,18 @@ export default {
         }, {
           prop: "content",
           label: "请求内容",
+        }, {
+          prop: "config",
+          label: "请求配置",
         },
 
       ],
+      // 请求配置弹窗
+      requestConfigDialog: false,
+      // 客户端接口表新增弹窗
       clientInterfaceVisiable: false,
       requestType: '',
-      currentMode: 'server',
+      currentMode: 'client',
       requestTypeOpt: [
         {
           prop: 'HTTP',
@@ -819,20 +882,17 @@ export default {
       this.dialogTableVisible = false;
     },
     addClientInterface () {
-      var data = {
-        requestType: this.requestType,
-      }
+      var data = {};
+      data.requestType = this.requestType;
+      data.clientInterface = this.clientInterfaceForm;
       if (this.requestType == 'HTTP') {
-        data.requestMethod = this.clientInterfaceForm.currentSelect,
-          data.url = this.clientInterfaceForm.url
-        data.requestName = this.clientInterfaceForm.requestName;
+        data.clientInterface.requestMethod = this.clientInterfaceForm.currentSelect;
         axios.post('/interfaceCtrl/interface/save', data);
+        this.getAllHttp();
+
       }
       this.clientInterfaceVisiable = false;
       this.clientInterfaceForm = {}
-      if (this.requestType == 'HTTP') {
-        this.getAllHttp();
-      }
     },
     getAllHttp () {
       axios.get('/interfaceCtrl/interface/http/getAll').then(
@@ -841,6 +901,44 @@ export default {
         }
       );
     },
+    btnConfigRequest () {
+      if (this.multipleSelection.length != 1) {
+        this.$alert("请先选择一个接口数据", "提示", {
+          confirmButtonText: "确定",
+        });
+      } else {
+        this.requestConfigDialog = true;
+      }
+    },
+    // 保存配置请求
+    saveConfigRequest () {
+      var data = {
+        configList: this.configTableData
+      }
+      for (const v of this.multipleSelection) {
+        data.id = v.id;
+      }
+      axios.post('/interfaceCtrl/request/config/save', data).then(
+        res => {
+          if (this.isRequestSuccess(res)) {
+            this.$message.success('保存成功');
+            this.getInterfaceTableData();
+          } else {
+            this.$message.success('保存失败');
+          }
+        }
+      );
+    },
+    // 添加一行配置项
+    addConfigRow () {
+      var data = {
+        configKey: this.configKey,
+        configName: this.configName
+      }
+      this.configTableData.push(data);
+      this.configKey = '';
+      this.configName = '';
+    }
   },
   watch: {
     requestType (val) {
@@ -863,6 +961,22 @@ export default {
     clientInterfaceOpt: function () {
       if (this.requestType == 'HTTP') {
         return this.httpInterfaceOpt;
+      }
+    },
+    clientInterfaceShowData: function () {
+      var resultArr = [];
+      if (this.requestType == 'HTTP') {
+        var arr = this.clientInterfaceTable;
+        for (const v of arr) {
+
+          var config = '';
+          for (const k of v.configList) {
+            config = k.configName + '\n';
+          }
+          v.config = config;
+          resultArr.push(v);
+        }
+        return resultArr;
       }
     },
   }

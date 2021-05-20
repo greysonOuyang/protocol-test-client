@@ -15,6 +15,19 @@
           <el-radio label="UDP">UDP</el-radio>
         </el-radio-group>
       </el-form-item>
+      <!-- 请求接口 -->
+      <el-form-item label="请求接口"
+                    style="width: 60%; margin-left: 0px">
+        <el-select v-model="currentId"
+                   placeholder="请选择">
+          <el-option v-for="item in requestInterfaceSelection"
+                     :key="item.id"
+                     :label="item.requestName"
+                     :value="item.id">
+          </el-option>
+        </el-select>
+      </el-form-item>
+
       <!-- UDP相关 -->
       <el-form-item v-if="requestData.requestType == 'UDP'"
                     label="UDP">
@@ -227,7 +240,6 @@
                  @change="loadCertValue" />
         </el-col>
       </el-form-item>
-
       <el-form-item v-if="change.protocolType == 'modbus'"
                     label="请求形式:">
         <el-radio-group v-model="contentFormat">
@@ -237,14 +249,13 @@
         </el-radio-group>
       </el-form-item>
 
-      <el-form-item v-if="change.protocolType == 'gzIscs'"
+      <el-form-item v-if="isShowRequestConfig"
                     label="请求形式:">
         <el-radio-group v-model="contentFormat">
           <el-radio :label="1">JSON</el-radio>
           <el-radio :label="3">配置</el-radio>
         </el-radio-group>
       </el-form-item>
-
       <!-- 构造广州综合监控ATS请求信息 -->
       <el-row v-if="watchBodyShowWhich() == 'gzIscs'">
         <el-col :xs="24"
@@ -269,6 +280,15 @@
           </el-form-item>
         </el-col>
       </el-row>
+  <!-- http下的配置 -->
+      <div id="httpConfig" v-if="watchBodyShowWhich() == 'config'" >
+       <el-form-item v-model="ConfigDataForm"
+       v-for="item in ConfigDataTable"
+                        :key="item.configKey"
+                        :label="item.configName">
+            <el-input v-model="ConfigDataForm.value"></el-input>
+                        </el-form-item>
+      </div>
 
       <!-- 构造Body ModBus 读取操作-->
       <div class="modBusParam"

@@ -84,20 +84,23 @@ export default {
   created () {
     this.getInterfaceTableData();
   },
+  activated () {
+    this.getInterfaceTableData();
+  },
   data () {
     return {
       // netty服务端状态 true启动完成 false 关闭状态
       ServerStatus: false,
-       // 启动时选择的接口 值是接口Id
+      // 启动时选择的接口 值是接口Id
       currentInterfaceId: '',
-       // 启动端口
+      // 启动端口
       port: '',
 
       paramTabVisiable: false,
-      
+
       // 当前参数表展示的参数类型
       paramType: '',
-     
+
       // 修改表数据时选中的接口
       interfaceIdInEdit: '',
       // 表格是否支持编辑
@@ -107,7 +110,7 @@ export default {
       //选中多行
       multipleSelection: [],
       checkedDetail: [],
-     
+
       index: '',
       /** 组件可视化相关 */
       uploadExcelTabVisiable: false, // excel上传组件

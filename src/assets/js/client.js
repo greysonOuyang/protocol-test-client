@@ -62,6 +62,14 @@ export default {
   },
   data() {
     return {
+      // 配置表单展示项
+      // ConfigDataTable: [],
+      // 配置表单
+      ConfigDataForm: {},
+      // 接口下拉框当前选择的值
+      currentId: "",
+      // 接口下拉框数据
+      requestInterfaceSelection: [],
       change: {
         testInterface: "",
         protocolType: "none",
@@ -69,15 +77,15 @@ export default {
         gzIscsApplyFrame: "",
         paramData: "",
       },
-      contextSlect:{
-        isOpen: '1',
-        showType: '1',
-        limitStyle: '1',
-        priority: '1',
-        textcont: '',
-        showTime: '10',
+      contextSlect: {
+        isOpen: "1",
+        showType: "1",
+        limitStyle: "1",
+        priority: "1",
+        textcont: "",
+        showTime: "10",
       },
-        
+
       // 测试接口服务类别
       testSystemOpt: [
         {
@@ -260,7 +268,24 @@ export default {
       consoleInfos: [],
     };
   },
+  created() {
+    this.getSelectionData();
+  },
+  activated() {
+    this.getSelectionData();
+  },
   methods: {
+    // 获取接口下拉框数据
+    getSelectionData() {
+      if (this.requestData.requestType == REQUEST_TYPE_HTTP) {
+        this.getAllHttpSelection();
+      }
+    },
+    getAllHttpSelection() {
+      axios.get("/interfaceCtrl/interface/http/getAll").then((res) => {
+        this.requestInterfaceSelection = res.data;
+      });
+    },
     // 判断请求内容形式 1--json 2--参数构造 3--预置
     chooseContentFormat() {
       if (this.contentFormat == 1) {
@@ -282,8 +307,7 @@ export default {
           } else if (this.chooseContentFormat() == 2) {
             // 参数--功能码
             return "modbusRead";
-          }
-          else if (this.chooseContentFormat() == 3) {
+          } else if (this.chooseContentFormat() == 3) {
             // 参数--功能码
             return "modbusOperator";
           }
@@ -298,10 +322,19 @@ export default {
         } else {
           return "json";
         }
-      } else {
-        // 其余的只展示body
-        return "json";
       }
+      if (this.requestData.requestType == REQUEST_TYPE_HTTP) {
+        if (this.chooseContentFormat() == 1) {
+          // json
+          return "json";
+        } else if (this.chooseContentFormat() == 3) {
+          // 配置
+          return "config";
+        }
+      }
+
+      // 其余的只展示body
+      return "json";
     },
 
     /**
@@ -541,6 +574,26 @@ export default {
             }
             if (trData.requestType == REQUEST_TYPE_HTTP) {
               reqData.method = trData.method;
+              if (this.contentFormat == 1) {
+                if (trData.body != null && trData.body.trim() != "") {
+                  reqData.body = trData.body.trim();
+                }
+              } else if (this.contentFormat == 3) {
+                var body = {};
+                var data = this.requestInterfaceSelection[0];
+
+                var code = this.functionCode;
+                body.functionCode = this.functionCode;
+                body.registerCount = this.registerCount;
+                body.startAddress = this.startAddress;
+                body.isOpen = this.contextSlect.isOpen;
+                body.showType = this.contextSlect.showType;
+                body.limitStyle = this.contextSlect.limitStyle;
+                body.priority = this.contextSlect.priority;
+                body.textCont = this.contextSlect.textcont;
+                body.showTime = this.contextSlect.showTime;
+                reqData.body = body;
+              }
             }
 
             // 构建请求头
@@ -565,7 +618,6 @@ export default {
 												1.1.2 参数,内容组装为1.2 应用层协议为 1.2.1modbus协议 */
 
             if (trData.requestType == REQUEST_TYPE_TCP) {
-              console.log("我输出了：" + this.contentFormat)
               if (this.contentFormat == 1) {
                 if (trData.body != null && trData.body.trim() != "") {
                   reqData.body = trData.body.trim();
@@ -927,6 +979,20 @@ export default {
     },
   },
   watch: {
+    contentFormat(val) {
+      if (this.requestData.requestType == REQUEST_TYPE_HTTP) {
+        if (this.contentFormat == 3) {
+          const dom = document.getElementById("httpConfig");
+          document.createElement("el-row");
+        }
+      }
+    },
+    currentId(val) {
+      let arr = this.requestInterfaceSelection;
+      let data = arr[0];
+      this.requestData.url = data.url;
+      this.requestData.method = data.requestMethod;
+    },
     "requestData.url"(val) {
       if (
         val.indexOf("https://") != -1 &&
@@ -987,6 +1053,20 @@ export default {
     },
   },
   computed: {
+    ConfigDataTable() {
+      var data = this.requestInterfaceSelection[0];
+      return data.configList;
+    },
+    // 是否显示请求形式配置
+    isShowRequestConfig() {
+      if (this.change.protocolType == "gzIscs") {
+        return true;
+      }
+      if (this.requestData.requestType == "HTTP") {
+        return true;
+      }
+      return false;
+    },
     watchResponseHeaderColor() {
       // 获取响应状态
       if (this.responseSucceeded > this.responseFailed) {
