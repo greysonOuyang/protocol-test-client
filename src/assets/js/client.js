@@ -269,22 +269,22 @@ export default {
     };
   },
   created() {
-    this.getSelectionData();
-  },
-  activated() {
-    this.getSelectionData();
+    this.getAllHttpSelection();
   },
   methods: {
-    // 获取接口下拉框数据
-    getSelectionData() {
-      if (this.requestData.requestType == REQUEST_TYPE_HTTP) {
-        this.getAllHttpSelection();
-      }
-    },
     getAllHttpSelection() {
       axios.get("/interfaceCtrl/interface/http/getAll").then((res) => {
         this.requestInterfaceSelection = res.data;
       });
+    },
+    getWebSocketSelection() {
+      this.requestInterfaceSelection = [];
+    },
+    getTCPSelection() {
+      this.requestInterfaceSelection = [];
+    },
+    getUDPSelection() {
+      this.requestInterfaceSelection = [];
     },
     // 判断请求内容形式 1--json 2--参数构造 3--预置
     chooseContentFormat() {
@@ -579,20 +579,7 @@ export default {
                   reqData.body = trData.body.trim();
                 }
               } else if (this.contentFormat == 3) {
-                var body = {};
-                var data = this.requestInterfaceSelection[0];
-
-                var code = this.functionCode;
-                body.functionCode = this.functionCode;
-                body.registerCount = this.registerCount;
-                body.startAddress = this.startAddress;
-                body.isOpen = this.contextSlect.isOpen;
-                body.showType = this.contextSlect.showType;
-                body.limitStyle = this.contextSlect.limitStyle;
-                body.priority = this.contextSlect.priority;
-                body.textCont = this.contextSlect.textcont;
-                body.showTime = this.contextSlect.showTime;
-                reqData.body = body;
+                // todo
               }
             }
 
@@ -981,15 +968,19 @@ export default {
   watch: {
     contentFormat(val) {
       if (this.requestData.requestType == REQUEST_TYPE_HTTP) {
-        if (this.contentFormat == 3) {
-          const dom = document.getElementById("httpConfig");
-          document.createElement("el-row");
+        if (this.contentFormat == 1) {
+          // let data = this.requestInterfaceSelection[0];
+          // if (data != null) {
+          //   this.requestData.body = data.content;
+          // }
         }
       }
     },
     currentId(val) {
-      let arr = this.requestInterfaceSelection;
-      let data = arr[0];
+      let data = this.requestInterfaceSelection[0];
+      if (data != null) {
+        this.requestData.body = data.content;
+      }
       this.requestData.url = data.url;
       this.requestData.method = data.requestMethod;
     },
@@ -1022,6 +1013,19 @@ export default {
       } else if (this.requestData.requestType != REQUEST_TYPE_TCP) {
         this.requestData.isSSL = false;
       }
+      // 获取接口下拉框数据
+      if (this.requestData.requestType == REQUEST_TYPE_HTTP) {
+        this.getAllHttpSelection();
+      } else if (this.requestData.requestType == REQUEST_TYPE_WEB_SOCKET) {
+        this.getWebSocketSelection();
+      } else if (this.requestData.requestType == REQUEST_TYPE_UDP) {
+        this.getUDPSelection();
+      } else if (this.requestData.requestType == REQUEST_TYPE_TCP) {
+        this.getTCPSelection();
+      }
+      this.currentId = "";
+      this.requestData.url = "";
+      this.requestData.body = "";
     },
     "requestData.count"() {
       if (

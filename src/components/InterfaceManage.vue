@@ -305,6 +305,7 @@
             </el-table-column>
             <el-table-column prop="id"
                              label="id"
+                             v-if="idShow"
                              align='center'></el-table-column>
             <el-table-column v-for="item in clientInterfaceOpt"
                              :key="item.prop"
@@ -323,7 +324,7 @@
                    :visible.sync="clientInterfaceVisiable"
                    :close-on-click-modal="false">
           <el-form v-model="clientInterfaceForm">
-            <el-form-item :label="selectTitle">
+            <el-form-item v-if="this.requestType == 'HTTP'" :label="selectTitle">
               <el-select v-model="clientInterfaceForm.currentSelect"
                          placeholder="请选择">
                 <el-option v-for="item in selectOption"
@@ -336,12 +337,17 @@
             <el-form-item label="请求名称">
               <el-input v-model="clientInterfaceForm.requestName"></el-input>
             </el-form-item>
+            <el-form-item label="端口"
+                          v-if="this.requestType == 'TCP'">
+              <el-input v-model="clientInterfaceForm.port"></el-input>
+            </el-form-item>
             <el-form-item label="请求地址">
               <el-input v-model="clientInterfaceForm.url"></el-input>
             </el-form-item>
             <el-form-item label="请求JSON">
-            <el-input v-model="clientInterfaceForm.content" type="textaria"></el-input>
-          </el-form-item>
+              <el-input v-model="clientInterfaceForm.content"
+                        type="textaria"></el-input>
+            </el-form-item>
             <el-form-item>
               <el-button type="primary"
                          @click="addClientInterface()">确定</el-button>
@@ -475,7 +481,25 @@ export default {
           prop: "config",
           label: "请求配置",
         },
-
+      ], tcpInterfaceOpt: [
+        {
+          prop: "requestName",
+          label: "请求名称",
+        },
+        {
+          prop: "port",
+          label: "端口",
+        },
+        {
+          prop: "url",
+          label: "请求地址",
+        }, {
+          prop: "content",
+          label: "请求内容",
+        }, {
+          prop: "config",
+          label: "请求配置",
+        },
       ],
       // 请求配置弹窗
       requestConfigDialog: false,
@@ -945,6 +969,9 @@ export default {
       if (this.requestType == 'HTTP') {
         this.getAllHttp();
       }
+      if (this.requestType == "TCP") {
+        this.getAllTcp();
+      }
     }
   },
   computed: {
@@ -961,6 +988,8 @@ export default {
     clientInterfaceOpt: function () {
       if (this.requestType == 'HTTP') {
         return this.httpInterfaceOpt;
+      } else if (this.requestType == 'TCP') {
+        return this.tcpInterfaceOpt;
       }
     },
     clientInterfaceShowData: function () {
