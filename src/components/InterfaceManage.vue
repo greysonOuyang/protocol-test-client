@@ -323,7 +323,7 @@
         <el-dialog title="新增接口"
                    :visible.sync="clientInterfaceVisiable"
                    :close-on-click-modal="false">
-          <el-form v-model="clientInterfaceForm">
+          <el-form v-model="clientInterfaceForm" >
             <el-form-item v-if="this.requestType == 'HTTP'"
                           :label="selectTitle">
               <el-select v-model="clientInterfaceForm.currentSelect"
