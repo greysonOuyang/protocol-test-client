@@ -62,10 +62,21 @@ export default {
   },
   data() {
     return {
+      // 是否需要获取配置项 ,获取成功后设置为false，不再重复获取
+      isGetConfig: true,
+      // 配置中是否有选择框
+      isExistSelect: false,
+      // 有多少个选择框要展示
+      SelectConfigArr: [],
+      //  结构为二维数组, configSelectValueArr[item.index]表示一个选择项的下拉框数组，二维即下拉框数组中的选项
+      configSelectValueArr: [],
+      isExistInput: false,
       // 配置表单展示项
-      // ConfigDataTable: [],
+      inputConfigArr: [],
       // 配置表单
-      ConfigDataForm: {},
+      ConfigDataForm: {
+        select: [],
+      },
       // 接口下拉框当前选择的值
       currentId: "",
       // 接口下拉框数据
@@ -271,7 +282,44 @@ export default {
   created() {
     this.getAllHttpSelection();
   },
+  activated() {},
   methods: {
+    // 当请求形式选择配置的时候，获取当前接口的配置项；
+    getConfigHtml() {
+      if (this.contentFormat == 3) {
+        let data = this.requestInterfaceSelection[0];
+        if (data != null) {
+          // 获取当前接口的配置内容
+          let configList = data.configList;
+          // 计数，用来记住curSeleceValueArr是第几个下拉框的下拉选项
+          var index = 0;
+          for (const v of configList) {
+            // 遍历配置内容中的数据，是input则添加一个输入框到页面；是select则添加一个下拉框
+            if (v.configType == "input") {
+              this.isExistInput = true;
+              this.inputConfigArr.push(v);
+            }
+            if (v.configType == "select") {
+              v.index = index;
+              this.isExistSelect = true;
+              this.SelectConfigArr.push(v);
+              index = index + 1;
+              var configarr = v.configValue.split("；");
+              var i;
+              // 当前下拉框的下拉选项
+              var curSeleceValueArr = [];
+              for (i = 0; i < configarr.length; i++) {
+                var obj = {};
+                obj.key = i;
+                obj.label = configarr[i];
+                curSeleceValueArr.push(obj);
+              }
+              this.configSelectValueArr.push(curSeleceValueArr);
+            }
+          }
+        }
+      }
+    },
     getAllHttpSelection() {
       axios.get("/interfaceCtrl/interface/http/getAll").then((res) => {
         this.requestInterfaceSelection = res.data;
@@ -580,6 +628,7 @@ export default {
                 }
               } else if (this.contentFormat == 3) {
                 // todo
+                reqData.body = ConfigDataForm;
               }
             }
 
@@ -967,13 +1016,9 @@ export default {
   },
   watch: {
     contentFormat(val) {
-      if (this.requestData.requestType == REQUEST_TYPE_HTTP) {
-        if (this.contentFormat == 1) {
-          // let data = this.requestInterfaceSelection[0];
-          // if (data != null) {
-          //   this.requestData.body = data.content;
-          // }
-        }
+      if (this.isGetConfig) {
+        this.getConfigHtml();
+        this.isGetConfig = false;
       }
     },
     currentId(val) {
@@ -1057,10 +1102,10 @@ export default {
     },
   },
   computed: {
-    ConfigDataTable() {
-      var data = this.requestInterfaceSelection[0];
-      return data.configList;
-    },
+    // ConfigDataTable() {
+    //   var data = this.requestInterfaceSelection[0];
+    //   return data.configList;
+    // },
     // 是否显示请求形式配置
     isShowRequestConfig() {
       if (this.change.protocolType == "gzIscs") {

@@ -280,14 +280,30 @@
           </el-form-item>
         </el-col>
       </el-row>
-  <!-- http下的配置 -->
-      <div id="httpConfig" v-if="watchBodyShowWhich() == 'config'" >
-       <el-form-item v-model="ConfigDataForm"
-       v-for="item in ConfigDataTable"
+      <!-- http下的配置 -->
+      <div id="httpConfig"
+           v-if="watchBodyShowWhich() == 'config'">
+        <el-row v-if="isExistInput">
+          <el-form-item v-model="ConfigDataForm"
+                        v-for="item in inputConfigArr"
                         :key="item.configKey"
                         :label="item.configName">
-            <el-input v-model="ConfigDataForm.value"></el-input>
-                        </el-form-item>
+            <el-input v-model="ConfigDataForm.input"></el-input>
+          </el-form-item>
+        </el-row>
+        <el-row v-if="isExistSelect">
+          <el-form-item v-model="ConfigDataForm.select"
+                        v-for="item in SelectConfigArr"
+                        :key="item.configKey"
+                        :label="item.configName">
+            <el-select v-model="ConfigDataForm.select[item.index]">
+              <el-option v-for="item in configSelectValueArr[item.index]"
+                         :key="item.key"
+                         :label="item.label"
+                         :value="item.key"></el-option>
+            </el-select>
+          </el-form-item>
+        </el-row>
       </div>
 
       <!-- 构造Body ModBus 读取操作-->

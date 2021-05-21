@@ -11,8 +11,6 @@
                    :label="item.label"
                    :value="item.prop">
         </el-option>
-        <!-- <el-option value="客户端">客户端</el-option>
-        <el-option value="服务端">服务端</el-option> -->
       </el-select>
     </el-form-item>
 
@@ -299,6 +297,7 @@
                     border
                     stripe
                     style="width: 100%;"
+                    @current-change="handleOneCol"
                     @selection-change="handleSelectionChange">
             <el-table-column type="selection"
                              width="60">
@@ -307,7 +306,8 @@
                              label="id"
                              v-if="idShow"
                              align='center'></el-table-column>
-            <el-table-column v-for="item in clientInterfaceOpt"
+            <el-table-column show-overflow-tooltip="true"
+                             v-for="item in clientInterfaceOpt"
                              :key="item.prop"
                              :label="item.label"
                              :prop="item.prop">
@@ -317,6 +317,16 @@
                 <span slot="content">{{row[item.prop]}}</span>
               </editable-cell>
             </el-table-column>
+            <el-table-column label="请求配置"
+                             width="110"
+                             align='center'>
+              <template slot-scope="scope">
+                <el-button size="mini"
+                           type="info"
+                           @click="viewConfig(scope.$index, scope.row)">查看</el-button>
+              </template>
+            </el-table-column>
+
           </el-table>
         </div>
 
@@ -360,20 +370,19 @@
         <el-dialog title="配置请求"
                    :visible.sync="requestConfigDialog"
                    :close-on-click-modal="false">
-
-          <el-row>
-            <el-table border
-                      :data="configTableData">
-              <el-table-column v-for="item in ConfigOpt"
-                               :prop="item.key"
-                               :label="item.label"
-                               :key="item.key">
-                <!-- <el-input v-model="configTableData.item.key"></el-input> -->
-              </el-table-column>
-            </el-table>
-          </el-row>
           <el-form v-model="configForm">
             <el-row>
+              <el-card class="el-card-custom">
+                <el-table border
+                          :data="configTableData">
+                  <el-table-column v-for="item in ConfigOpt"
+                                   :prop="item.key"
+                                   :label="item.label"
+                                   :key="item.key">
+                    <!-- <el-input v-model="configTableData.item.key"></el-input> -->
+                  </el-table-column>
+                </el-table>
+              </el-card>
               <!-- <el-col :xs="24"
                       :sm="12">
                 
@@ -409,7 +418,8 @@
                   </el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item v-if="configForm.configType != 'input'" label="配置类型对应值">
+              <el-form-item v-if="configForm.configType != 'input'"
+                            label="配置类型对应值">
                 <el-input placeholder="多个值之间用中文分号分割"
                           v-model="configForm.configValue"></el-input>
               </el-form-item>
@@ -423,6 +433,19 @@
                      @click="saveConfigRequest()">保存</el-button>
           <el-button @click="requestConfigDialog = false">取消</el-button>
         </el-dialog>
+      </el-card>
+      <el-card v-if="configTableVisiable"
+               class="el-card-custom"
+               header="请求配置表">
+        <el-table border
+                  :data="clientConfigTableData">
+          <el-table-column v-for="item in ConfigOpt"
+                           :prop="item.key"
+                           :label="item.label"
+                           :key="item.key">
+            <!-- <el-input v-model="configTableData.item.key"></el-input> -->
+          </el-table-column>
+        </el-table>
       </el-card>
     </div>
   </el-form>
@@ -446,9 +469,10 @@ export default {
 
   data () {
     return {
+      clientConfigTableData: [],
+      // 是否展示配置请求表
+      configTableVisiable: false,
       configForm: {},
-      configKey: '',
-      configName: '',
       configTypeOpt: [
         {
           prop: 'select',
@@ -456,10 +480,11 @@ export default {
         }, {
           prop: 'input',
           label: '输入框'
-        }, {
-          prop: 'singleSelect',
-          label: '单选框'
         },
+        // {
+        //   prop: 'singleSelect',
+        //   label: '单选框'
+        // },
       ],
       // 配置项
       ConfigOpt: [
@@ -469,7 +494,7 @@ export default {
         }, {
           key: 'configName',
           label: '配置名称'
-        },{
+        }, {
           key: 'configType',
           label: '配置类型'
         }, {
@@ -520,8 +545,6 @@ export default {
           label: 'PATCH'
         },
       ],
-      // 客户端接口表展示内容
-      // clientInterfaceShowData: [],
       // 客户端接口表数据
       clientInterfaceTable: [],
       httpInterfaceOpt: [
@@ -539,9 +562,6 @@ export default {
         }, {
           prop: "content",
           label: "请求内容",
-        }, {
-          prop: "config",
-          label: "请求配置",
         },
       ], tcpInterfaceOpt: [
         {
@@ -736,8 +756,14 @@ export default {
         this.tableData.splice(this.multipleSelection[0].index - 1, 1);
       }
     },
+    handleOneCol (val) {
+      this.clientConfigTableData = val.configList;
+    },
     selectCurrentCol (val) {
       this.interfaceIdInEdit = val.interfaceId;
+    },
+    viewConfig (index, row) {
+      this.configTableVisiable = true;
     },
     viewOutPut (index, row) {
       this.paramTabVisiable = true;
@@ -999,10 +1025,8 @@ export default {
     // 保存配置请求
     saveConfigRequest () {
       var data = {
-        configList: this.configTableData
-      }
-      for (const v of this.multipleSelection) {
-        data.id = v.id;
+        configList: this.configTableData,
+        id: this.multipleSelection[0].id
       }
       axios.post('/interfaceCtrl/request/config/save', data).then(
         res => {
@@ -1017,7 +1041,9 @@ export default {
     },
     // 添加一行配置项 todo config表单
     addConfigRow () {
-      this.configTableData.push(this.configForm);
+      if (this.configForm != {}) {
+        this.configTableData.push(this.configForm);
+      }
       this.configForm = {}
     }
   },
@@ -1050,22 +1076,12 @@ export default {
         return this.tcpInterfaceOpt;
       }
     },
-    clientInterfaceShowData: function () {
-      var resultArr = [];
-      if (this.requestType == 'HTTP') {
-        var arr = this.clientInterfaceTable;
-        for (const v of arr) {
-
-          var config = '';
-          for (const k of v.configList) {
-            config = k.configName + '\n';
-          }
-          v.config = config;
-          resultArr.push(v);
-        }
-        return resultArr;
-      }
-    },
+    // 客户端接口配置表展示内容
+    // clientConfigTableData: function () {
+    //   var resultArr = [];
+    //   // TODO 获取当前接口配置，返回configList
+    //   return resultArr;
+    // },
   }
 }
 </script>
