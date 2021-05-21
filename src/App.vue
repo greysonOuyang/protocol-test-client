@@ -12,7 +12,7 @@
     <el-header id="pc-bar">
       <a id="logo"
          href="/">
-        <img src="./assets/logo.png"
+        <img src="./assets/yuyilogo.png"
              alt="" />
         <span>Orion-Stress-Tester</span>
       </a>
