@@ -355,7 +355,7 @@
             <el-form-item label="请求地址">
               <el-input v-model="clientInterfaceForm.url"></el-input>
             </el-form-item>
-            <el-form-item label="请求JSON">
+            <el-form-item label="请求内容">
               <el-input v-model="clientInterfaceForm.content"
                         type="textaria"></el-input>
             </el-form-item>
@@ -578,9 +578,6 @@ export default {
         }, {
           prop: "content",
           label: "请求内容",
-        }, {
-          prop: "config",
-          label: "请求配置",
         },
       ],
       // 请求配置弹窗

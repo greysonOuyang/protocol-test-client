@@ -286,21 +286,22 @@
         <el-row v-if="isExistInput">
           <el-form-item v-model="ConfigDataForm"
                         v-for="item in inputConfigArr"
+                        :model="item.configKey"
                         :key="item.configKey"
                         :label="item.configName">
-            <el-input v-model="ConfigDataForm.input"></el-input>
+            <el-input v-model="selectArr[item.configKey]"></el-input>
           </el-form-item>
         </el-row>
         <el-row v-if="isExistSelect">
-          <el-form-item v-model="ConfigDataForm.select"
+          <el-form-item
                         v-for="item in SelectConfigArr"
                         :key="item.configKey"
                         :label="item.configName">
-            <el-select v-model="ConfigDataForm.select[item.index]">
+            <el-select v-model="selectArr[item.configKey]">
               <el-option v-for="item in configSelectValueArr[item.index]"
                          :key="item.key"
                          :label="item.label"
-                         :value="item.key"></el-option>
+                         :value="item.label"></el-option>
             </el-select>
           </el-form-item>
         </el-row>
