@@ -290,6 +290,11 @@
                        type="primary"
                        icon="el-icon-plus"
                        size="mini">配置请求</el-button>
+            <el-button type="danger"
+                       icon="el-icon-delete"
+                       size="mini"
+                       @click="delConfigInterface">删除</el-button>
+<!--                       @click="handleDeleteMulti">删除</el-button>-->
           </el-form-item>
 
           <!-- 客户端的接口表格 -->
@@ -742,6 +747,23 @@ export default {
     handleDeleteMulti () {
       if (this.multipleSelection.length == 0) {
         this.$alert("请先选择要删除的数据", "提示", {
+          confirmButtonText: "确定",
+        });
+      } else {
+        var requestData = [];
+        for (const v of this.multipleSelection) {
+          var data = {
+            id: v.interfaceId
+          }
+          requestData.push(data);
+        }
+        this.doDeleteInterfaceRow(requestData);
+        this.tableData.splice(this.multipleSelection[0].index - 1, 1);
+      }
+    },
+    delConfigInterface () {
+      if (this.multipleSelection.length != 1) {
+        this.$alert("请先选择一个接口数据", "提示", {
           confirmButtonText: "确定",
         });
       } else {
