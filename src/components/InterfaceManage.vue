@@ -584,7 +584,7 @@ export default {
       requestConfigDialog: false,
       // 客户端接口表新增弹窗
       clientInterfaceVisiable: false,
-      requestType: '',
+      requestType: 'HTTP',
       currentMode: 'client',
       requestTypeOpt: [
         {
@@ -689,6 +689,7 @@ export default {
     }
   },
   created () {
+    this.getAllInterfaceInfo();
     this.getInterfaceTableData();
   },
   methods: {
