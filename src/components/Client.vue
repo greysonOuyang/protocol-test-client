@@ -240,20 +240,17 @@
                  @change="loadCertValue" />
         </el-col>
       </el-form-item>
-      <el-form-item v-if="change.protocolType == 'modbus'"
+      <el-form-item
                     label="请求形式:">
         <el-radio-group v-model="contentFormat">
-          <el-radio :label="1">JSON</el-radio>
-          <el-radio :label="2">读取操作参数</el-radio>
-          <el-radio :label="3">控制命令操作</el-radio>
-        </el-radio-group>
-      </el-form-item>
-
-      <el-form-item v-if="isShowRequestConfig"
-                    label="请求形式:">
-        <el-radio-group v-model="contentFormat">
-          <el-radio :label="1">JSON</el-radio>
-          <el-radio :label="3">配置</el-radio>
+          <el-radio v-for="item in contentFormatOpt"
+                    :label="item.value"
+                    :key="item.value"
+                    >{{item.label}}</el-radio>
+<!--          <el-radio :label="1">JSON</el-radio>-->
+<!--          <el-radio :label="2">配置</el-radio>-->
+<!--          <el-radio :label="3">读取操作参数</el-radio>-->
+<!--          <el-radio :label="4">控制命令操作</el-radio>-->
         </el-radio-group>
       </el-form-item>
       <!-- 构造广州综合监控ATS请求信息 -->
@@ -423,7 +420,7 @@
 
       <!-- 请求的body内容 json格式 -->
       <el-form-item :label="$t('requestBody')"
-                    v-if="watchBodyShowWhich() == 'json'">
+                    v-if="watchBodyShowWhich() === 'json'">
         <el-input type="textarea"
                   :placeholder="$t('requestBodyPlaceholder')"
                   v-model="requestData.body"></el-input>

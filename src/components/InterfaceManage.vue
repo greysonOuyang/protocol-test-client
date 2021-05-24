@@ -1080,12 +1080,6 @@ export default {
         return this.tcpInterfaceOpt;
       }
     },
-    // 客户端接口配置表展示内容
-    // clientConfigTableData: function () {
-    //   var resultArr = [];
-    //   // TODO 获取当前接口配置，返回configList
-    //   return resultArr;
-    // },
   }
 }
 </script>
