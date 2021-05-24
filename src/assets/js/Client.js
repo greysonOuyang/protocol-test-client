@@ -277,7 +277,6 @@ export default {
         getAllInterfaceInfo() {
             var data = {};
             data.interfaceType = this.requestData.requestType
-            console.log("类型是：", data.interfaceType);
             axios.post('/interfaceCtrl/interface/getAllInterfaceInfo', data).then(
                 res => {
                     this.requestInterfaceSelection = res.data;
@@ -1025,12 +1024,21 @@ export default {
             let tempArr = [];
             // 如果当前选择了接口，那么可以选择配置形式
             if (this.currentId !== "") {
-                tempArr = [
-                    {
-                        value: "3",
-                        label: '配置'
-                    },
-                ]
+                let data = null;
+                for (const v of this.requestInterfaceSelection) {
+                    if (v.id === this.currentId) {
+                        data = v;
+                    }
+                }
+                let configList = data.configList;
+                if (configList !== null && configList.length !== 0) {
+                    tempArr = [
+                        {
+                            value: "3",
+                            label: '配置'
+                        },
+                    ]
+                }
             } else {
                 if (this.requestData.requestType === REQUEST_TYPE_TCP) {
                     // 是modbus协议
