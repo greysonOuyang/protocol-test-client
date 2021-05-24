@@ -998,6 +998,7 @@ export default {
       data.requestType = this.requestType;
       data.clientInterface = this.clientInterfaceForm;
         data.clientInterface.requestMethod = this.clientInterfaceForm.currentSelect;
+        console.log("类型是",data.requestType)
         axios.post('/interfaceCtrl/interface/save', data);
         this.getAllInterfaceInfo();
         this.clientInterfaceVisiable = false;
@@ -1059,11 +1060,8 @@ export default {
   watch: {
     requestType (val) {
       this.clientInterfaceTable = [];
-      if (this.requestType == 'HTTP') {
+      if (this.requestType != null) {
         this.getAllInterfaceInfo();
-      }
-      if (this.requestType == "TCP") {
-        this.getAllTcp();
       }
     }
   },
