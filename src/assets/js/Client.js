@@ -139,14 +139,14 @@ export default {
                     value: "modbus",
                     label: "ModBus",
                 },
-                {
-                    value: "gzIscs",
-                    label: "广州综合监控",
-                },
-                {
-                    value: "qyAts",
-                    label: "清远ATS",
-                },
+                // {
+                //     value: "gzIscs",
+                //     label: "广州综合监控",
+                // },
+                // {
+                //     value: "qyAts",
+                //     label: "清远ATS",
+                // },
             ],
             gzIscsApplyFrameOpt: [
                 {
@@ -174,8 +174,8 @@ export default {
             outputText: "",
             // 测试程序当前状态 0--客户端 1--服务端
             systemStatus: 0,
-            // 请求内容形式 1--JSON 2--参数 3--配置
-            contentFormat: 1,
+            // 请求内容形式 1--JSON 3--配置
+            contentFormat: "1",
             // 寄存器个数
             registerCount: "",
             // 开始地址
@@ -288,53 +288,28 @@ export default {
         getUDPSelection() {
             this.requestInterfaceSelection = [];
         },
-        // 判断请求内容形式 1--json 2--参数构造 3--预置
-        chooseContentFormat() {
-            if (this.contentFormat == 1) {
-                return 1;
-            } else if (this.contentFormat == 2) {
-                return 2;
-            } else if (this.contentFormat == 3) {
-                return 3;
-            }
-        },
-
         // 判断具体展现哪个
         watchBodyShowWhich() {
-            if (this.requestData.requestType == REQUEST_TYPE_TCP) {
-                if (this.change.protocolType == "modbus") {
-                    if (this.chooseContentFormat() == 1) {
-                        // json
-                        return "json";
-                    } else if (this.chooseContentFormat() == 2) {
-                        // 参数--功能码
-                        return "modbusRead";
-                    } else if (this.chooseContentFormat() == 3) {
-                        // 参数--功能码
-                        return "modbusOperator";
-                    }
-                } else if (this.change.protocolType == "gzIscs") {
-                    if (this.chooseContentFormat() == 1) {
-                        // json
-                        return "json";
-                    } else if (this.chooseContentFormat() == 3) {
-                        // 配置
+            if (this.contentFormat === "1") {
+                return "json";
+            } else if (this.contentFormat === "3") {
+                if (this.requestData.requestType === REQUEST_TYPE_TCP) {
+                    if (this.change.protocolType === "gzIscs") {
                         return "gzIscs";
                     }
-                } else {
-                    return "json";
                 }
-            }
-            if (this.requestData.requestType == REQUEST_TYPE_HTTP) {
-                if (this.chooseContentFormat() == 1) {
-                    // json
-                    return "json";
-                } else if (this.chooseContentFormat() == 3) {
-                    // 配置
+                if (this.requestData.requestType === REQUEST_TYPE_HTTP) {
                     return "config";
                 }
+            } else if (this.contentFormat === "4") {
+                if (this.requestData.requestType === REQUEST_TYPE_TCP) {
+                    return "modbusRead";
+                }
+            }else if (this.contentFormat === "5") {
+                if (this.requestData.requestType === REQUEST_TYPE_TCP) {
+                    return "modbusOperator";
+                }
             }
-
             // 其余的只展示body
             return "json";
         },
@@ -502,54 +477,28 @@ export default {
                 }
             }
 
-            /* 构建请求body 1.是否为TCP? 否--内容为body, 是--1.1请求格式为：
-                      1.1.1json, 内容为body
-                      1.1.2 参数,内容组装为1.2 应用层协议为 1.2.1modbus协议 */
+            // 构建请求body
             function buildBody(trData, reqData) {
-                if (trData.requestType === REQUEST_TYPE_TCP) {
-                    if (this.contentFormat === 1) {
-                        if (trData.body != null && trData.body.trim() != "") {
-                            reqData.body = trData.body.trim();
-                        }
-                    } else if (this.contentFormat === 2) {
-                        if (this.change.protocolType === "modbus") {
-                            var body = {};
-                            var code = this.functionCode;
-                            body.functionCode = this.functionCode;
-                            body.registerCount = this.registerCount;
-                            body.startAddress = this.startAddress;
-                            body.isOpen = this.contextSlect.isOpen;
-                            body.showType = this.contextSlect.showType;
-                            body.limitStyle = this.contextSlect.limitStyle;
-                            body.priority = this.contextSlect.priority;
-                            body.textCont = this.contextSlect.textcont;
-                            body.showTime = this.contextSlect.showTime;
-                            reqData.body = body;
-                        }
-                    } else if (this.contentFormat === 3) {
-                        if (this.change.protocolType === "modbus") {
-                            var body = {};
-                            var code = this.functionCode;
-                            body.functionCode = this.functionCode;
-                            body.registerCount = this.registerCount;
-                            body.startAddress = this.startAddress;
-                            body.isOpen = this.contextSlect.isOpen;
-                            body.showType = this.contextSlect.showType;
-                            body.limitStyle = this.contextSlect.limitStyle;
-                            body.priority = this.contextSlect.priority;
-                            body.textCont = this.contextSlect.textcont;
-                            body.showTime = this.contextSlect.showTime;
-                            reqData.body = body;
-                        }
+                if (this.contentFormat === "1") {
+                    if (trData.body != null && trData.body.trim() !== "") {
+                        reqData.body = trData.body.trim();
                     }
-                } else if (trData.requestType === REQUEST_TYPE_HTTP) {
-                    if (this.contentFormat === 1) {
-                        if (trData.body != null && trData.body.trim() !== "") {
-                            reqData.body = trData.body.trim();
-                        }
-                    } else if (this.contentFormat === 3) {
+                } else if (this.contentFormat === "3") {
+                    if (this.selectArr !== null) {
                         reqData.body = this.selectArr;
                     }
+                } else if (this.contentFormat === "4" || this.contentFormat === "5") {
+                    let body = {};
+                    body.functionCode = this.functionCode;
+                    body.registerCount = this.registerCount;
+                    body.startAddress = this.startAddress;
+                    body.isOpen = this.contextSlect.isOpen;
+                    body.showType = this.contextSlect.showType;
+                    body.limitStyle = this.contextSlect.limitStyle;
+                    body.priority = this.contextSlect.priority;
+                    body.textCont = this.contextSlect.textcont;
+                    body.showTime = this.contextSlect.showTime;
+                    reqData.body = body;
                 }
             }
 
@@ -955,12 +904,6 @@ export default {
         },
     },
     watch: {
-        // contentFormat(val) {
-        //     if (this.isGetConfig) {
-        //         this.getConfigHtml();
-        //         this.isGetConfig = false;
-        //     }
-        // },
         currentId(val) {
             // 重置以下几个数组，目的是重新展示归属于每个接口的配置项
             this.configSelectValueArr = [];
@@ -1082,15 +1025,44 @@ export default {
         },
     },
     computed: {
-        // 是否显示请求形式配置
-        isShowRequestConfig() {
-            if (this.change.protocolType == "gzIscs") {
-                return true;
+        // 计算当前要展示哪些请求形式 具体逻辑看代码注释
+        contentFormatOpt() {
+            let contentFormatOpt = [
+                {
+                    value: "0",
+                    label: 'JSON'
+                }
+            ];
+            let tempArr = [];
+            if (this.requestData.requestType === REQUEST_TYPE_TCP) {
+                // 是modbus协议
+                if (this.change.protocolType === "modbus") {
+                    tempArr = [
+                        {
+                            value: "4",
+                            label: '读取操作参数'
+                        },
+                        {
+                            value: "5",
+                            label: '控制命令操作'
+                        }
+                    ];
+                }
+            } else {
+                // 如果当前选择了接口，那么可以选择配置形式
+                if (this.currentId !== "") {
+                    tempArr = [
+                        {
+                            value: "3",
+                            label: '配置'
+                        },
+                    ]
+                }
             }
-            if (this.requestData.requestType == "HTTP") {
-                return true;
+            if (tempArr.length !== 0) {
+                contentFormatOpt = contentFormatOpt.concat(tempArr);
             }
-            return false;
+            return contentFormatOpt;
         },
         watchResponseHeaderColor() {
             // 获取响应状态
