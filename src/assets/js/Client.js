@@ -97,7 +97,6 @@ export default {
                 textcont: "",
                 showTime: "10",
             },
-
             // 测试接口服务类别
             testSystemOpt: [
                 {
@@ -275,48 +274,6 @@ export default {
     activated() {
     },
     methods: {
-        // 当请求形式选择配置的时候，获取当前接口的配置项；
-        getConfigHtml() {
-            if (this.contentFormat === 3) {
-                let data = null;
-                for (const v of this.requestInterfaceSelection) {
-                    if (v.id === this.currentId) {
-                        data = v;
-                    }
-                }
-                if (data != null) {
-                    // 获取当前接口的配置内容
-                    let configList = data.configList;
-                    // 计数，用来记住curSelectValueArr是第几个下拉框的下拉选项
-                    let index = 0;
-                    for (const v of configList) {
-                        let configType = v.configType;
-                        // 遍历配置内容中的数据，是input则添加一个输入框到页面；是select则添加一个下拉框
-                        if (configType === "input") {
-                            this.isExistInput = true;
-                            this.inputConfigArr.push(v);
-                        }
-                        if (configType === "select") {
-                            v.index = index;
-                            this.isExistSelect = true;
-                            this.SelectConfigArr.push(v);
-                            index = index + 1;
-                            const configArr = v.configValue.split("；");
-                            let i;
-                            // 当前下拉框的下拉选项
-                            let curSelectValueArr = [];
-                            for (i = 0; i < configArr.length; i++) {
-                                let obj = {};
-                                obj.key = i;
-                                obj.label = configArr[i];
-                                curSelectValueArr.push(obj);
-                            }
-                            this.configSelectValueArr.push(curSelectValueArr);
-                        }
-                    }
-                }
-            }
-        },
         getAllHttpSelection() {
             axios.get("/interfaceCtrl/interface/http/getAll").then((res) => {
                 this.requestInterfaceSelection = res.data;
