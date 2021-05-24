@@ -323,7 +323,7 @@
                              label="id"
                              v-if="idShow"
                              align='center'></el-table-column>
-            <el-table-column show-overflow-tooltip="true"
+            <el-table-column :show-overflow-tooltip=true
                              v-for="item in clientInterfaceOpt"
                              :key="item.prop"
                              :label="item.label"
@@ -1028,7 +1028,6 @@ export default {
       console.log("类型是：", data.interfaceType);
       axios.post('/interfaceCtrl/interface/getAllInterfaceInfo', data).then(
           res => {
-            console.log("返回数据是：" + res.data)
             this.clientInterfaceTable = res.data;
           }
       );
