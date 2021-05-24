@@ -21,28 +21,34 @@
         <div style="margin-bottom: 20px">
           <el-button @click="btnAddPlanInfo()"
                      type="primary"
-                     size="mini">添加计划信息</el-button>
+                     size="mini">添加计划信息
+          </el-button>
           <el-button type="primary"
                      icon="el-icon-download"
                      size="mini"
-                     @click="downLoadExcelTabVisiable">模板文件下载</el-button>
+                     @click="downLoadExcelTabVisiable">模板文件下载
+          </el-button>
           <el-button @click="dialogTableVisible = true"
                      type="primary"
                      icon="el-icon-plus"
-                     size="mini">新增</el-button>
+                     size="mini">新增
+          </el-button>
           <el-button type="danger"
                      icon="el-icon-delete"
                      size="mini"
-                     @click="handleDeleteMulti">删除</el-button>
+                     @click="handleDeleteMulti">删除
+          </el-button>
           <el-button type="primary"
                      size="mini"
                      icon="el-icon-upload2"
-                     @click="uploadExcelTabVisiable = true">导入</el-button>
+                     @click="uploadExcelTabVisiable = true">导入
+          </el-button>
 
           <el-button type="success"
                      icon="el-icon-delete"
                      size="mini"
-                     @click="handleClearMulti">清空</el-button>
+                     @click="handleClearMulti">清空
+          </el-button>
         </div>
         <!-- 接口表 -->
         <el-table :data="tableData"
@@ -79,7 +85,8 @@
             <template slot-scope="scope">
               <el-button size="mini"
                          type="info"
-                         @click="viewInPut(scope.$index, scope.row)">查看</el-button>
+                         @click="viewInPut(scope.$index, scope.row)">查看
+              </el-button>
             </template>
           </el-table-column>
 
@@ -89,7 +96,8 @@
             <template slot-scope="scope">
               <el-button size="mini"
                          type="info"
-                         @click="viewOutPut(scope.$index, scope.row)">查看</el-button>
+                         @click="viewOutPut(scope.$index, scope.row)">查看
+              </el-button>
             </template>
           </el-table-column>
 
@@ -133,7 +141,8 @@
             </el-form-item>
             <el-form-item>
               <el-button type="primary"
-                         @click="addInterfaceConfig()">确定</el-button>
+                         @click="addInterfaceConfig()">确定
+              </el-button>
               <el-button @click="dialogTableVisible = false">取消</el-button>
             </el-form-item>
           </el-form>
@@ -155,7 +164,8 @@
             </el-form-item>
             <el-form-item>
               <el-button type="primary"
-                         @click="addPlanInfo()">确定</el-button>
+                         @click="addPlanInfo()">确定
+              </el-button>
               <el-button @click="addDialogVisible = false">取消</el-button>
             </el-form-item>
           </el-form>
@@ -177,12 +187,14 @@
             <i class="el-icon-upload"></i>
             <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
           </el-upload>
-          <br />
+          <br/>
           <el-button size="small"
                      type="primary"
-                     @click="uploadFile">立即上传</el-button>
+                     @click="uploadFile">立即上传
+          </el-button>
           <el-button size="small"
-                     @click="cancelUpload()">取消</el-button>
+                     @click="cancelUpload()">取消
+          </el-button>
         </el-dialog>
       </el-card>
 
@@ -202,16 +214,19 @@
                      @click="saveParamData"
                      type="primary"
                      icon="el-icon-check"
-                     size="mini">保存</el-button>
+                     size="mini">保存
+          </el-button>
           <el-button @click="cancelParamEdit"
                      v-if="editModeEnabled"
                      type="primary"
                      icon="el-icon-check"
-                     size="mini">取消</el-button>
+                     size="mini">取消
+          </el-button>
           <el-button type="primary"
                      size="mini"
                      icon="el-icon-plus"
-                     @click="handleAddDetails">添加</el-button>
+                     @click="handleAddDetails">添加
+          </el-button>
 
         </div>
 
@@ -227,7 +242,7 @@
             <editable-cell slot-scope="{row}"
                            :can-edit="editModeEnabled"
                            v-model="row[item.prop]">
-              <span slot="content">{{row[item.prop]}}</span>
+              <span slot="content">{{ row[item.prop] }}</span>
             </editable-cell>
           </el-table-column>
           <el-table-column label="参数类型">
@@ -240,7 +255,7 @@
               <el-tag size="medium"
                       type="primary"
                       slot="content">
-                {{row.type}}
+                {{ row.type }}
               </el-tag>
 
               <template slot="edit-component-slot">
@@ -285,11 +300,13 @@
             <el-button @click="clientInterfaceVisiable = true"
                        type="primary"
                        icon="el-icon-plus"
-                       size="mini">新增</el-button>
+                       size="mini">新增
+            </el-button>
             <el-button @click="btnConfigRequest()"
                        type="primary"
                        icon="el-icon-plus"
-                       size="mini">配置请求</el-button>
+                       size="mini">配置请求
+            </el-button>
           </el-form-item>
 
           <!-- 客户端的接口表格 -->
@@ -314,7 +331,7 @@
               <editable-cell slot-scope="{row}"
                              :can-edit="editModeEnabled"
                              v-model="row[item.prop]">
-                <span slot="content">{{row[item.prop]}}</span>
+                <span slot="content">{{ row[item.prop] }}</span>
               </editable-cell>
             </el-table-column>
             <el-table-column label="请求配置"
@@ -323,7 +340,8 @@
               <template slot-scope="scope">
                 <el-button size="mini"
                            type="info"
-                           @click="viewConfig(scope.$index, scope.row)">查看</el-button>
+                           @click="viewConfig(scope.$index, scope.row)">查看
+                </el-button>
               </template>
             </el-table-column>
 
@@ -361,7 +379,8 @@
             </el-form-item>
             <el-form-item>
               <el-button type="primary"
-                         @click="addClientInterface()">确定</el-button>
+                         @click="addClientInterface()">确定
+              </el-button>
               <el-button @click="clientInterfaceVisiable = false">取消</el-button>
             </el-form-item>
           </el-form>
@@ -428,15 +447,16 @@
           </el-form>
 
           <el-button type="primary"
-                     @click="addConfigRow()">添加配置</el-button>
+                     @click="addConfigRow()">添加配置
+          </el-button>
           <el-button type="primary"
-                     @click="saveConfigRequest()">保存</el-button>
+                     @click="saveConfigRequest()">保存
+          </el-button>
           <el-button @click="cancel()">取消</el-button>
         </el-dialog>
       </el-card>
-      <el-card v-if="configTableVisiable"
-               class="el-card-custom"
-               header="请求配置表">
+      <el-dialog
+          :visible.sync="configTableVisiable" title="请求配置表">
         <el-table border
                   :data="clientConfigTableData">
           <el-table-column v-for="item in ConfigOpt"
@@ -446,7 +466,8 @@
             <!-- <el-input v-model="configTableData.item.key"></el-input> -->
           </el-table-column>
         </el-table>
-      </el-card>
+      </el-dialog>
+
     </div>
   </el-form>
 </template>
@@ -461,13 +482,13 @@ export default {
   components: {
     EditableCell
   },
-  activated () {
+  activated() {
     this.getInterfaceTableData();
   },
-  mounted () {
+  mounted() {
   },
 
-  data () {
+  data() {
     return {
       clientConfigTableData: [],
       // 是否展示配置请求表
@@ -664,8 +685,7 @@ export default {
         }
       ],
       // 接口表数据
-      tableData: [
-      ],
+      tableData: [],
       /* 分页相关 */
       currentPage1: 1,
       pageSize: 10,
@@ -688,18 +708,18 @@ export default {
       paramTable: [],
     }
   },
-  created () {
+  created() {
     this.getAllInterfaceInfo();
     this.getInterfaceTableData();
   },
   methods: {
     // 取消参数表编辑
-    cancelParamEdit () {
+    cancelParamEdit() {
       this.editModeEnabled = false;
       this.paramTable = [];
       this.getInterfaceTableData();
     },
-    saveParamData () {
+    saveParamData() {
       var requestData = {};
       requestData.interfaceId = this.interfaceIdInEdit;
       if (this.paramType == 'input') {
@@ -711,33 +731,33 @@ export default {
       this.$message.success('保存成功');
       this.editModeEnabled = false;
     },
-    handleClearMulti () {
+    handleClearMulti() {
       this.$confirm('接口配置不易，请主人三思而后行，真的要清空嘛?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() =>
-        axios.post('/interfaceCtrl/interface/deleteAll').then(
-          response => {
-            if (this.isRequestSuccess(response)) {
-              this.$message.success('清空成功，请重新导入数据');
-              this.getInterfaceTableData();
-            } else {
-              this.$message.success('删除失败，请重新尝试');
-            }
-          }
-        ).catch(() => {
-          this.$message({
-            type: 'info',
-            message: '已取消删除'
-          });
-        }))
+          axios.post('/interfaceCtrl/interface/deleteAll').then(
+              response => {
+                if (this.isRequestSuccess(response)) {
+                  this.$message.success('清空成功，请重新导入数据');
+                  this.getInterfaceTableData();
+                } else {
+                  this.$message.success('删除失败，请重新尝试');
+                }
+              }
+          ).catch(() => {
+            this.$message({
+              type: 'info',
+              message: '已取消删除'
+            });
+          }))
 
     },
     /**
      * 选中多行删除
      */
-    handleDeleteMulti () {
+    handleDeleteMulti() {
       if (this.multipleSelection.length == 0) {
         this.$alert("请先选择要删除的数据", "提示", {
           confirmButtonText: "确定",
@@ -754,28 +774,28 @@ export default {
         this.tableData.splice(this.multipleSelection[0].index - 1, 1);
       }
     },
-    handleOneCol (val) {
+    handleOneCol(val) {
       this.clientConfigTableData = val.configList;
     },
-    selectCurrentCol (val) {
+    selectCurrentCol(val) {
       this.interfaceIdInEdit = val.interfaceId;
     },
-    viewConfig (index, row) {
+    viewConfig(index, row) {
       this.configTableVisiable = true;
     },
-    viewOutPut (index, row) {
+    viewOutPut(index, row) {
       this.paramTabVisiable = true;
       this.paramHeader = '输出参数';
       this.paramTable = row.output;
       this.paramType = 'output';
     },
-    viewInPut (index, row) {
+    viewInPut(index, row) {
       this.paramTabVisiable = true;
       this.paramHeader = '输入参数';
       this.paramTable = row.input;
       this.paramType = 'input';
     },
-    handleAddDetails () {
+    handleAddDetails() {
       this.editModeEnabled = true;
       if (this.paramTable == undefined) {
         this.paramTable = new Array();
@@ -788,15 +808,15 @@ export default {
       });
     },
     /* 多选interface表row */
-    handleSelectionChange (val) {
+    handleSelectionChange(val) {
       this.multipleSelection = val;
     },
     // 文件状态改变时的钩子
-    fileChange (file, fileList) {
+    fileChange(file, fileList) {
       this.fileList.push(file.raw);
     },
     // 上传文件之前的钩子, 参数为上传的文件,若返回 false 或者返回 Promise 且被 reject，则停止上传
-    beforeUploadFile (file) {
+    beforeUploadFile(file) {
       let extension = file.name.substring(file.name.lastIndexOf('.') + 1);
       let size = file.size / 1024 / 1024;
       if (extension !== 'xlsx') {
@@ -807,26 +827,26 @@ export default {
       }
     },
     // 文件超出个数限制时的钩子
-    exceedFile (files, fileList) {
+    exceedFile(files, fileList) {
       this.$message.warning(`只能选择 ${this.limitNum} 个文件，当前共选择了 ${files.length + fileList.length} 个`);
     },
     // 文件上传成功时的钩子
-    handleSuccess (res, file, fileList) {
+    handleSuccess(res, file, fileList) {
       this.$message.success('文件上传成功');
     },
     // 文件上传失败时的钩子
-    handleError (err, file, fileList) {
+    handleError(err, file, fileList) {
       this.$message.error('文件上传失败');
     },
     UploadUrl: function () {
       // 因为action参数是必填项，我们使用二次确认进行文件上传时，直接填上传文件的url会因为没有参数导致api报404，所以这里将action设置为一个返回为空的方法就行，避免抛错
       return ""
     },
-    downLoadExcelTabVisiable () {
+    downLoadExcelTabVisiable() {
       var data = {
         interfaceName: "planInfo"
       }
-      axios.post("/api/excelUtil/exportExcel", data, { responseType: 'arraybuffer' }).then(res => {
+      axios.post("/api/excelUtil/exportExcel", data, {responseType: 'arraybuffer'}).then(res => {
         // 处理返回的文件流
         // let blob = new Blob([res.data], {type: "application/vnd.ms-excel"}); 
 
@@ -834,13 +854,13 @@ export default {
 
         // window.location.href = objectUrl; 
         const content = res.data;
-        const blob = new Blob([res.data], { type: "application/vnd.ms-excel" });
+        const blob = new Blob([res.data], {type: "application/vnd.ms-excel"});
         var date = "表格数据模板" +
-          new Date().getFullYear() +
-          "" +
-          (new Date().getMonth() + 1) +
-          "" +
-          new Date().getDate();
+            new Date().getFullYear() +
+            "" +
+            (new Date().getMonth() + 1) +
+            "" +
+            new Date().getDate();
         const fileName = date + name + ".xls";
         if ("download" in document.createElement("a")) {
           // 非IE下载
@@ -859,7 +879,6 @@ export default {
       })
 
 
-
       // .then(
       //   response => {
       //     if (this.isRequestSuccess(response)) {
@@ -872,7 +891,7 @@ export default {
       //   }
       // )
     },
-    uploadFile () {
+    uploadFile() {
       if (this.fileList.length === 0) {
         this.$message.warning('请上传文件');
       } else {
@@ -886,27 +905,27 @@ export default {
           }
         }
         axios.post("/api/excelUtil/importExcel", form, config).then(
-          response => {
-            if (this.isRequestSuccess(response)) {
-              this.$message.success('导入成功');
-              this.fileList = [];
-              this.getInterfaceTableData();
-            } else {
-              this.$message.success('导入失败');
+            response => {
+              if (this.isRequestSuccess(response)) {
+                this.$message.success('导入成功');
+                this.fileList = [];
+                this.getInterfaceTableData();
+              } else {
+                this.$message.success('导入失败');
+              }
             }
-          }
         )
       }
       this.uploadExcelTabVisiable = false;
     },
-    cancelUpload () {
+    cancelUpload() {
       this.uploadExcelTabVisiable = false;
       if (this.fileList.length != 0) {
         this.fileList = [];
       }
     },
     // 判断请求是否成功
-    isRequestSuccess (data) {
+    isRequestSuccess(data) {
       var res = JSON.stringify(data.data);
       var result = JSON.parse(res);
       if (result.result == "SUCCESS") {
@@ -916,18 +935,18 @@ export default {
       }
     },
     // 获取接口表数据
-    getInterfaceTableData () {
+    getInterfaceTableData() {
       axios.get(
-        '/interfaceCtrl/interface/findAll'
+          '/interfaceCtrl/interface/findAll'
       ).then(response => {
         this.tableData = response.data;
       });
     },
-    handleEdit (index, row) {
+    handleEdit(index, row) {
       // TODO
       console.log(index, row);
     },
-    handleDelete (index, row) {
+    handleDelete(index, row) {
       var arr = [];
       var data = {
         id: row.interfaceId
@@ -937,19 +956,19 @@ export default {
       this.dialogTableVisible = false;
     },
     /* 删除接口表一行数据 */
-    doDeleteInterfaceRow (arr) {
+    doDeleteInterfaceRow(arr) {
       axios.post('/interfaceCtrl/interface/delete', arr).then(
-        response => {
-          if (this.isRequestSuccess(response)) {
-            this.$message.success('删除成功');
-            this.getInterfaceTableData();
-          } else {
-            this.$message.error('删除失败');
+          response => {
+            if (this.isRequestSuccess(response)) {
+              this.$message.success('删除成功');
+              this.getInterfaceTableData();
+            } else {
+              this.$message.error('删除失败');
+            }
           }
-        }
       );
     },
-    btnAddPlanInfo () {
+    btnAddPlanInfo() {
       if (this.multipleSelection.length == 0) {
         this.$alert("请先选择一个接口数据", "提示", {
           confirmButtonText: "确定",
@@ -959,7 +978,7 @@ export default {
       }
     },
     // 基于一个计划信息接口模板, 添加一个计划信息接口，
-    addPlanInfo () {
+    addPlanInfo() {
       var requestData = this.interfaceData;
       requestData.interfaceType = "计划信息";
       for (const v of this.multipleSelection) {
@@ -972,48 +991,49 @@ export default {
       this.addDialogVisible = false;
     },
     // 添加一个接口
-    addInterfaceConfig () {
+    addInterfaceConfig() {
       var data = {
         interfaceType: this.interfaceData.interfaceType,
         interfaceName: this.interfaceData.interfaceName
       }
       axios.post('/interfaceCtrl/interface/add', data).then(
-        response => {
-          if (this.isRequestSuccess(response)) {
-            this.$message.success('创建成功');
-            this.getInterfaceTableData();
-          } else {
-            this.$message.success('创建失败');
+          response => {
+            if (this.isRequestSuccess(response)) {
+              this.$message.success('创建成功');
+              this.getInterfaceTableData();
+            } else {
+              this.$message.success('创建失败');
+            }
           }
-        }
       )
       // 重置formData
       this.interfaceData = {}
-      this.dialogTableVisible = false;y
+      this.dialogTableVisible = false;
+      y
     },
-    addClientInterface () {
+    addClientInterface() {
       var data = {};
       data.requestType = this.requestType;
       data.clientInterface = this.clientInterfaceForm;
-        data.clientInterface.requestMethod = this.clientInterfaceForm.currentSelect;
-        console.log("类型是",data.requestType)
-        axios.post('/interfaceCtrl/interface/save', data);
-        this.getAllInterfaceInfo();
-        this.clientInterfaceVisiable = false;
-        this.clientInterfaceForm = {}
+      data.clientInterface.requestMethod = this.clientInterfaceForm.currentSelect;
+      console.log("类型是", data.requestType)
+      axios.post('/interfaceCtrl/interface/save', data);
+      this.getAllInterfaceInfo();
+      this.clientInterfaceVisiable = false;
+      this.clientInterfaceForm = {}
     },
-    getAllInterfaceInfo () {
+    getAllInterfaceInfo() {
       var data = {};
       data.interfaceType = this.requestType
-       console.log("类型是：",data.interfaceType);
-       axios.post('/interfaceCtrl/interface/getAllInterfaceInfo',data).then(
-        res => {
-          console.log("返回数据是："+res.data)
-          this.clientInterfaceTable = res.data;
-        }
+      console.log("类型是：", data.interfaceType);
+      axios.post('/interfaceCtrl/interface/getAllInterfaceInfo', data).then(
+          res => {
+            console.log("返回数据是：" + res.data)
+            this.clientInterfaceTable = res.data;
+          }
       );
     },
-    btnConfigRequest () {
+    btnConfigRequest() {
       if (this.multipleSelection.length != 1) {
         this.$alert("请先选择一个接口数据", "提示", {
           confirmButtonText: "确定",
@@ -1023,32 +1043,32 @@ export default {
       }
     },
     // 保存配置请求
-    saveConfigRequest () {
+    saveConfigRequest() {
       var data = {
         configList: this.configTableData,
         id: this.multipleSelection[0].id
       }
-      console.log("configList"+data.configList)
+      console.log("configList" + data.configList)
       axios.post('/interfaceCtrl/request/config/save', data).then(
-        res => {
-          if (this.isRequestSuccess(res)) {
-            this.$message.success('保存成功');
-            this.getAllInterfaceInfo();
+          res => {
+            if (this.isRequestSuccess(res)) {
+              this.$message.success('保存成功');
+              this.getAllInterfaceInfo();
 
-          } else {
-            this.$message.success('保存失败');
+            } else {
+              this.$message.success('保存失败');
+            }
           }
-        }
       );
       this.requestConfigDialog = false;
       this.configTableData = [];
     },
-    cancel(){
+    cancel() {
       this.requestConfigDialog = false;
       this.configTableData = [];
     },
     // 添加一行配置项 todo config表单
-    addConfigRow () {
+    addConfigRow() {
       if (this.configForm != {}) {
         this.configTableData.push(this.configForm);
       }
@@ -1056,7 +1076,7 @@ export default {
     }
   },
   watch: {
-    requestType (val) {
+    requestType(val) {
       this.clientInterfaceTable = [];
       if (this.requestType != null) {
         this.getAllInterfaceInfo();
