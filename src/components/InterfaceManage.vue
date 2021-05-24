@@ -431,7 +431,7 @@
                      @click="addConfigRow()">添加配置</el-button>
           <el-button type="primary"
                      @click="saveConfigRequest()">保存</el-button>
-          <el-button @click="requestConfigDialog = false">取消</el-button>
+          <el-button @click="cancel()">取消</el-button>
         </el-dialog>
       </el-card>
       <el-card v-if="configTableVisiable"
@@ -991,24 +991,25 @@ export default {
       )
       // 重置formData
       this.interfaceData = {}
-      this.dialogTableVisible = false;
+      this.dialogTableVisible = false;y
     },
     addClientInterface () {
       var data = {};
       data.requestType = this.requestType;
       data.clientInterface = this.clientInterfaceForm;
-      if (this.requestType == 'HTTP') {
         data.clientInterface.requestMethod = this.clientInterfaceForm.currentSelect;
         axios.post('/interfaceCtrl/interface/save', data);
-        this.getAllHttp();
-
-      }
-      this.clientInterfaceVisiable = false;
-      this.clientInterfaceForm = {}
+        this.getAllInterfaceInfo();
+        this.clientInterfaceVisiable = false;
+        this.clientInterfaceForm = {}
     },
-    getAllHttp () {
-      axios.get('/interfaceCtrl/interface/http/getAll').then(
+    getAllInterfaceInfo () {
+      var data = {};
+      data.interfaceType = this.requestType
+       console.log("类型是：",data.interfaceType);
+       axios.post('/interfaceCtrl/interface/getAllInterfaceInfo',data).then(
         res => {
+          console.log("返回数据是："+res.data)
           this.clientInterfaceTable = res.data;
         }
       );
@@ -1028,16 +1029,24 @@ export default {
         configList: this.configTableData,
         id: this.multipleSelection[0].id
       }
+      console.log("configList"+data.configList)
       axios.post('/interfaceCtrl/request/config/save', data).then(
         res => {
           if (this.isRequestSuccess(res)) {
             this.$message.success('保存成功');
-            this.getInterfaceTableData();
+            this.getAllInterfaceInfo();
+
           } else {
             this.$message.success('保存失败');
           }
         }
       );
+      this.requestConfigDialog = false;
+      this.configTableData = [];
+    },
+    cancel(){
+      this.requestConfigDialog = false;
+      this.configTableData = [];
     },
     // 添加一行配置项 todo config表单
     addConfigRow () {
@@ -1051,7 +1060,7 @@ export default {
     requestType (val) {
       this.clientInterfaceTable = [];
       if (this.requestType == 'HTTP') {
-        this.getAllHttp();
+        this.getAllInterfaceInfo();
       }
       if (this.requestType == "TCP") {
         this.getAllTcp();

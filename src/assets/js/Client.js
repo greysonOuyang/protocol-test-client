@@ -321,7 +321,7 @@ export default {
       }
     },
     getAllHttpSelection() {
-      axios.get("/interfaceCtrl/interface/http/getAll").then((res) => {
+      axios.get("/interfaceCtrl/interface/getAllInterfaceInfo").then((res) => {
         this.requestInterfaceSelection = res.data;
       });
     },
