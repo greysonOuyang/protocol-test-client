@@ -294,7 +294,10 @@
                        icon="el-icon-delete"
                        size="mini"
                        @click="delConfigInterface">删除</el-button>
-<!--                       @click="handleDeleteMulti">删除</el-button>-->
+            <el-button type="danger"
+                       icon="el-icon-delete"
+                       size="mini"
+                       @click="clearInterfaceConfig">清空</el-button>
           </el-form-item>
 
           <!-- 客户端的接口表格 -->
@@ -761,20 +764,49 @@ export default {
         this.tableData.splice(this.multipleSelection[0].index - 1, 1);
       }
     },
+    clearInterfaceConfig () {
+      this.$confirm('接口配置不易，请主人三思而后行，真的要清空嘛?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() =>
+          axios.post('/interfaceCtrl/interface/delAllInterfaceInfo').then(
+              response => {
+                if (this.isRequestSuccess(response)) {
+                  this.$message.success('清空成功，请重新录入数据');
+                  this.getAllInterfaceInfo();
+                } else {
+                  this.$message.success('删除失败，请重新尝试');
+                }
+              }
+          ).catch(() => {
+            this.$message({
+              type: 'info',
+              message: '已取消删除'
+            });
+          }))
+
+    },
     delConfigInterface () {
       if (this.multipleSelection.length != 1) {
         this.$alert("请先选择一个接口数据", "提示", {
           confirmButtonText: "确定",
         });
       } else {
-        var requestData = [];
-        for (const v of this.multipleSelection) {
           var data = {
-            id: v.interfaceId
+            id: this.multipleSelection[0].id
           }
-          requestData.push(data);
-        }
-        this.doDeleteInterfaceRow(requestData);
+       // this.doDeleteInterfaceRow(requestData);
+        axios.post('/interfaceCtrl/interface/delInterface', data).then(
+            response => {
+              if (this.isRequestSuccess(response)) {
+                this.$message.success('删除成功');
+                this.getAllInterfaceInfo();
+              } else {
+                this.$message.error('删除失败');
+              }
+            }
+        );
         this.tableData.splice(this.multipleSelection[0].index - 1, 1);
       }
     },
@@ -1021,8 +1053,11 @@ export default {
       data.clientInterface = this.clientInterfaceForm;
         data.clientInterface.requestMethod = this.clientInterfaceForm.currentSelect;
         console.log("类型是",data.requestType)
-        axios.post('/interfaceCtrl/interface/save', data);
-        this.getAllInterfaceInfo();
+        axios.post('/interfaceCtrl/interface/save', data).then(
+            res => {
+                this.getAllInterfaceInfo();
+            }
+        );
         this.clientInterfaceVisiable = false;
         this.clientInterfaceForm = {}
     },
