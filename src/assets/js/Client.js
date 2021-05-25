@@ -727,7 +727,6 @@ export default {
                                     resData.body
                                 );
                             }
-                            var dataMsg = JSON.stringify(responseMsg);
                             var content = JSON.stringify(resData.body);
 
                             var responnseData = {
@@ -853,16 +852,12 @@ export default {
             var msgEl = document.createElement("p");
             msgEl.style.marginTop = "3px";
             msgEl.innerText = msg;
-            // msgEl.appendChild(jsonEl);
 
             var response = document.createElement("div");
             response.appendChild(msgEl);
             response.appendChild(jsonEl);
 
             el.appendChild(response);
-
-            // el.appendChild(jsonEl);
-
             this.consoleInfos.push(el);
         },
         /**
@@ -878,10 +873,6 @@ export default {
                 }
                 const dom = document.getElementById("response-body");
                 dom.appendChild(fragment);
-                // 追加json控制信息
-                // let dialogClass = Vue.extend(JsonConsole);
-                // this.jsonConsoleComp = new dialogClass().$mount();
-                // dom.appendChild(jsonConsoleComp.$el);
                 dom.scrollTop = dom.scrollHeight;
             } else if (this.consoleInfos.length > 0) {
                 const fragment = document.createDocumentFragment();
@@ -948,7 +939,6 @@ export default {
                     }
                 }
             }
-
         },
         "requestData.url"(val) {
             if (
@@ -979,6 +969,7 @@ export default {
             } else if (this.requestData.requestType != REQUEST_TYPE_TCP) {
                 this.requestData.isSSL = false;
             }
+            this.getAllInterfaceInfo();
             this.currentId = "";
             this.requestData.url = "";
             this.requestData.body = "";
@@ -1022,7 +1013,7 @@ export default {
                 }
             ];
             let tempArr = [];
-            // 如果当前选择了接口，那么可以选择配置形式
+            // 如果当前选择了接口且接口存在配置项，那么可以选择配置形式
             if (this.currentId !== "") {
                 let data = null;
                 for (const v of this.requestInterfaceSelection) {
