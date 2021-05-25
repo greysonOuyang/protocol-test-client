@@ -214,8 +214,6 @@ export default {
             requestData: {
                 //请求的类型
                 requestType: REQUEST_TYPE_HTTP,
-                //WebSocket的版本
-                webSocketVersion: "V13",
                 //WebSocket子协议
                 subProtocols: [],
                 //SNI 服务器名称
@@ -562,7 +560,6 @@ export default {
                         setDefaultValue.call(this, trData, reqData);
 
                         if (trData.requestType === REQUEST_TYPE_WEB_SOCKET) {
-                            reqData.webSocketVersion = trData.webSocketVersion;
                             if (trData.subProtocols.length > 0) {
                                 var subPs = [];
                                 for (var i = 0; i < trData.subProtocols.length; i++) {

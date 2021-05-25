@@ -426,18 +426,6 @@
                   v-model="requestData.body"></el-input>
       </el-form-item>
 
-      <!-- WebSocket的版本 -->
-      <el-form-item label="WebSocketVersion"
-                    v-if="requestData.requestType == 'WebSocket'">
-        <el-select v-model="requestData.webSocketVersion"
-                   placeholder="请选择"
-                   style="width: 100%;">
-          <el-option value="V00">V00</el-option>
-          <el-option value="V07">V07</el-option>
-          <el-option value="V08">V08</el-option>
-          <el-option value="V13">V13</el-option>
-        </el-select>
-      </el-form-item>
       <!--  WebSocket的SubProtocols -->
       <el-form-item label="SubProtocols"
                     v-if="requestData.requestType == 'WebSocket'">
