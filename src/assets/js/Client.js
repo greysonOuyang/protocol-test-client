@@ -97,7 +97,6 @@ export default {
                 textcont: "",
                 showTime: "10",
             },
-
             // 测试接口服务类别
             testSystemOpt: [
                 {
@@ -140,14 +139,14 @@ export default {
                     value: "modbus",
                     label: "ModBus",
                 },
-                {
-                    value: "gzIscs",
-                    label: "广州综合监控",
-                },
-                {
-                    value: "qyAts",
-                    label: "清远ATS",
-                },
+                // {
+                //     value: "gzIscs",
+                //     label: "广州综合监控",
+                // },
+                // {
+                //     value: "qyAts",
+                //     label: "清远ATS",
+                // },
             ],
             gzIscsApplyFrameOpt: [
                 {
@@ -175,8 +174,8 @@ export default {
             outputText: "",
             // 测试程序当前状态 0--客户端 1--服务端
             systemStatus: 0,
-            // 请求内容形式 1--JSON 2--参数 3--配置
-            contentFormat: 1,
+            // 请求内容形式 1--JSON 3--配置
+            contentFormat: "1",
             // 寄存器个数
             registerCount: "",
             // 开始地址
@@ -270,114 +269,43 @@ export default {
         };
     },
     created() {
-        this.getAllHttpSelection();
+        this.getAllInterfaceInfo();
     },
     activated() {
     },
     methods: {
-        // 当请求形式选择配置的时候，获取当前接口的配置项；
-        getConfigHtml() {
-            if (this.contentFormat === 3) {
-                let data = null;
-                for (const v of this.requestInterfaceSelection) {
-                    if (v.id === this.currentId) {
-                        data = v;
-                    }
+        getAllInterfaceInfo() {
+            var data = {};
+            data.interfaceType = this.requestData.requestType
+            console.log("类型是：", data.interfaceType);
+            axios.post('/interfaceCtrl/interface/getAllInterfaceInfo', data).then(
+                res => {
+                    this.requestInterfaceSelection = res.data;
                 }
-                if (data != null) {
-                    // 获取当前接口的配置内容
-                    let configList = data.configList;
-                    // 计数，用来记住curSelectValueArr是第几个下拉框的下拉选项
-                    let index = 0;
-                    for (const v of configList) {
-                        let configType = v.configType;
-                        // 遍历配置内容中的数据，是input则添加一个输入框到页面；是select则添加一个下拉框
-                        if (configType === "input") {
-                            this.isExistInput = true;
-                            this.inputConfigArr.push(v);
-                        }
-                        if (configType === "select") {
-                            v.index = index;
-                            this.isExistSelect = true;
-                            this.SelectConfigArr.push(v);
-                            index = index + 1;
-                            const configArr = v.configValue.split("；");
-                            let i;
-                            // 当前下拉框的下拉选项
-                            let curSelectValueArr = [];
-                            for (i = 0; i < configArr.length; i++) {
-                                let obj = {};
-                                obj.key = i;
-                                obj.label = configArr[i];
-                                curSelectValueArr.push(obj);
-                            }
-                            this.configSelectValueArr.push(curSelectValueArr);
-                        }
-                    }
-                }
-            }
+            );
         },
-        getAllHttpSelection() {
-            axios.get("/interfaceCtrl/interface/http/getAll").then((res) => {
-                this.requestInterfaceSelection = res.data;
-            });
-        },
-        getWebSocketSelection() {
-            this.requestInterfaceSelection = [];
-        },
-        getTCPSelection() {
-            this.requestInterfaceSelection = [];
-        },
-        getUDPSelection() {
-            this.requestInterfaceSelection = [];
-        },
-        // 判断请求内容形式 1--json 2--参数构造 3--预置
-        chooseContentFormat() {
-            if (this.contentFormat == 1) {
-                return 1;
-            } else if (this.contentFormat == 2) {
-                return 2;
-            } else if (this.contentFormat == 3) {
-                return 3;
-            }
-        },
-
         // 判断具体展现哪个
         watchBodyShowWhich() {
-            if (this.requestData.requestType == REQUEST_TYPE_TCP) {
-                if (this.change.protocolType == "modbus") {
-                    if (this.chooseContentFormat() == 1) {
-                        // json
-                        return "json";
-                    } else if (this.chooseContentFormat() == 2) {
-                        // 参数--功能码
-                        return "modbusRead";
-                    } else if (this.chooseContentFormat() == 3) {
-                        // 参数--功能码
-                        return "modbusOperator";
-                    }
-                } else if (this.change.protocolType == "gzIscs") {
-                    if (this.chooseContentFormat() == 1) {
-                        // json
-                        return "json";
-                    } else if (this.chooseContentFormat() == 3) {
-                        // 配置
+            if (this.contentFormat === "1") {
+                return "json";
+            } else if (this.contentFormat === "3") {
+                if (this.requestData.requestType === REQUEST_TYPE_TCP) {
+                    if (this.change.protocolType === "gzIscs") {
                         return "gzIscs";
                     }
-                } else {
-                    return "json";
                 }
-            }
-            if (this.requestData.requestType == REQUEST_TYPE_HTTP) {
-                if (this.chooseContentFormat() == 1) {
-                    // json
-                    return "json";
-                } else if (this.chooseContentFormat() == 3) {
-                    // 配置
+                if (this.requestData.requestType === REQUEST_TYPE_HTTP) {
                     return "config";
                 }
+            } else if (this.contentFormat === "4") {
+                if (this.requestData.requestType === REQUEST_TYPE_TCP) {
+                    return "modbusRead";
+                }
+            }else if (this.contentFormat === "5") {
+                if (this.requestData.requestType === REQUEST_TYPE_TCP) {
+                    return "modbusOperator";
+                }
             }
-
             // 其余的只展示body
             return "json";
         },
@@ -545,54 +473,28 @@ export default {
                 }
             }
 
-            /* 构建请求body 1.是否为TCP? 否--内容为body, 是--1.1请求格式为：
-                      1.1.1json, 内容为body
-                      1.1.2 参数,内容组装为1.2 应用层协议为 1.2.1modbus协议 */
+            // 构建请求body
             function buildBody(trData, reqData) {
-                if (trData.requestType === REQUEST_TYPE_TCP) {
-                    if (this.contentFormat === 1) {
-                        if (trData.body != null && trData.body.trim() != "") {
-                            reqData.body = trData.body.trim();
-                        }
-                    } else if (this.contentFormat === 2) {
-                        if (this.change.protocolType === "modbus") {
-                            var body = {};
-                            var code = this.functionCode;
-                            body.functionCode = this.functionCode;
-                            body.registerCount = this.registerCount;
-                            body.startAddress = this.startAddress;
-                            body.isOpen = this.contextSlect.isOpen;
-                            body.showType = this.contextSlect.showType;
-                            body.limitStyle = this.contextSlect.limitStyle;
-                            body.priority = this.contextSlect.priority;
-                            body.textCont = this.contextSlect.textcont;
-                            body.showTime = this.contextSlect.showTime;
-                            reqData.body = body;
-                        }
-                    } else if (this.contentFormat === 3) {
-                        if (this.change.protocolType === "modbus") {
-                            var body = {};
-                            var code = this.functionCode;
-                            body.functionCode = this.functionCode;
-                            body.registerCount = this.registerCount;
-                            body.startAddress = this.startAddress;
-                            body.isOpen = this.contextSlect.isOpen;
-                            body.showType = this.contextSlect.showType;
-                            body.limitStyle = this.contextSlect.limitStyle;
-                            body.priority = this.contextSlect.priority;
-                            body.textCont = this.contextSlect.textcont;
-                            body.showTime = this.contextSlect.showTime;
-                            reqData.body = body;
-                        }
+                if (this.contentFormat === "1") {
+                    if (trData.body != null && trData.body.trim() !== "") {
+                        reqData.body = trData.body.trim();
                     }
-                } else if (trData.requestType === REQUEST_TYPE_HTTP) {
-                    if (this.contentFormat === 1) {
-                        if (trData.body != null && trData.body.trim() !== "") {
-                            reqData.body = trData.body.trim();
-                        }
-                    } else if (this.contentFormat === 3) {
+                } else if (this.contentFormat === "3") {
+                    if (this.selectArr !== null) {
                         reqData.body = this.selectArr;
                     }
+                } else if (this.contentFormat === "4" || this.contentFormat === "5") {
+                    let body = {};
+                    body.functionCode = this.functionCode;
+                    body.registerCount = this.registerCount;
+                    body.startAddress = this.startAddress;
+                    body.isOpen = this.contextSlect.isOpen;
+                    body.showType = this.contextSlect.showType;
+                    body.limitStyle = this.contextSlect.limitStyle;
+                    body.priority = this.contextSlect.priority;
+                    body.textCont = this.contextSlect.textcont;
+                    body.showTime = this.contextSlect.showTime;
+                    reqData.body = body;
                 }
             }
 
@@ -998,59 +900,56 @@ export default {
         },
     },
     watch: {
-        // contentFormat(val) {
-        //     if (this.isGetConfig) {
-        //         this.getConfigHtml();
-        //         this.isGetConfig = false;
-        //     }
-        // },
         currentId(val) {
             // 重置以下几个数组，目的是重新展示归属于每个接口的配置项
             this.configSelectValueArr = [];
             this.SelectConfigArr = [];
             this.inputConfigArr = [];
             let data = null;
+            let configList = [];
             for (const v of this.requestInterfaceSelection) {
                 if (v.id === this.currentId) {
                     data = v;
                 }
             }
-            // 数据回显
+            // 数据回显 以及赋值
             if (data != null) {
                 this.requestData.body = data.content;
                 this.requestData.url = data.url;
                 this.requestData.method = data.requestMethod;
+                // 获取当前接口的配置内容
+                configList = data.configList;
+            }
+            if (configList.length !== 0) {
+                // 计数，用来记住curSelectValueArr是第几个下拉框的下拉选项
+                let index = 0;
+                for (const v of configList) {
+                    let configType = v.configType;
+                    // 遍历配置内容中的数据，是input则添加一个输入框到页面；是select则添加一个下拉框
+                    if (configType === "input") {
+                        this.isExistInput = true;
+                        this.inputConfigArr.push(v);
+                    }
+                    if (configType === "select") {
+                        v.index = index;
+                        this.isExistSelect = true;
+                        this.SelectConfigArr.push(v);
+                        index = index + 1;
+                        const configArr = v.configValue.split("；");
+                        let i;
+                        // 当前下拉框的下拉选项
+                        let curSelectValueArr = [];
+                        for (i = 0; i < configArr.length; i++) {
+                            let obj = {};
+                            obj.key = i;
+                            obj.label = configArr[i];
+                            curSelectValueArr.push(obj);
+                        }
+                        this.configSelectValueArr.push(curSelectValueArr);
+                    }
+                }
             }
 
-            // 获取当前接口的配置内容
-            let configList = data.configList;
-            // 计数，用来记住curSelectValueArr是第几个下拉框的下拉选项
-            let index = 0;
-            for (const v of configList) {
-                let configType = v.configType;
-                // 遍历配置内容中的数据，是input则添加一个输入框到页面；是select则添加一个下拉框
-                if (configType === "input") {
-                    this.isExistInput = true;
-                    this.inputConfigArr.push(v);
-                }
-                if (configType === "select") {
-                    v.index = index;
-                    this.isExistSelect = true;
-                    this.SelectConfigArr.push(v);
-                    index = index + 1;
-                    const configArr = v.configValue.split("；");
-                    let i;
-                    // 当前下拉框的下拉选项
-                    let curSelectValueArr = [];
-                    for (i = 0; i < configArr.length; i++) {
-                        let obj = {};
-                        obj.key = i;
-                        obj.label = configArr[i];
-                        curSelectValueArr.push(obj);
-                    }
-                    this.configSelectValueArr.push(curSelectValueArr);
-                }
-            }
         },
         "requestData.url"(val) {
             if (
@@ -1080,16 +979,6 @@ export default {
                 this.requestData.isSSL = true;
             } else if (this.requestData.requestType != REQUEST_TYPE_TCP) {
                 this.requestData.isSSL = false;
-            }
-            // 获取接口下拉框数据
-            if (this.requestData.requestType == REQUEST_TYPE_HTTP) {
-                this.getAllHttpSelection();
-            } else if (this.requestData.requestType == REQUEST_TYPE_WEB_SOCKET) {
-                this.getWebSocketSelection();
-            } else if (this.requestData.requestType == REQUEST_TYPE_UDP) {
-                this.getUDPSelection();
-            } else if (this.requestData.requestType == REQUEST_TYPE_TCP) {
-                this.getTCPSelection();
             }
             this.currentId = "";
             this.requestData.url = "";
@@ -1125,15 +1014,44 @@ export default {
         },
     },
     computed: {
-        // 是否显示请求形式配置
-        isShowRequestConfig() {
-            if (this.change.protocolType == "gzIscs") {
-                return true;
+        // 计算当前要展示哪些请求形式 具体逻辑看代码注释
+        contentFormatOpt() {
+            let contentFormatOpt = [
+                {
+                    value: "0",
+                    label: 'JSON'
+                }
+            ];
+            let tempArr = [];
+            // 如果当前选择了接口，那么可以选择配置形式
+            if (this.currentId !== "") {
+                tempArr = [
+                    {
+                        value: "3",
+                        label: '配置'
+                    },
+                ]
+            } else {
+                if (this.requestData.requestType === REQUEST_TYPE_TCP) {
+                    // 是modbus协议
+                    if (this.change.protocolType === "modbus") {
+                        tempArr = [
+                            {
+                                value: "4",
+                                label: '读取操作参数'
+                            },
+                            {
+                                value: "5",
+                                label: '控制命令操作'
+                            }
+                        ];
+                    }
+                }
             }
-            if (this.requestData.requestType == "HTTP") {
-                return true;
+            if (tempArr.length !== 0) {
+                contentFormatOpt = contentFormatOpt.concat(tempArr);
             }
-            return false;
+            return contentFormatOpt;
         },
         watchResponseHeaderColor() {
             // 获取响应状态
