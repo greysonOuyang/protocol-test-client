@@ -1025,7 +1025,6 @@ export default {
                 this.$message.success('导入失败');
               }
             }
-          }
         )
       }
       this.uploadExcelTabVisiable = false;
