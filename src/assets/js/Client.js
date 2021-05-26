@@ -174,8 +174,8 @@ export default {
             outputText: "",
             // 测试程序当前状态 0--客户端 1--服务端
             systemStatus: 0,
-            // 请求内容形式 1--JSON 3--配置
-            contentFormat: "1",
+            // 请求内容形式 0--JSON 3--配置
+            contentFormat: "0",
             // 寄存器个数
             registerCount: "",
             // 开始地址
@@ -283,7 +283,7 @@ export default {
         },
         // 判断具体展现哪个
         watchBodyShowWhich() {
-            if (this.contentFormat === "1") {
+            if (this.contentFormat === "0") {
                 return "json";
             } else if (this.contentFormat === "3") {
                 if (this.requestData.requestType === REQUEST_TYPE_TCP) {
@@ -472,7 +472,7 @@ export default {
 
             // 构建请求body
             function buildBody(trData, reqData) {
-                if (this.contentFormat === "1") {
+                if (this.contentFormat === "0") {
                     if (trData.body != null && trData.body.trim() !== "") {
                         reqData.body = trData.body.trim();
                     }
