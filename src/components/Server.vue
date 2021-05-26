@@ -180,11 +180,13 @@ export default {
   methods: {
     // 获取接口表数据
     getInterfaceTableData () {
-      axios.get(
-        '/interfaceCtrl/interface/findAll'
-      ).then(response => {
-        this.tableData = response.data;
-      });
+      var data = {};
+      data.currentMode = "server"
+      axios.post('/interfaceCtrl/interface/getAllServerInterfaceInfo', data).then(
+          res => {
+            this.tableData = res.data;
+          }
+      );
     },
     // 启动服务端
     startServer () {
