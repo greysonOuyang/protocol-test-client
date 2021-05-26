@@ -141,7 +141,10 @@
             </el-form-item>
             <el-form-item>
               <el-button type="primary"
-                         @click="addInterfaceConfig()">确定
+                         @click="addServerInterfaceConfig()">确定
+              </el-button>
+              <el-button type="primary"
+                         @click="addInterfaceConfig()">确定缓存
               </el-button>
               <el-button @click="dialogTableVisible = false">取消</el-button>
             </el-form-item>
@@ -203,13 +206,19 @@
                :header="paramHeader"
                class="el-card-custom">
         <div style="margin-bottom: 20px">
-          <el-switch v-model="editModeEnabled"
-                     style="margin-right: 20px"
-                     active-color="#13ce6"
-                     inactive-color="#ff4949"
-                     active-text="编辑"
-                     inactive-text="查看">
-          </el-switch>
+<!--          <el-switch v-model="editModeEnabled"-->
+<!--                     style="margin-right: 20px"-->
+<!--                     active-color="#13ce6"-->
+<!--                     inactive-color="#ff4949"-->
+<!--                     active-text="编辑"-->
+<!--                     inactive-text="查看">-->
+<!--          </el-switch>-->
+          <el-button v-model="editModeEnabled"
+                     @click="editParamData"
+                     type="primary"
+                     icon="el-icon-check"
+                     size="mini">编辑
+          </el-button>
           <el-button v-if="editModeEnabled"
                      @click="saveParamData"
                      type="primary"
@@ -234,6 +243,7 @@
                   border
                   stripe
                   style="width: 100%;">
+
           <el-table-column :key="item.prop"
                            :label="item.label"
                            :prop="item.prop"
@@ -250,19 +260,19 @@
                            editable-component="el-select"
                            :can-edit="editModeEnabled"
                            close-event="change"
-                           v-model="row.type">
+                           v-model="row.paramType">
 
               <el-tag size="medium"
                       type="primary"
                       slot="content">
-                {{ row.type }}
+                {{ row.paramType }}
               </el-tag>
 
               <template slot="edit-component-slot">
                 <el-option v-for="item in paramTypeOpt"
-                           :key="item.type"
-                           :label="item.type"
-                           :value="item.type">
+                           :key="item.paramType"
+                           :label="item.paramType"
+                           :value="item.paramType">
                 </el-option>
               </template>
             </editable-cell>
@@ -666,15 +676,15 @@ export default {
       fileList: [],
       paramTypeOpt: [
         {
-          type: 'Int',
+          paramType: 'Int',
         }, {
-          type: 'String',
+          paramType: 'String',
         }, {
-          type: 'Hex',
+          paramType: 'Hex',
         }, {
-          type: 'ASCII',
+          paramType: 'ASCII',
         }, {
-          type: 'Time',
+          paramType: 'Time',
         }
       ],
       // 添加接口表单
@@ -701,14 +711,14 @@ export default {
       // 数据录入表格相关
       paramDataOpt: [
         {
-          prop: "field",
+          prop: "paramField",
           label: "参数名称",
         },
         {
-          prop: "length",
+          prop: "paramLength",
           label: "参数长度",
         }, {
-          prop: "value",
+          prop: "paramValue",
           label: "参数值",
         },
       ],
@@ -717,26 +727,38 @@ export default {
     }
   },
   created() {
+    this.getAllServerInterfaceInfo();
     this.getAllInterfaceInfo();
-    this.getInterfaceTableData();
+    // this.getInterfaceTableData();
   },
   methods: {
     // 取消参数表编辑
     cancelParamEdit() {
       this.editModeEnabled = false;
-      this.paramTable = [];
-      this.getInterfaceTableData();
+      this.paramTable.find(item =>{
+        console.log("我进来了很多次")
+      return item.paramValue !== null;
+      })
+      console.log("我取消了")
+      this.getAllServerInterfaceInfo();
+    },
+    editParamData(){
+      this.editModeEnabled = true;
+      this.getAllServerInterfaceInfo();
     },
     saveParamData() {
       var requestData = {};
       requestData.interfaceId = this.interfaceIdInEdit;
       if (this.paramType == 'input') {
-        requestData.input = this.paramTable
+        requestData.input = this.paramTable,
+        requestData.paramIO= 'input'
       } else if (this.paramType == 'output') {
         requestData.output = this.paramTable
+        requestData.paramIO= 'output'
       }
-      axios.post('/main/param/save', requestData);
+      axios.post('/paramCtrl/param/save', requestData);
       this.$message.success('保存成功');
+      this.getAllServerInterfaceInfo();
       this.editModeEnabled = false;
     },
     handleClearMulti() {
@@ -763,7 +785,7 @@ export default {
 
     },
     /**
-     * 选中多行删除
+     * 选中多行删除  服务端删除
      */
     handleDeleteMulti() {
       if (this.multipleSelection.length == 0) {
@@ -774,7 +796,7 @@ export default {
         var requestData = [];
         for (const v of this.multipleSelection) {
           var data = {
-            id: v.interfaceId
+            interfaceConfigId: v.interfaceId
           }
           requestData.push(data);
         }
@@ -783,12 +805,16 @@ export default {
       }
     },
     clearInterfaceConfig () {
+      var data = {
+        requestType : this.requestType,
+        currentMode : this.currentMode,
+      };
       this.$confirm('接口配置不易，请主人三思而后行，真的要清空嘛?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() =>
-          axios.post('/interfaceCtrl/interface/delAllInterfaceInfo').then(
+          axios.post('/interfaceCtrl/interface/delAllInterfaceInfo',data).then(
               response => {
                 if (this.isRequestSuccess(response)) {
                   this.$message.success('清空成功，请重新录入数据');
@@ -805,28 +831,35 @@ export default {
           }))
 
     },
-    delConfigInterface () {
-      if (this.multipleSelection.length != 1) {
-        this.$alert("请先选择一个接口数据", "提示", {
+    delConfigInterface() {
+      if (this.multipleSelection.length == 0) {
+        this.$alert("请先选择要删除的数据", "提示", {
           confirmButtonText: "确定",
         });
       } else {
+        var requestData = [];
+        for (const v of this.multipleSelection) {
           var data = {
-            id: this.multipleSelection[0].id
+            interfaceConfigId: v.id
           }
-       // this.doDeleteInterfaceRow(requestData);
-        axios.post('/interfaceCtrl/interface/delInterface', data).then(
-            response => {
-              if (this.isRequestSuccess(response)) {
-                this.$message.success('删除成功');
-                this.getAllInterfaceInfo();
-              } else {
-                this.$message.error('删除失败');
-              }
-            }
-        );
+          requestData.push(data);
+        }
+        this.doDeleteInterface(requestData);
         this.tableData.splice(this.multipleSelection[0].index - 1, 1);
       }
+    },
+    /* 删除接口表一行数据 */
+    doDeleteInterface(arr) {
+      axios.post('/interfaceCtrl/interface/delInterfaceConfig', arr).then(
+          response => {
+            if (this.isRequestSuccess(response)) {
+              this.$message.success('删除成功');
+              this.getAllInterfaceInfo();
+            } else {
+              this.$message.error('删除失败');
+            }
+          }
+      );
     },
     handleOneCol(val) {
       this.clientConfigTableData = val.configList;
@@ -855,10 +888,10 @@ export default {
         this.paramTable = new Array();
       }
       this.paramTable.push({
-        field: '',
-        length: '',
-        type: '',
-        value: ''
+        paramField: '',
+        paramLength: '',
+        paramType: '',
+        paramValue: ''
       });
     },
     /* 多选interface表row */
@@ -1004,7 +1037,7 @@ export default {
     handleDelete(index, row) {
       var arr = [];
       var data = {
-        id: row.interfaceId
+        interfaceConfigId: row.interfaceId
       }
       arr.push(data);
       this.doDeleteInterfaceRow(arr);
@@ -1012,11 +1045,11 @@ export default {
     },
     /* 删除接口表一行数据 */
     doDeleteInterfaceRow(arr) {
-      axios.post('/interfaceCtrl/interface/delete', arr).then(
+      axios.post('/interfaceCtrl/interface/delServerInterfaceConfig', arr).then(
           response => {
             if (this.isRequestSuccess(response)) {
               this.$message.success('删除成功');
-              this.getInterfaceTableData();
+              this.getAllServerInterfaceInfo();
             } else {
               this.$message.error('删除失败');
             }
@@ -1045,12 +1078,34 @@ export default {
       this.interfaceData = {}
       this.addDialogVisible = false;
     },
-    // 添加一个接口
+    // 添加一个接口  数据库方式的方法
+    addServerInterfaceConfig() {
+      var data = {
+        interfaceType: this.interfaceData.interfaceType,
+        interfaceName: this.interfaceData.interfaceName,
+        currentMode: this.currentMode,
+      }
+      axios.post('/interfaceCtrl/interface/server/add', data).then(
+          response => {
+            if (this.isRequestSuccess(response)) {
+              this.$message.success('创建成功');
+              this.getAllServerInterfaceInfo();
+            } else {
+              this.$message.success('创建失败');
+            }
+          }
+      )
+      // 重置formData
+      this.interfaceData = {}
+      this.dialogTableVisible = false;
+    },
+    // 缓存方式的方法
     addInterfaceConfig() {
       var data = {
         interfaceType: this.interfaceData.interfaceType,
-        interfaceName: this.interfaceData.interfaceName
+        interfaceName: this.interfaceData.interfaceName,
       }
+      console.log("上送到是：",data.currentMode)
       axios.post('/interfaceCtrl/interface/add', data).then(
           response => {
             if (this.isRequestSuccess(response)) {
@@ -1064,13 +1119,13 @@ export default {
       // 重置formData
       this.interfaceData = {}
       this.dialogTableVisible = false;
-      y
     },
     addClientInterface() {
       var data = {};
       data.requestType = this.requestType;
       data.clientInterface = this.clientInterfaceForm;
-        data.clientInterface.requestMethod = this.clientInterfaceForm.currentSelect;
+      data.clientInterface.currentMode = this.currentMode;
+      data.clientInterface.requestMethod = this.clientInterfaceForm.currentSelect;
         console.log("类型是",data.requestType)
         axios.post('/interfaceCtrl/interface/save', data).then(
             res => {
@@ -1087,6 +1142,16 @@ export default {
       axios.post('/interfaceCtrl/interface/getAllInterfaceInfo', data).then(
           res => {
             this.clientInterfaceTable = res.data;
+          }
+      );
+    },
+    getAllServerInterfaceInfo() {
+      var data = {};
+      data.currentMode = this.currentMode
+      console.log("类型是：", data.currentMode);
+      axios.post('/interfaceCtrl/interface/getAllServerInterfaceInfo', data).then(
+          res => {
+            this.tableData = res.data;
           }
       );
     },
@@ -1133,6 +1198,13 @@ export default {
     }
   },
   watch: {
+    currentMode(val) {
+      if (val == "client") {
+        this.getAllInterfaceInfo();
+      } else if (val == "server") {
+        this.getAllServerInterfaceInfo();
+      }
+    },
     requestType(val) {
       this.clientInterfaceTable = [];
       if (this.requestType != null) {
