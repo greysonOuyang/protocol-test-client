@@ -1016,13 +1016,14 @@ export default {
           }
         }
         axios.post("/api/excelUtil/importExcel", form, config).then(
-          response => {
-            if (this.isRequestSuccess(response)) {
-              this.$message.success('导入成功');
-              this.fileList = [];
-              this.getInterfaceTableData();
-            } else {
-              this.$message.success('导入失败');
+            response => {
+              if (this.isRequestSuccess(response)) {
+                this.$message.success('导入成功');
+                this.fileList = [];
+                this.getAllServerInterfaceInfo();
+              } else {
+                this.$message.success('导入失败');
+              }
             }
           }
         )
