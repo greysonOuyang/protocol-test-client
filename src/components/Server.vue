@@ -42,10 +42,10 @@
 
         </el-col> -->
         <el-form-item style="text-align: right">
-          <el-button v-if="!ServerStatus"
+          <el-button v-if="ServerStatus === 'initializing'"
                      type="primary"
                      @click="startServer()">启动服务端</el-button>
-          <el-button v-if="ServerStatus"
+          <el-button v-if="ServerStatus === 'success'"
                      type="success"
                      round
                      @click="stopServer()">停止服务</el-button>
@@ -90,7 +90,7 @@ export default {
   data () {
     return {
       // netty服务端状态 true启动完成 false 关闭状态
-      ServerStatus: false,
+      ServerStatus: 'initializing',
       // 启动时选择的接口 值是接口Id
       currentInterfaceId: '',
       // 启动端口
@@ -206,12 +206,22 @@ export default {
           let port = window.sessionStorage.getItem('port')
           axios.get('/main/server/status', { params: { 'port': port } }).then(
             res => {
-              this.ServerStatus = res.data;
+              if (res.data === 'initializing') {
+                  console.log('启动中');
+              } else {
+                let returnData = JSON.stringify(res.data);
+                let result = JSON.parse(returnData);
+                if (result.result === "SUCCESS") {
+                  this.$message.success('启动成功');
+                  this.ServerStatus = 'success';
+                } else {
+                  this.$message.success('启动失败,请按F12查看控制台');
+                  console.log(result.msg);
+                }
+                clearInterval(interval);
+              }
             }
           );
-          if (this.ServerStatus) {
-            clearInterval(interval);
-          }
         }, 2000);
       }
 
@@ -222,7 +232,7 @@ export default {
       axios.get('/main/stop/server', { params: { 'port': port } }).then(res => {
         var isClose = res.data;
         if (isClose) {
-          this.ServerStatus = false;
+          this.ServerStatus = "initializing";
           this.$message.success('关闭成功');
         } else {
           this.$message.error('关闭服务器失败，请重试或者联系管理员');
