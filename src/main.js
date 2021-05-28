@@ -11,6 +11,11 @@ import axios from "./axios";
 // import axios from "axios";
 Vue.prototype.$axios = axios; //全局注册，使用方法为:this.$axios
 
+import cloneDeep from 'lodash/cloneDeep';
+
+Vue.prototype.$cloneDeep = cloneDeep
+
+
 Vue.config.productionTip = false;
 
 Vue.use(ElementUI, {

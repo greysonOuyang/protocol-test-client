@@ -190,7 +190,7 @@
             <i class="el-icon-upload"></i>
             <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
           </el-upload>
-          <br/>
+          <br />
           <el-button size="small"
                      type="primary"
                      @click="uploadFile">立即上传
@@ -475,8 +475,8 @@
           <el-button @click="cancel()">取消</el-button>
         </el-dialog>
       </el-card>
-      <el-dialog
-          :visible.sync="configTableVisiable" title="请求配置表">
+      <el-dialog :visible.sync="configTableVisiable"
+                 title="请求配置表">
         <el-table border
                   :data="clientConfigTableData">
           <el-table-column v-for="item in ConfigOpt"
@@ -495,6 +495,7 @@
 <script>
 import axios from 'axios';
 import EditableCell from "./common/EditeableCell";
+import cloneDeep from "lodash/cloneDeep";
 
 export default {
   name: 'interfaceConfig',
@@ -502,13 +503,13 @@ export default {
   components: {
     EditableCell
   },
-  activated() {
+  activated () {
     this.getInterfaceTableData();
   },
-  mounted() {
+  mounted () {
   },
 
-  data() {
+  data () {
     return {
       // 参数表编辑时是否要保存编辑前的数据，用于辅助参数表点击取消后的数据展示
       flag: true,
@@ -731,27 +732,28 @@ export default {
       tempParamTable: [],
     }
   },
-  created() {
+  created () {
     this.getAllServerInterfaceInfo();
     this.getAllInterfaceInfo();
     // this.getInterfaceTableData();
   },
   methods: {
     // 取消参数表编辑
-    cancelParamEdit() {
+    cancelParamEdit () {
       this.editModeEnabled = false;
       this.paramTable = this.tempParamTable;
+      this.tempParamTable = [];
     },
-    editParamData() {
+    editParamData () {
       this.editModeEnabled = true;
       this.getAllServerInterfaceInfo();
     },
-    saveParamData() {
+    saveParamData () {
       var requestData = {};
       requestData.interfaceId = this.interfaceIdInEdit;
       if (this.paramType == 'input') {
         requestData.input = this.paramTable,
-            requestData.paramIO = 'input'
+          requestData.paramIO = 'input'
       } else if (this.paramType == 'output') {
         requestData.output = this.paramTable
         requestData.paramIO = 'output'
@@ -761,33 +763,33 @@ export default {
       this.getAllServerInterfaceInfo();
       this.editModeEnabled = false;
     },
-    handleClearMulti() {
+    handleClearMulti () {
       this.$confirm('接口配置不易，请主人三思而后行，真的要清空嘛?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() =>
-          axios.post('/interfaceCtrl/interface/deleteAll').then(
-              response => {
-                if (this.isRequestSuccess(response)) {
-                  this.$message.success('清空成功，请重新导入数据');
-                  this.getInterfaceTableData();
-                } else {
-                  this.$message.success('删除失败，请重新尝试');
-                }
-              }
-          ).catch(() => {
-            this.$message({
-              type: 'info',
-              message: '已取消删除'
-            });
-          }))
+        axios.post('/interfaceCtrl/interface/deleteAll').then(
+          response => {
+            if (this.isRequestSuccess(response)) {
+              this.$message.success('清空成功，请重新导入数据');
+              this.getInterfaceTableData();
+            } else {
+              this.$message.success('删除失败，请重新尝试');
+            }
+          }
+        ).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          });
+        }))
 
     },
     /**
      * 选中多行删除  服务端删除
      */
-    handleDeleteMulti() {
+    handleDeleteMulti () {
       if (this.multipleSelection.length == 0) {
         this.$alert("请先选择要删除的数据", "提示", {
           confirmButtonText: "确定",
@@ -804,7 +806,7 @@ export default {
         this.tableData.splice(this.multipleSelection[0].index - 1, 1);
       }
     },
-    clearInterfaceConfig() {
+    clearInterfaceConfig () {
       var data = {
         requestType: this.requestType,
         currentMode: this.currentMode,
@@ -814,24 +816,24 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() =>
-          axios.post('/interfaceCtrl/interface/delAllInterfaceInfo', data).then(
-              response => {
-                if (this.isRequestSuccess(response)) {
-                  this.$message.success('清空成功，请重新录入数据');
-                  this.getAllInterfaceInfo();
-                } else {
-                  this.$message.success('删除失败，请重新尝试');
-                }
-              }
-          ).catch(() => {
-            this.$message({
-              type: 'info',
-              message: '已取消删除'
-            });
-          }))
+        axios.post('/interfaceCtrl/interface/delAllInterfaceInfo', data).then(
+          response => {
+            if (this.isRequestSuccess(response)) {
+              this.$message.success('清空成功，请重新录入数据');
+              this.getAllInterfaceInfo();
+            } else {
+              this.$message.success('删除失败，请重新尝试');
+            }
+          }
+        ).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          });
+        }))
 
     },
-    delConfigInterface() {
+    delConfigInterface () {
       if (this.multipleSelection.length == 0) {
         this.$alert("请先选择要删除的数据", "提示", {
           confirmButtonText: "确定",
@@ -849,41 +851,41 @@ export default {
       }
     },
     /* 删除接口表一行数据 */
-    doDeleteInterface(arr) {
+    doDeleteInterface (arr) {
       axios.post('/interfaceCtrl/interface/delInterfaceConfig', arr).then(
-          response => {
-            if (this.isRequestSuccess(response)) {
-              this.$message.success('删除成功');
-              this.getAllInterfaceInfo();
-            } else {
-              this.$message.error('删除失败');
-            }
+        response => {
+          if (this.isRequestSuccess(response)) {
+            this.$message.success('删除成功');
+            this.getAllInterfaceInfo();
+          } else {
+            this.$message.error('删除失败');
           }
+        }
       );
     },
-    handleOneCol(val) {
+    handleOneCol (val) {
       this.clientConfigTableData = val.configList;
     },
-    selectCurrentCol(val) {
+    selectCurrentCol (val) {
       this.interfaceIdInEdit = val.interfaceId;
     },
-    viewConfig(index, row) {
+    viewConfig (index, row) {
       this.configTableVisiable = true;
     },
-    viewOutPut(index, row) {
+    viewOutPut (index, row) {
       this.paramTabVisiable = true;
       this.paramHeader = '输出参数';
       this.paramTable = row.output;
       this.paramType = 'output';
     },
-    viewInPut(index, row) {
+    viewInPut (index, row) {
       this.paramTabVisiable = true;
       this.paramHeader = '输入参数';
       this.paramTable = row.input;
       console.log(this.paramTable);
       this.paramType = 'input';
     },
-    copyArray(arr) {
+    copyArray (arr) {
       return arr.map((e) => {
         if (typeof e === 'object') {
           return Object.assign({}, e);
@@ -892,12 +894,20 @@ export default {
         }
       })
     },
-    handleAddDetails() {
+    handleAddDetails () {
+      if (this.paramTable === undefined || this.paramTable === null) {
+        this.paramTable = [];
+      }
       this.editModeEnabled = true;
+      console.log("拷贝数据前")
+      console.log(this.tempParamTable);
       if (this.flag) {
-        this.tempParamTable = this.copyArray(this.paramTable);
+        this.tempParamTable = cloneDeep(this.paramTable);
+        console.log("拷贝数据了")
         this.flag = false;
       }
+      console.log("每次添加数据前")
+      console.log(this.tempParamTable);
 
       this.paramTable.push({
         paramField: '',
@@ -905,17 +915,19 @@ export default {
         paramType: '',
         paramValue: ''
       });
+      console.log("每次添加数据后")
+      console.log(this.tempParamTable);
     },
     /* 多选interface表row */
-    handleSelectionChange(val) {
+    handleSelectionChange (val) {
       this.multipleSelection = val;
     },
     // 文件状态改变时的钩子
-    fileChange(file, fileList) {
+    fileChange (file, fileList) {
       this.fileList.push(file.raw);
     },
     // 上传文件之前的钩子, 参数为上传的文件,若返回 false 或者返回 Promise 且被 reject，则停止上传
-    beforeUploadFile(file) {
+    beforeUploadFile (file) {
       let extension = file.name.substring(file.name.lastIndexOf('.') + 1);
       let size = file.size / 1024 / 1024;
       if (extension !== 'xlsx') {
@@ -926,26 +938,26 @@ export default {
       }
     },
     // 文件超出个数限制时的钩子
-    exceedFile(files, fileList) {
+    exceedFile (files, fileList) {
       this.$message.warning(`只能选择 ${this.limitNum} 个文件，当前共选择了 ${files.length + fileList.length} 个`);
     },
     // 文件上传成功时的钩子
-    handleSuccess(res, file, fileList) {
+    handleSuccess (res, file, fileList) {
       this.$message.success('文件上传成功');
     },
     // 文件上传失败时的钩子
-    handleError(err, file, fileList) {
+    handleError (err, file, fileList) {
       this.$message.error('文件上传失败');
     },
     UploadUrl: function () {
       // 因为action参数是必填项，我们使用二次确认进行文件上传时，直接填上传文件的url会因为没有参数导致api报404，所以这里将action设置为一个返回为空的方法就行，避免抛错
       return ""
     },
-    downLoadExcelTabVisiable() {
+    downLoadExcelTabVisiable () {
       var data = {
         interfaceName: "planInfo"
       }
-      axios.post("/api/excelUtil/exportExcel", data, {responseType: 'arraybuffer'}).then(res => {
+      axios.post("/api/excelUtil/exportExcel", data, { responseType: 'arraybuffer' }).then(res => {
         // 处理返回的文件流
         // let blob = new Blob([res.data], {type: "application/vnd.ms-excel"}); 
 
@@ -953,13 +965,13 @@ export default {
 
         // window.location.href = objectUrl; 
         const content = res.data;
-        const blob = new Blob([res.data], {type: "application/vnd.ms-excel"});
+        const blob = new Blob([res.data], { type: "application/vnd.ms-excel" });
         var date = "表格数据模板" +
-            new Date().getFullYear() +
-            "" +
-            (new Date().getMonth() + 1) +
-            "" +
-            new Date().getDate();
+          new Date().getFullYear() +
+          "" +
+          (new Date().getMonth() + 1) +
+          "" +
+          new Date().getDate();
         const fileName = date + name + ".xls";
         if ("download" in document.createElement("a")) {
           // 非IE下载
@@ -990,7 +1002,7 @@ export default {
       //   }
       // )
     },
-    uploadFile() {
+    uploadFile () {
       if (this.fileList.length === 0) {
         this.$message.warning('请上传文件');
       } else {
@@ -1017,14 +1029,14 @@ export default {
       }
       this.uploadExcelTabVisiable = false;
     },
-    cancelUpload() {
+    cancelUpload () {
       this.uploadExcelTabVisiable = false;
       if (this.fileList.length != 0) {
         this.fileList = [];
       }
     },
     // 判断请求是否成功
-    isRequestSuccess(data) {
+    isRequestSuccess (data) {
       var res = JSON.stringify(data.data);
       var result = JSON.parse(res);
       if (result.result == "SUCCESS") {
@@ -1034,18 +1046,18 @@ export default {
       }
     },
     // 获取接口表数据
-    getInterfaceTableData() {
+    getInterfaceTableData () {
       axios.get(
-          '/interfaceCtrl/interface/findAll'
+        '/interfaceCtrl/interface/findAll'
       ).then(response => {
         this.tableData = response.data;
       });
     },
-    handleEdit(index, row) {
+    handleEdit (index, row) {
       // TODO
       console.log(index, row);
     },
-    handleDelete(index, row) {
+    handleDelete (index, row) {
       var arr = [];
       var data = {
         interfaceConfigId: row.interfaceId
@@ -1055,19 +1067,19 @@ export default {
       this.dialogTableVisible = false;
     },
     /* 删除接口表一行数据 */
-    doDeleteInterfaceRow(arr) {
+    doDeleteInterfaceRow (arr) {
       axios.post('/interfaceCtrl/interface/delServerInterfaceConfig', arr).then(
-          response => {
-            if (this.isRequestSuccess(response)) {
-              this.$message.success('删除成功');
-              this.getAllServerInterfaceInfo();
-            } else {
-              this.$message.error('删除失败');
-            }
+        response => {
+          if (this.isRequestSuccess(response)) {
+            this.$message.success('删除成功');
+            this.getAllServerInterfaceInfo();
+          } else {
+            this.$message.error('删除失败');
           }
+        }
       );
     },
-    btnAddPlanInfo() {
+    btnAddPlanInfo () {
       if (this.multipleSelection.length == 0) {
         this.$alert("请先选择一个接口数据", "提示", {
           confirmButtonText: "确定",
@@ -1077,7 +1089,7 @@ export default {
       }
     },
     // 基于一个计划信息接口模板, 添加一个计划信息接口，
-    addPlanInfo() {
+    addPlanInfo () {
       var requestData = this.interfaceData;
       requestData.interfaceType = "计划信息";
       for (const v of this.multipleSelection) {
@@ -1099,83 +1111,80 @@ export default {
       this.addDialogVisible = false;
     },
     // 添加一个接口  数据库方式的方法
-    addServerInterfaceConfig() {
+    addServerInterfaceConfig () {
       var data = {
         interfaceType: this.interfaceData.interfaceType,
         interfaceName: this.interfaceData.interfaceName,
         currentMode: this.currentMode,
       }
       axios.post('/interfaceCtrl/interface/server/add', data).then(
-          response => {
-            if (this.isRequestSuccess(response)) {
-              this.$message.success('创建成功');
-              this.getAllServerInterfaceInfo();
-            } else {
-              this.$message.success('创建失败');
-            }
+        response => {
+          if (this.isRequestSuccess(response)) {
+            this.$message.success('创建成功');
+            this.getAllServerInterfaceInfo();
+          } else {
+            this.$message.success('创建失败');
           }
+        }
       )
       // 重置formData
       this.interfaceData = {}
       this.dialogTableVisible = false;
     },
     // 缓存方式的方法
-    addInterfaceConfig() {
+    addInterfaceConfig () {
       var data = {
         interfaceType: this.interfaceData.interfaceType,
         interfaceName: this.interfaceData.interfaceName,
       }
       console.log("上送到是：", data.currentMode)
       axios.post('/interfaceCtrl/interface/add', data).then(
-          response => {
-            if (this.isRequestSuccess(response)) {
-              this.$message.success('创建成功');
-              this.getInterfaceTableData();
-            } else {
-              this.$message.success('创建失败');
-            }
+        response => {
+          if (this.isRequestSuccess(response)) {
+            this.$message.success('创建成功');
+            this.getInterfaceTableData();
+          } else {
+            this.$message.success('创建失败');
           }
+        }
       )
       // 重置formData
       this.interfaceData = {}
       this.dialogTableVisible = false;
     },
-    addClientInterface() {
+    addClientInterface () {
       var data = {};
       data.requestType = this.requestType;
       data.clientInterface = this.clientInterfaceForm;
       data.clientInterface.currentMode = this.currentMode;
       data.clientInterface.requestMethod = this.clientInterfaceForm.currentSelect;
-      console.log("类型是", data.requestType)
       axios.post('/interfaceCtrl/interface/save', data).then(
-          res => {
-            this.getAllInterfaceInfo();
-          }
+        res => {
+          this.getAllInterfaceInfo();
+        }
       );
       this.clientInterfaceVisiable = false;
       this.clientInterfaceForm = {}
     },
-    getAllInterfaceInfo() {
+    getAllInterfaceInfo () {
       var data = {};
       data.interfaceType = this.requestType
-      console.log("类型是：", data.interfaceType);
       axios.post('/interfaceCtrl/interface/getAllInterfaceInfo', data).then(
-          res => {
-            this.clientInterfaceTable = res.data;
-          }
+        res => {
+          this.clientInterfaceTable = res.data;
+        }
       );
     },
-    getAllServerInterfaceInfo() {
+    getAllServerInterfaceInfo () {
       var data = {};
       data.currentMode = this.currentMode
-      console.log("类型是：", data.currentMode);
       axios.post('/interfaceCtrl/interface/getAllServerInterfaceInfo', data).then(
-          res => {
-            this.tableData = res.data;
-          }
+        res => {
+          this.tableData = res.data;
+        }
       );
     },
-    btnConfigRequest() {
+    btnConfigRequest () {
       if (this.multipleSelection.length != 1) {
         this.$alert("请先选择一个接口数据", "提示", {
           confirmButtonText: "确定",
@@ -1185,32 +1194,32 @@ export default {
       }
     },
     // 保存配置请求
-    saveConfigRequest() {
+    saveConfigRequest () {
       var data = {
         configList: this.configTableData,
         id: this.multipleSelection[0].id
       }
       console.log("configList" + data.configList)
       axios.post('/interfaceCtrl/request/config/save', data).then(
-          res => {
-            if (this.isRequestSuccess(res)) {
-              this.$message.success('保存成功');
-              this.getAllInterfaceInfo();
+        res => {
+          if (this.isRequestSuccess(res)) {
+            this.$message.success('保存成功');
+            this.getAllInterfaceInfo();
 
-            } else {
-              this.$message.success('保存失败');
-            }
+          } else {
+            this.$message.success('保存失败');
           }
+        }
       );
       this.requestConfigDialog = false;
       this.configTableData = [];
     },
-    cancel() {
+    cancel () {
       this.requestConfigDialog = false;
       this.configTableData = [];
     },
     // 添加一行配置项 todo config表单
-    addConfigRow() {
+    addConfigRow () {
       if (this.configForm != {}) {
         this.configTableData.push(this.configForm);
       }
@@ -1223,14 +1232,14 @@ export default {
     //     this.tempParamTable = this.copyArray(this.paramTable);
     //   }
     // },
-    currentMode(val) {
+    currentMode (val) {
       if (val == "client") {
         this.getAllInterfaceInfo();
       } else if (val == "server") {
         this.getAllServerInterfaceInfo();
       }
     },
-    requestType(val) {
+    requestType (val) {
       this.clientInterfaceTable = [];
       if (this.requestType != null) {
         this.getAllInterfaceInfo();
