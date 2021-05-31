@@ -1095,7 +1095,16 @@ export default {
       for (const v of this.multipleSelection) {
         requestData.interfaceId = v.interfaceId;
       }
-      axios.post('interfaceCtrl/planInfo/create', requestData);
+      axios.post('paramCtrl/planInfo/create', requestData).then(
+          response => {
+            if (this.isRequestSuccess(response)) {
+              this.$message.success('创建成功');
+              this.getAllServerInterfaceInfo();
+            } else {
+              this.$message.info('创建失败');
+            }
+            ;
+          });
       this.$message.success('新增成功');
       // 重置formData
       this.interfaceData = {}
