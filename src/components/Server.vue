@@ -47,10 +47,7 @@
     </el-card>
     <!--     控制台 -->
     <el-card v-if="this.state = true" class="el-card-custom">
-
-      <div id="response-body"
-           ref="responseConsoleBody">
-      </div>
+      <json-console :jsonData="jsonData"></json-console>
 
     </el-card>
 
@@ -60,12 +57,13 @@
 <script>
 import stomp from "../stomp";
 import axios from "axios";
-import SockJS from 'sockjs-client';
-import Stomp from 'stompjs';
-
+import JsonConsole from "@/components/common/JsonConsole";
 
 export default {
   name: 'server',
+  components: {
+    JsonConsole,
+  },
   created() {
     this.getInterfaceTableData();
   },
@@ -80,8 +78,8 @@ export default {
     stomp.init(() => {
       // 初始化成功 就执行订阅
       stomp.sub("/topic/response", data => {
-        let body = data.body;
         console.log("订阅数据");
+        this.jsonData = data;
         console.log(data);
       })
     })
@@ -95,6 +93,8 @@ export default {
   },
   data() {
     return {
+      // json数据
+      jsonData: null,
       // 定时器
       timer: '',
       // netty服务端状态 true启动完成 false 关闭状态
@@ -178,6 +178,8 @@ export default {
       ],
       // 参数表数据
       paramTable: [],
+      //日志输出信息
+      consoleInfos: [],
     }
   },
   methods: {
@@ -206,8 +208,6 @@ export default {
         // HTTP方式启动
         // axios.post('/main/start/server', requestData);
         // STOMP 方式启动
-        let str = JSON.stringify(requestData);
-        var payload = JSON.stringify({ 'message': 'Marco!' });
         stomp.stompClient.send("/app/start/server", JSON.stringify(requestData));
 
         this.$message.success('启动中...');
@@ -252,6 +252,6 @@ export default {
         }
       });
     },
-  },
+  }
 }
 </script>
