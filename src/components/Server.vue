@@ -60,6 +60,8 @@
 <script>
 import stomp from "../stomp";
 import axios from "axios";
+import SockJS from 'sockjs-client';
+import Stomp from 'stompjs';
 
 
 export default {
@@ -82,14 +84,14 @@ export default {
         console.log("订阅数据");
         console.log(data);
       })
-      // 取消订阅
-      stomp.unSub("/topic/response")
     })
     //  启用重连 5秒检测一次
     stomp.reconnect(5)
   },
   destroyed() {
-    stomp.disconnect()
+    // 取消订阅
+    stomp.unSub("/topic/response");
+    stomp.disconnect();
   },
   data() {
     return {
@@ -205,7 +207,8 @@ export default {
         // axios.post('/main/start/server', requestData);
         // STOMP 方式启动
         let str = JSON.stringify(requestData);
-        stomp.stompClient.send("/app/start/server", {}, {"port": 8090, "interfaceId": "123"});
+        var payload = JSON.stringify({ 'message': 'Marco!' });
+        stomp.stompClient.send("/app/start/server", JSON.stringify(requestData));
 
         this.$message.success('启动中...');
 
