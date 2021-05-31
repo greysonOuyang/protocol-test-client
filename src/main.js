@@ -5,11 +5,13 @@ import ElementUI from "element-ui";
 import "element-ui/lib/theme-chalk/index.css";
 
 import i18n from "./lang";
-// import router from './router.js'
 
 import axios from "./axios";
-// import axios from "axios";
-Vue.prototype.$axios = axios; //全局注册，使用方法为:this.$axios
+Vue.prototype.axios = axios; //全局注册，使用方法为:this.$axios
+
+import stomp from "./stomp";
+Vue.prototype.stomp = stomp;
+
 
 import cloneDeep from 'lodash/cloneDeep';
 

@@ -722,7 +722,6 @@
       </div>
       <div id="response-body"
            ref="responseConsoleBody">
-        <!-- <json-console v-if="showJsonFlag" id="response-json" :jsonData="jsonData" ></json-console> -->
       </div>
     </div>
   </div>
