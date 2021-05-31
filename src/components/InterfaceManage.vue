@@ -202,7 +202,7 @@
       </el-card>
 
       <!-- 参数表 -->
-      <el-card v-if="paramTabVisiable"
+      <el-card v-if="paramTabVisible"
                :header="paramHeader"
                class="el-card-custom">
         <div style="margin-bottom: 20px">
@@ -307,7 +307,7 @@
 
         <div v-if="clientInterfaceOpt != null && clientInterfaceOpt.length != 0">
           <el-form-item>
-            <el-button @click="clientInterfaceVisiable = true"
+            <el-button @click="clientInterfaceVisible = true"
                        type="primary"
                        icon="el-icon-plus"
                        size="mini">新增
@@ -369,7 +369,7 @@
         </div>
 
         <el-dialog title="新增接口"
-                   :visible.sync="clientInterfaceVisiable"
+                   :visible.sync="clientInterfaceVisible"
                    :close-on-click-modal="false">
           <el-form v-model="clientInterfaceForm">
             <el-form-item v-if="this.requestType == 'HTTP'"
@@ -401,7 +401,7 @@
               <el-button type="primary"
                          @click="addClientInterface()">确定
               </el-button>
-              <el-button @click="clientInterfaceVisiable = false">取消</el-button>
+              <el-button @click="clientInterfaceVisible = false">取消</el-button>
             </el-form-item>
           </el-form>
         </el-dialog>
@@ -475,7 +475,7 @@
           <el-button @click="cancel()">取消</el-button>
         </el-dialog>
       </el-card>
-      <el-dialog :visible.sync="configTableVisiable"
+      <el-dialog :visible.sync="configTableVisible"
                  title="请求配置表">
         <el-table border
                   :data="clientConfigTableData">
@@ -508,14 +508,13 @@ export default {
   },
   mounted () {
   },
-
   data () {
     return {
       // 参数表编辑时是否要保存编辑前的数据，用于辅助参数表点击取消后的数据展示
       flag: true,
       clientConfigTableData: [],
       // 是否展示配置请求表
-      configTableVisiable: false,
+      configTableVisible: false,
       configForm: {},
       configTypeOpt: [
         {
@@ -627,8 +626,10 @@ export default {
       // 请求配置弹窗
       requestConfigDialog: false,
       // 客户端接口表新增弹窗
-      clientInterfaceVisiable: false,
+      clientInterfaceVisible: false,
+      // 当前选择的要展示的列表的请求类型
       requestType: 'HTTP',
+      // 当前页面展示客户端还是服务端的接口
       currentMode: 'client',
       requestTypeOpt: [
         {
@@ -652,9 +653,10 @@ export default {
         prop: 'server',
         label: '服务端'
       }],
-
+      // 新增计划信息弹窗是否可见
       addDialogVisible: false,
-      paramTabVisiable: false,
+      // 参数表是否可见
+      paramTabVisible: false,
       // 隐藏接口Id列
       idShow: false,
       // 当前参数表展示的参数类型
@@ -665,14 +667,12 @@ export default {
       editModeEnabled: false,
       /** 当前选中行 */
       paramHeader: '参数表',
-      //选中多行
+      // 选中多行
       multipleSelection: [],
-      checkedDetail: [],
       index: '',
       /** 组件可视化相关 */
       uploadExcelTabVisiable: false, // excel上传组件
       dialogTableVisible: false, // “添加接口”弹窗组件
-
       /** excel上传相关 */
       // 上传excel文件列表
       file: null,
@@ -870,16 +870,16 @@ export default {
       this.interfaceIdInEdit = val.interfaceId;
     },
     viewConfig (index, row) {
-      this.configTableVisiable = true;
+      this.configTableVisible = true;
     },
     viewOutPut (index, row) {
-      this.paramTabVisiable = true;
+      this.paramTabVisible = true;
       this.paramHeader = '输出参数';
       this.paramTable = row.output;
       this.paramType = 'output';
     },
     viewInPut (index, row) {
-      this.paramTabVisiable = true;
+      this.paramTabVisible = true;
       this.paramHeader = '输入参数';
       this.paramTable = row.input;
       console.log(this.paramTable);
@@ -1154,7 +1154,7 @@ export default {
           this.getAllInterfaceInfo();
         }
       );
-      this.clientInterfaceVisiable = false;
+      this.clientInterfaceVisible = false;
       this.clientInterfaceForm = {}
     },
     getAllInterfaceInfo () {

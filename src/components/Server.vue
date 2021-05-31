@@ -31,76 +31,79 @@
 
       </el-row>
       <el-row>
-        <!-- <el-col :xs="24"
-                :sm="12">
-          <div>
-            <p>当前服务启动端口为：{{port}}, 接口为{{tableData.interfaceName}}</p>
-          </div>
-        </el-col> -->
-        <!-- <el-col :xs="24"
-                :sm="12">
-
-        </el-col> -->
         <el-form-item style="text-align: right">
           <el-button v-if="ServerStatus === 'initializing'"
                      type="primary"
-                     @click="startServer()">启动服务端</el-button>
+                     @click="startServer()">启动服务端
+          </el-button>
           <el-button v-if="ServerStatus === 'success'"
                      type="success"
                      round
-                     @click="stopServer()">停止服务</el-button>
+                     @click="stopServer()">停止服务
+          </el-button>
         </el-form-item>
       </el-row>
 
     </el-card>
-    <!-- 控制台 -->
-    <!-- <el-card v-if="this.state = true" class="el-card-custom">
-                <el-form-item label="输入数据">
+    <!--     控制台 -->
+    <el-card v-if="this.state = true" class="el-card-custom">
 
-                </el-form-item>
-                <el-input class="input-data"
-                          type="textarea"
-                          :rows="2"
-                          size="medium"
-                          v-model="inputText">
-                </el-input>
-                <el-form-item label="输出数据">
-                </el-form-item>
-                <el-input type="textarea"
-                          :rows="2"
-                          v-model="outputText">
-                </el-input>
+      <div id="response-body"
+           ref="responseConsoleBody">
+      </div>
 
-              </el-card> -->
+    </el-card>
 
   </el-form>
 </template>
 
 <script>
-import axios from 'axios';
+import stomp from "../stomp";
+import axios from "axios";
+
 
 export default {
   name: 'server',
-  created () {
+  created() {
     this.getInterfaceTableData();
   },
-  activated () {
+  activated() {
     this.getInterfaceTableData();
   },
-  data () {
+  beforeDestroy() {
+    clearTimeout(this.timer);
+  },
+  mounted() {
+    // 初始化
+    stomp.init(() => {
+      // 初始化成功 就执行订阅
+      stomp.sub("/topic/response", data => {
+        let body = data.body;
+        console.log("订阅数据");
+        console.log(data);
+      })
+      // 取消订阅
+      stomp.unSub("/topic/response")
+    })
+    //  启用重连 5秒检测一次
+    stomp.reconnect(5)
+  },
+  destroyed() {
+    stomp.disconnect()
+  },
+  data() {
     return {
+      // 定时器
+      timer: '',
       // netty服务端状态 true启动完成 false 关闭状态
       ServerStatus: 'initializing',
       // 启动时选择的接口 值是接口Id
       currentInterfaceId: '',
       // 启动端口
       port: '',
-
       paramTabVisiable: false,
-
       // 当前参数表展示的参数类型
       paramType: '',
-
       // 修改表数据时选中的接口
       interfaceIdInEdit: '',
       // 表格是否支持编辑
@@ -110,7 +113,6 @@ export default {
       //选中多行
       multipleSelection: [],
       checkedDetail: [],
-
       index: '',
       /** 组件可视化相关 */
       uploadExcelTabVisiable: false, // excel上传组件
@@ -153,8 +155,7 @@ export default {
         }
       ],
       // 接口表数据
-      tableData: [
-      ],
+      tableData: [],
       /* 分页相关 */
       currentPage1: 1,
       pageSize: 10,
@@ -179,7 +180,7 @@ export default {
   },
   methods: {
     // 获取接口表数据
-    getInterfaceTableData () {
+    getInterfaceTableData() {
       var data = {};
       data.currentMode = "server"
       axios.post('/interfaceCtrl/interface/getAllServerInterfaceInfo', data).then(
@@ -189,7 +190,7 @@ export default {
       );
     },
     // 启动服务端
-    startServer () {
+    startServer() {
       if (this.port == '' || this.currentInterfaceId == null) {
         this.$alert("请点击表格中的一行作为启动接口并填写端口号", "提示", {
           confirmButtonText: "确定",
@@ -200,36 +201,45 @@ export default {
           port: this.port,
           interfaceId: this.currentInterfaceId
         }
-        axios.post('/main/start/server', requestData);
+        // HTTP方式启动
+        // axios.post('/main/start/server', requestData);
+        // STOMP 方式启动
+        let str = JSON.stringify(requestData);
+        stomp.stompClient.send("/app/start/server", {}, {"port": 8090, "interfaceId": "123"});
+
         this.$message.success('启动中...');
+
         var interval = setInterval(() => {
           let port = window.sessionStorage.getItem('port')
-          axios.get('/main/server/status', { params: { 'port': port } }).then(
-            res => {
-              if (res.data === 'initializing') {
+          axios.get('/main/server/status', {params: {'port': port}}).then(
+              res => {
+                if (res.data === 'initializing') {
                   console.log('启动中');
-              } else {
-                let returnData = JSON.stringify(res.data);
-                let result = JSON.parse(returnData);
-                if (result.result === "SUCCESS") {
-                  this.$message.success('启动成功');
-                  this.ServerStatus = 'success';
                 } else {
-                  this.$message.success('启动失败,请按F12查看控制台');
-                  console.log(result.msg);
+                  let returnData = JSON.stringify(res.data);
+                  let result = JSON.parse(returnData);
+                  if (result.result === "SUCCESS") {
+                    this.$message.success('启动成功');
+                    this.ServerStatus = 'success';
+                  } else {
+                    this.$message.success('启动失败,请按F12查看控制台');
+                    console.log(result.msg);
+                  }
+                  clearInterval(interval);
                 }
-                clearInterval(interval);
               }
-            }
           );
         }, 2000);
+        this.timer = setTimeout(() => {
+          clearInterval(interval);
+        }, 60000);
       }
 
     },
-    stopServer () {
+    stopServer() {
       let port = window.sessionStorage.getItem('port');
       // window.sessionStorage.setItem('state', false);
-      axios.get('/main/stop/server', { params: { 'port': port } }).then(res => {
+      axios.get('/main/stop/server', {params: {'port': port}}).then(res => {
         var isClose = res.data;
         if (isClose) {
           this.ServerStatus = "initializing";
