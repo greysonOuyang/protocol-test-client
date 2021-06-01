@@ -19,6 +19,7 @@
       <el-form-item label="请求接口"
                     style="width: 60%; margin-left: 0px">
         <el-select v-model="currentId"
+                   clearable
                    placeholder="请选择">
           <el-option v-for="item in requestInterfaceSelection"
                      :key="item.id"
