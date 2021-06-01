@@ -230,14 +230,17 @@ export default {
         // axios.post('/main/start/server', requestData);
         // STOMP 方式启动
         stomp.stompClient.send("/app/start/server", JSON.stringify(requestData));
-        // 初始化成功 就执行订阅
-        stomp.sub("/topic/response", data => {
-          this.$refs.consoleInfoRef.addConsoleInfo("SERVER_LOG", data);
-          this.$refs.consoleInfoRef.showConsoleInfo();
-        })
-        this.$message.success('启动中...');
-        this.getServerStatus();
+       this.subResponse();
       }
+    },
+    subResponse() {
+      // 初始化成功 就执行订阅
+      stomp.sub("/topic/response", data => {
+        this.$refs.consoleInfoRef.addConsoleInfo("SERVER_LOG", data);
+        this.$refs.consoleInfoRef.showConsoleInfo();
+      })
+      this.$message.success('启动中...');
+      this.getServerStatus();
     },
     stopServer() {
       let port = window.sessionStorage.getItem('port');
