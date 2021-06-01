@@ -131,6 +131,9 @@ export default {
         dom.scrollTop = dom.scrollHeight;
       }
     },
+    clearConsoleData(){
+     document.getElementById("console-content").innerHTML="";
+    },
   },
 }
 </script>

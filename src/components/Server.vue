@@ -58,10 +58,15 @@
                 plain
                 @click="stopReceive()">暂停接收
             </el-button>
+              <el-button
+                  type="info"
+                  plain
+                  @click="startAgainReceive()">重新接收
+              </el-button>
             <el-button
                 type="info"
                 plain
-                onclick="document.getElementById('console-content').value=''">清空内容
+                onclick="clearAllData()">清空内容
             </el-button>
            </div>
           </el-col>
@@ -86,6 +91,12 @@ export default {
   },
   created() {
     this.getInterfaceTableData();
+  },
+  startAgainReceive(){
+
+  },
+  clearAllData(){
+    this.$refs.consoleInfoRef.clearConsoleData();
   },
   activated() {
     this.getInterfaceTableData();
