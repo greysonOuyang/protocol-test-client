@@ -86,7 +86,7 @@ export default {
      * @param text
      * @param dataMsg
      */
-    addConsoleInfo: function (log, dataMsg) {
+    addConsoleInfo(log, dataMsg) {
       const el = document.createElement("div");
       if (log === "SUCCESS" || log === SERVER_LOG) {
         el.style.color = "#28a745";

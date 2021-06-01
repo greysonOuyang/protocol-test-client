@@ -904,6 +904,7 @@ export default {
             if (data != null) {
                 this.requestData.body = data.content;
                 this.requestData.url = data.url;
+                this.requestData.port = data.port;
                 this.requestData.method = data.requestMethod;
                 // 获取当前接口的配置内容
                 configList = data.configList;
@@ -1028,21 +1029,20 @@ export default {
                         },
                     ]
                 }
-            } else {
-                if (this.requestData.requestType === REQUEST_TYPE_TCP) {
-                    // 是modbus协议
-                    if (this.change.protocolType === "modbus") {
-                        tempArr = [
-                            {
-                                value: "4",
-                                label: '读取操作参数'
-                            },
-                            {
-                                value: "5",
-                                label: '控制命令操作'
-                            }
-                        ];
-                    }
+            }
+            if (this.requestData.requestType === REQUEST_TYPE_TCP) {
+                // 是modbus协议
+                if (this.change.protocolType === "modbus") {
+                    tempArr = [
+                        {
+                            value: "4",
+                            label: '读取操作参数'
+                        },
+                        {
+                            value: "5",
+                            label: '控制命令操作'
+                        }
+                    ];
                 }
             }
             if (tempArr.length !== 0) {
