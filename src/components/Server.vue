@@ -43,7 +43,6 @@
           </el-button>
         </el-form-item>
       </el-row>
-
     </el-card>
     <!--     控制台 -->
 
@@ -86,9 +85,21 @@ export default {
   },
   created() {
     this.getInterfaceTableData();
+    this.getServerStatus();
+    if (window.sessionStorage) {
+      const port = window.sessionStorage.getItem("port");
+      if(port !=='' || port != null){
+        this.port = port;
+      };
+      const interfaceId = window.sessionStorage.getItem("interface");
+      if(interfaceId !=='' || interfaceId != null){
+        this.currentInterfaceId = interfaceId;
+      }
+    };
   },
   activated() {
     this.getInterfaceTableData();
+    this.getServerStatus();
   },
   beforeDestroy() {
     clearTimeout(this.timer);
@@ -222,6 +233,7 @@ export default {
         });
       } else {
         window.sessionStorage.setItem('port', this.port);
+        window.sessionStorage.setItem("interface", this.currentInterfaceId);
         var requestData = {
           port: this.port,
           interfaceId: this.currentInterfaceId
@@ -230,40 +242,17 @@ export default {
         // axios.post('/main/start/server', requestData);
         // STOMP 方式启动
         stomp.stompClient.send("/app/start/server", JSON.stringify(requestData));
-        // 初始化成功 就执行订阅
-        stomp.sub("/topic/response", data => {
-          this.$refs.consoleInfoRef.addConsoleInfo("SERVER_LOG", data);
-          this.$refs.consoleInfoRef.showConsoleInfo();
-        })
-
-        this.$message.success('启动中...');
-
-        var interval = setInterval(() => {
-          let port = window.sessionStorage.getItem('port')
-          axios.get('/main/server/status', {params: {'port': port}}).then(
-              res => {
-                if (res.data === 'initializing') {
-                  console.log('启动中');
-                } else {
-                  let returnData = JSON.stringify(res.data);
-                  let result = JSON.parse(returnData);
-                  if (result.result === "SUCCESS") {
-                    this.$message.success('启动成功');
-                    this.ServerStatus = 'success';
-                  } else {
-                    this.$message.success('启动失败,请按F12查看控制台');
-                    console.log(result.msg);
-                  }
-                  clearInterval(interval);
-                }
-              }
-          );
-        }, 2000);
-        this.timer = setTimeout(() => {
-          clearInterval(interval);
-        }, 60000);
+       this.subResponse();
       }
-
+    },
+    subResponse() {
+      // 初始化成功 就执行订阅
+      stomp.sub("/topic/response", data => {
+        this.$refs.consoleInfoRef.addConsoleInfo("SERVER_LOG", data);
+        this.$refs.consoleInfoRef.showConsoleInfo();
+      })
+      this.$message.success('启动中...');
+      this.getServerStatus();
     },
     stopServer() {
       let port = window.sessionStorage.getItem('port');
@@ -278,6 +267,30 @@ export default {
         }
       });
     },
+    getServerStatus() {
+      const interval = setInterval(() => {
+        let port = window.sessionStorage.getItem('port')
+        axios.get('/main/server/status', {params: {'port': port}}).then(
+            res => {
+              if (res.data === 'initializing') {
+                console.log('启动中');
+              } else {
+                let returnData = JSON.stringify(res.data);
+                let result = JSON.parse(returnData);
+                if (result.result === "SUCCESS") {
+                  this.ServerStatus = 'success';
+                } else {
+                  this.ServerStatus = 'initializing';
+                }
+                clearInterval(interval);
+              }
+            }
+        );
+      }, 2000);
+      this.timer = setTimeout(() => {
+        clearInterval(interval);
+      }, 60000);
+    }
   }
 }
 </script>
