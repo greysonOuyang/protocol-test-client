@@ -47,7 +47,7 @@
     </el-card>
     <!--     控制台 -->
 
-    <el-card v-if="this.state = true" class="el-card-custom">
+    <el-card v-if="ServerStatus === 'success'" class="el-card-custom">
       <!--      <json-console :jsonData="jsonData"></json-console>-->
       <el-button
                  type="success"
@@ -85,15 +85,7 @@ export default {
   },
   mounted() {
     // 初始化
-    stomp.init(() => {
-      // 初始化成功 就执行订阅
-      stomp.sub("/topic/response", data => {
-        console.log("订阅数据")
-        this.$refs.consoleInfoRef.addConsoleInfo("SERVER_LOG", data);
-        this.$refs.consoleInfoRef.showConsoleInfo();
-        console.log(data);
-      })
-    });
+    stomp.init();
     //  启用重连 5秒检测一次
     // stomp.reconnect(5)
   },
@@ -226,6 +218,11 @@ export default {
         // axios.post('/main/start/server', requestData);
         // STOMP 方式启动
         stomp.stompClient.send("/app/start/server", JSON.stringify(requestData));
+        // 初始化成功 就执行订阅
+        stomp.sub("/topic/response", data => {
+          this.$refs.consoleInfoRef.addConsoleInfo("SERVER_LOG", data);
+          this.$refs.consoleInfoRef.showConsoleInfo();
+        })
 
         this.$message.success('启动中...');
 

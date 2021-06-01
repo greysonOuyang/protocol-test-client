@@ -34,8 +34,8 @@ export default {
         let timestamp= new Date().getTime() + address
         this.console("订阅成功 -> "+address)
         this.stompClient.subscribe(address,message => {
-            this.console(address+" 订阅消息通知,信息如下 ↓")
-            this.console(message)
+            // this.console(address+" 订阅消息通知,信息如下 ↓")
+            // this.console(message)
             let data = message.body;
             callBack(data);
         },{
