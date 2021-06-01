@@ -133,6 +133,9 @@ export default {
         contentBodyEl.append(this.contentDom);
         contentBodyEl.scrollTop = contentBodyEl.scrollHeight;
     },
+    clearConsoleData(){
+     document.getElementById("console-content").innerHTML="";
+    },
   },
 }
 </script>

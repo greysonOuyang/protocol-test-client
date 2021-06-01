@@ -14,7 +14,7 @@
          href="/">
         <img src="./assets/yuyilogo.png"
              alt="" />
-        <span>Orion-Stress-Tester</span>
+        <span><a href="http://www.yuyisz.com/" >宇翊调测工具</a></span>
       </a>
     </el-header>
     <el-container>
