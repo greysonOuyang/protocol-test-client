@@ -49,12 +49,24 @@
 
     <el-card v-if="ServerStatus === 'success'" class="el-card-custom">
       <!--      <json-console :jsonData="jsonData"></json-console>-->
-      <el-button
-                 type="success"
-                 round
-                 @click="stopReceive()">暂停接收
-      </el-button>
-      <console-info ref="consoleInfoRef"></console-info>
+
+        <el-row>
+          <el-col :span="24">
+            <div style="float: right;">
+            <el-button
+                type="info"
+                plain
+                @click="stopReceive()">暂停接收
+            </el-button>
+            <el-button
+                type="info"
+                plain
+                onclick="document.getElementById('console-content').value=''">清空内容
+            </el-button>
+           </div>
+          </el-col>
+        </el-row>
+        <console-info ref="consoleInfoRef"></console-info>
     </el-card>
 
   </el-form>
