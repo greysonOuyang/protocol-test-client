@@ -9,7 +9,7 @@
                 :sm="12">
           <el-form-item label="端口"
                         style="width: 60%; margin-left: 0px">
-            <el-input v-model="port"></el-input>
+            <el-input v-model="port" @blur="cachePort"></el-input>
           </el-form-item>
 
         </el-col>
@@ -18,6 +18,7 @@
           <el-form-item label="接口"
                         style="width: 60%; margin-left: 0px">
             <el-select v-model="currentInterfaceId"
+                       @change="cacheInterface"
                        placeholder="请选择">
               <el-option v-for="item in tableData"
                          :key="item.interfaceId"
@@ -43,7 +44,6 @@
           </el-button>
         </el-form-item>
       </el-row>
-
     </el-card>
     <!--     控制台 -->
 
@@ -74,9 +74,21 @@ export default {
   },
   created() {
     this.getInterfaceTableData();
+    this.getServerStatus();
+    if (window.sessionStorage) {
+      const port = window.sessionStorage.getItem("port");
+      if(port !=='' || port != null){
+        this.port = port;
+      };
+      const interfaceId = window.sessionStorage.getItem("interface");
+      if(interfaceId !=='' || interfaceId != null){
+        this.currentInterfaceId = interfaceId;
+      }
+    };
   },
   activated() {
     this.getInterfaceTableData();
+    this.getServerStatus();
   },
   beforeDestroy() {
     clearTimeout(this.timer);
@@ -189,6 +201,16 @@ export default {
   watch: {
   },
   methods: {
+    cachePort() {
+      if (window.sessionStorage) {
+        window.sessionStorage.setItem("port", this.port)
+      }
+    },
+    cacheInterface() {
+      if (window.sessionStorage) {
+        window.sessionStorage.setItem("interface", this.currentInterfaceId)
+      }
+    },
     stopReceive() {
       stomp.unSub("/topic/response");
     },
@@ -223,35 +245,15 @@ export default {
           this.$refs.consoleInfoRef.addConsoleInfo("SERVER_LOG", data);
           this.$refs.consoleInfoRef.showConsoleInfo();
         })
-
         this.$message.success('启动中...');
-
-        var interval = setInterval(() => {
-          let port = window.sessionStorage.getItem('port')
-          axios.get('/main/server/status', {params: {'port': port}}).then(
-              res => {
-                if (res.data === 'initializing') {
-                  console.log('启动中');
-                } else {
-                  let returnData = JSON.stringify(res.data);
-                  let result = JSON.parse(returnData);
-                  if (result.result === "SUCCESS") {
-                    this.$message.success('启动成功');
-                    this.ServerStatus = 'success';
-                  } else {
-                    this.$message.success('启动失败,请按F12查看控制台');
-                    console.log(result.msg);
-                  }
-                  clearInterval(interval);
-                }
-              }
-          );
-        }, 2000);
-        this.timer = setTimeout(() => {
-          clearInterval(interval);
-        }, 60000);
+        this.getServerStatus();
+        if (this.ServerStatus === 'success') {
+          this.$message.success('启动成功');
+        } else {
+          this.$message.success('启动失败,请按F12查看控制台');
+          console.log(result.msg);
+        }
       }
-
     },
     stopServer() {
       let port = window.sessionStorage.getItem('port');
@@ -266,6 +268,30 @@ export default {
         }
       });
     },
+    getServerStatus() {
+      const interval = setInterval(() => {
+        let port = window.sessionStorage.getItem('port')
+        axios.get('/main/server/status', {params: {'port': port}}).then(
+            res => {
+              if (res.data === 'initializing') {
+                console.log('启动中');
+              } else {
+                let returnData = JSON.stringify(res.data);
+                let result = JSON.parse(returnData);
+                if (result.result === "SUCCESS") {
+                  this.ServerStatus = 'success';
+                } else {
+                  this.ServerStatus = 'initializing';
+                }
+                clearInterval(interval);
+              }
+            }
+        );
+      }, 2000);
+      this.timer = setTimeout(() => {
+        clearInterval(interval);
+      }, 60000);
+    }
   }
 }
 </script>
