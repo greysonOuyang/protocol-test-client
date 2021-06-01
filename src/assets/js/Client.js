@@ -294,6 +294,7 @@ export default {
                 if (this.requestData.requestType === REQUEST_TYPE_HTTP) {
                     return "config";
                 }
+                return "config";
             } else if (this.contentFormat === "4") {
                 if (this.requestData.requestType === REQUEST_TYPE_TCP) {
                     return "modbusRead";
@@ -918,8 +919,8 @@ export default {
                         this.inputConfigArr.push(v);
                     }
                     if (configType === "select") {
-                        v.index = index;
                         this.isExistSelect = true;
+                        v.index = index;
                         this.SelectConfigArr.push(v);
                         index = index + 1;
                         const configArr = v.configValue.split("；");
