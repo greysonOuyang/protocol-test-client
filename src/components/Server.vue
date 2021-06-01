@@ -47,30 +47,16 @@
     <!--     控制台 -->
 
     <el-card v-if="ServerStatus === 'success'" class="el-card-custom">
-      <!--      <json-console :jsonData="jsonData"></json-console>-->
 
-        <el-row>
+        <el-form-item style="text-align: right">
           <el-col :span="24">
-            <div style="float: right;">
-            <el-button
-                type="info"
-                plain
-                @click="stopReceive()">暂停接收
-            </el-button>
-              <el-button
-                  type="info"
-                  plain
-                  @click="startAgainReceive()">重新接收
-              </el-button>
-            <el-button
-                type="info"
-                plain
-                onclick="clearAllData()">清空内容
-            </el-button>
-           </div>
+            <el-checkbox style="margin-right: 10px" v-model="pauseReceive">暂停接收</el-checkbox>
+            <el-button type="text" @click="clearContent()">清空内容</el-button>
+<!--            <el-button size="mini" @click="clearContent()">清空内容</el-button>-->
           </el-col>
-        </el-row>
-        <console-info ref="consoleInfoRef"></console-info>
+        </el-form-item>
+
+      <console-info ref="consoleInfoRef"></console-info>
     </el-card>
 
   </el-form>
@@ -93,14 +79,16 @@ export default {
     this.getServerStatus();
     if (window.sessionStorage) {
       const port = window.sessionStorage.getItem("port");
-      if(port !=='' || port != null){
+      if (port !== '' || port != null) {
         this.port = port;
-      };
+      }
+      ;
       const interfaceId = window.sessionStorage.getItem("interface");
-      if(interfaceId !=='' || interfaceId != null){
+      if (interfaceId !== '' || interfaceId != null) {
         this.currentInterfaceId = interfaceId;
       }
-    };
+    }
+    ;
   },
   startAgainReceive(){
 
@@ -115,11 +103,12 @@ export default {
   beforeDestroy() {
     clearTimeout(this.timer);
   },
-  computed: {
-  },
+  computed: {},
   mounted() {
     // 初始化
-    stomp.init();
+    stomp.init( () => {
+      this.subResponse();
+    });
     //  启用重连 5秒检测一次
     // stomp.reconnect(5)
   },
@@ -130,6 +119,7 @@ export default {
   },
   data() {
     return {
+      pauseReceive: false,
       // 传给consoleInfo控件的数据
       responseData: '',
       text: '',
@@ -221,10 +211,19 @@ export default {
     }
   },
   watch: {
+    pauseReceive(val) {
+      if (val) {
+        stomp.unSub("/topic/response");
+      } else {
+        this.subResponse();
+      }
+    }
   },
   methods: {
-    stopReceive() {
-      stomp.unSub("/topic/response");
+    clearContent() {
+      const consoleContent = document.getElementById('contentForClear');
+      const parent = consoleContent.parentElement;
+      parent.removeChild(consoleContent);
     },
     // 获取接口表数据
     getInterfaceTableData() {
@@ -253,7 +252,10 @@ export default {
         // axios.post('/main/start/server', requestData);
         // STOMP 方式启动
         stomp.stompClient.send("/app/start/server", JSON.stringify(requestData));
-       this.subResponse();
+        this.subResponse();
+        this.$message.success('启动中...');
+        this.getServerStatus();
+
       }
     },
     subResponse() {
@@ -262,8 +264,6 @@ export default {
         this.$refs.consoleInfoRef.addConsoleInfo("SERVER_LOG", data);
         this.$refs.consoleInfoRef.showConsoleInfo();
       })
-      this.$message.success('启动中...');
-      this.getServerStatus();
     },
     stopServer() {
       let port = window.sessionStorage.getItem('port');

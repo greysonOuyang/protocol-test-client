@@ -832,10 +832,7 @@ export default {
             }).$mount();
             var jsonEl = this.jsonConsoleComp.$el;
 
-            var time = new Date()
-                .toISOString()
-                .replace("T", " ")
-                .replace("Z", "");
+            var time = this.getTime();
             var el = document.createElement("div");
             if (log == "SUCCESS") {
                 el.style.color = "#28a745";
@@ -885,6 +882,12 @@ export default {
                 dom.appendChild(fragment);
                 dom.scrollTop = dom.scrollHeight;
             }
+        },
+        getTime() {
+            var timezone = 8; //目标时区时间，东八区
+            var offset_GMT = new Date().getTimezoneOffset(); // 本地时间和格林威治的时间差，单位为分钟
+            var nowDate = new Date().getTime(); // 本地时间距 1970 年 1 月 1 日午夜（GMT 时间）之间的毫秒数
+            return new Date(nowDate + offset_GMT * 60 * 1000 + timezone * 60 * 60 * 1000);
         },
     },
     watch: {
