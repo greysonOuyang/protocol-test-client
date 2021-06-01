@@ -247,10 +247,6 @@
                     :label="item.value"
                     :key="item.value"
                     >{{item.label}}</el-radio>
-<!--          <el-radio :label="1">JSON</el-radio>-->
-<!--          <el-radio :label="2">配置</el-radio>-->
-<!--          <el-radio :label="3">读取操作参数</el-radio>-->
-<!--          <el-radio :label="4">控制命令操作</el-radio>-->
         </el-radio-group>
       </el-form-item>
       <!-- 构造广州综合监控ATS请求信息 -->
@@ -289,6 +285,7 @@
             <el-input v-model="selectArr[item.configKey]"></el-input>
           </el-form-item>
         </el-row>
+
         <el-row v-if="isExistSelect">
           <el-form-item
                         v-for="item in SelectConfigArr"
