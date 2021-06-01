@@ -9,7 +9,7 @@
                 :sm="12">
           <el-form-item label="端口"
                         style="width: 60%; margin-left: 0px">
-            <el-input v-model="port" @blur="cachePort"></el-input>
+            <el-input v-model="port"></el-input>
           </el-form-item>
 
         </el-col>
@@ -18,7 +18,6 @@
           <el-form-item label="接口"
                         style="width: 60%; margin-left: 0px">
             <el-select v-model="currentInterfaceId"
-                       @change="cacheInterface"
                        placeholder="请选择">
               <el-option v-for="item in tableData"
                          :key="item.interfaceId"
@@ -201,16 +200,6 @@ export default {
   watch: {
   },
   methods: {
-    cachePort() {
-      if (window.sessionStorage) {
-        window.sessionStorage.setItem("port", this.port)
-      }
-    },
-    cacheInterface() {
-      if (window.sessionStorage) {
-        window.sessionStorage.setItem("interface", this.currentInterfaceId)
-      }
-    },
     stopReceive() {
       stomp.unSub("/topic/response");
     },
@@ -232,6 +221,7 @@ export default {
         });
       } else {
         window.sessionStorage.setItem('port', this.port);
+        window.sessionStorage.setItem("interface", this.currentInterfaceId);
         var requestData = {
           port: this.port,
           interfaceId: this.currentInterfaceId
@@ -247,12 +237,6 @@ export default {
         })
         this.$message.success('启动中...');
         this.getServerStatus();
-        if (this.ServerStatus === 'success') {
-          this.$message.success('启动成功');
-        } else {
-          this.$message.success('启动失败,请按F12查看控制台');
-          console.log(result.msg);
-        }
       }
     },
     stopServer() {
