@@ -46,23 +46,31 @@
 
     </el-card>
     <!--     控制台 -->
-    <el-card v-if="this.state = true" class="el-card-custom">
-      <json-console :jsonData="jsonData"></json-console>
 
+    <el-card v-if="this.state = true" class="el-card-custom">
+      <!--      <json-console :jsonData="jsonData"></json-console>-->
+      <el-button
+                 type="success"
+                 round
+                 @click="stopReceive()">暂停接收
+      </el-button>
+      <console-info ref="consoleInfoRef"></console-info>
     </el-card>
 
   </el-form>
 </template>
 
 <script>
-import stomp from "../stomp";
 import axios from "axios";
 import JsonConsole from "@/components/common/JsonConsole";
+import ConsoleInfo from "@/components/common/ConsoleInfo";
+import stomp from "../stomp"
 
 export default {
   name: 'server',
   components: {
     JsonConsole,
+    ConsoleInfo
   },
   created() {
     this.getInterfaceTableData();
@@ -73,18 +81,21 @@ export default {
   beforeDestroy() {
     clearTimeout(this.timer);
   },
+  computed: {
+  },
   mounted() {
     // 初始化
     stomp.init(() => {
       // 初始化成功 就执行订阅
       stomp.sub("/topic/response", data => {
-        console.log("订阅数据");
-        this.jsonData = data;
+        console.log("订阅数据")
+        this.$refs.consoleInfoRef.addConsoleInfo("SERVER_LOG", data);
+        this.$refs.consoleInfoRef.showConsoleInfo();
         console.log(data);
       })
-    })
+    });
     //  启用重连 5秒检测一次
-    stomp.reconnect(5)
+    // stomp.reconnect(5)
   },
   destroyed() {
     // 取消订阅
@@ -93,8 +104,9 @@ export default {
   },
   data() {
     return {
-      // json数据
-      jsonData: null,
+      // 传给consoleInfo控件的数据
+      responseData: '',
+      text: '',
       // 定时器
       timer: '',
       // netty服务端状态 true启动完成 false 关闭状态
@@ -182,7 +194,12 @@ export default {
       consoleInfos: [],
     }
   },
+  watch: {
+  },
   methods: {
+    stopReceive() {
+      stomp.unSub("/topic/response");
+    },
     // 获取接口表数据
     getInterfaceTableData() {
       var data = {};
