@@ -260,12 +260,12 @@
                            editable-component="el-select"
                            :can-edit="editModeEnabled"
                            close-event="change"
-                           v-model="row.paramType">
+                           v-model="row.type">
 
               <el-tag size="medium"
                       type="primary"
                       slot="content">
-                {{ row.paramType }}
+                {{ row.type }}
               </el-tag>
 
               <template slot="edit-component-slot">
@@ -716,14 +716,14 @@ export default {
       // 数据录入表格相关
       paramDataOpt: [
         {
-          prop: "paramField",
+          prop: "field",
           label: "参数名称",
         },
         {
-          prop: "paramLength",
+          prop: "length",
           label: "参数长度",
         }, {
-          prop: "paramValue",
+          prop: "value",
           label: "参数值",
         },
       ],
