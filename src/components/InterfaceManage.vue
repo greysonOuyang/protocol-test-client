@@ -132,7 +132,7 @@
                 <el-option v-for="item in messageTypeOpt"
                            :key="item.type"
                            :label="item.description"
-                           :value="item.description">
+                           :value="item.type">
                 </el-option>
               </el-select>
             </el-form-item>
@@ -566,6 +566,26 @@ export default {
         }, {
           type: '0x06',
           description: '站台门隔离状态信息'
+        },
+        {
+          type: '0x01',
+          description: '心跳信息'
+        },
+        {
+          type: '0x02',
+          description: '站台首末班车信息'
+        },
+        {
+          type: '0x03',
+          description: '站台到站列车信息'
+        },
+        {
+          type: '0x04',
+          description: '列车到站信息'
+        },
+        {
+          type: '0x0A',
+          description: '列车满载率信息'
         },
       ],
       clientInterfaceForm: {},
