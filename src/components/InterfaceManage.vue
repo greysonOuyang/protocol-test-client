@@ -71,7 +71,7 @@
                            label="接口Id"
                            v-if="idShow"
                            align='center'></el-table-column>
-          <el-table-column prop="interfaceType"
+          <el-table-column prop="description"
                            label="消息类型"
                            width="180"
                            align='center'></el-table-column>
@@ -562,10 +562,6 @@ export default {
       ],
       messageTypeOpt: [
       ],
-      message14TypeOpt: [
-      ],
-
-
       clientInterfaceForm: {},
       // 选择项
       requestMethodOpt: [
@@ -1113,6 +1109,7 @@ export default {
       var data = {
         interfaceType: this.interfaceData.interfaceType,
         interfaceName: this.interfaceData.interfaceName,
+        lineNumber: this.lineInfo.lineNumber,
         currentMode: this.currentMode,
       }
       axios.post('/interfaceCtrl/interface/server/add', data).then(
@@ -1264,9 +1261,9 @@ export default {
     },
     hangleLine(){
       console.log("线路是",this.lineInfo.lineNumber);
-      let messageTypeOpt =[];
+      let contentFormatOpt = [];
       if(this.lineInfo.lineNumber == 18){
-        messageTypeOpt = [{
+        this.messageTypeOpt = [{
               type: '0x01',
               description: '心跳信息'
         }, {
@@ -1286,7 +1283,7 @@ export default {
               description: '站台门隔离状态信息'
         }
       ]}else{
-        messageTypeOpt = [
+        this.messageTypeOpt = [
           {
             type: '0x01',
             description: '心跳信息'
@@ -1309,7 +1306,9 @@ export default {
           },
         ]
       }
-      return messageTypeOpt;
+
+      contentFormatOpt = contentFormatOpt.concat( this.messageTypeOpt);
+      return contentFormatOpt;
     }
   }
 }
