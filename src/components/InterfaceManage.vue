@@ -126,13 +126,18 @@
                    :visible.sync="dialogTableVisible"
                    :close-on-click-modal="false">
           <el-form>
+            <!-- 请求类型选择 -->
+            <el-form-item label="请选择线路">
+              <el-radio v-model="lineInfo.lineNumber" label="14">14号线</el-radio>
+              <el-radio v-model="lineInfo.lineNumber" label="18">18/22号线</el-radio>
+            </el-form-item>
             <el-form-item label="消息类型">
               <el-select v-model="interfaceData.interfaceType"
-                         placeholder="请选择">
-                <el-option v-for="item in messageTypeOpt"
+                         placeholder="请选择" >
+                <el-option v-for="item in hangleLine"
                            :key="item.type"
                            :label="item.description"
-                           :value="item.type">
+                           :value="item.description">
                 </el-option>
               </el-select>
             </el-form-item>
@@ -547,47 +552,20 @@ export default {
       ],
       // 表单配置项数据
       configTableData: [],
-      messageTypeOpt: [
-        {
-          type: '0x01',
-          description: '心跳信息'
-        }, {
-          type: '0x02',
-          description: '列车信息'
-        }, {
-          type: '0x03',
-          description: '计划信息'
-        }, {
-          type: '0x04',
-          description: '首末班信息'
-        }, {
-          type: '0x05',
-          description: '车门隔离状态信息'
-        }, {
-          type: '0x06',
-          description: '站台门隔离状态信息'
-        },
-        {
-          type: '0x01',
-          description: '心跳信息'
-        },
-        {
-          type: '0x02',
-          description: '站台首末班车信息'
-        },
-        {
-          type: '0x03',
-          description: '站台到站列车信息'
-        },
-        {
-          type: '0x04',
-          description: '列车到站信息'
-        },
-        {
-          type: '0x0A',
-          description: '列车满载率信息'
-        },
+      lineInfo:[{
+        lineNumber: '14',
+        description: '14号线'
+      },{
+        lineNumber: '18',
+        description: '18/22号线'
+       },
       ],
+      messageTypeOpt: [
+      ],
+      message14TypeOpt: [
+      ],
+
+
       clientInterfaceForm: {},
       // 选择项
       requestMethodOpt: [
@@ -1284,6 +1262,55 @@ export default {
         return this.tcpInterfaceOpt;
       }
     },
+    hangleLine(){
+      console.log("线路是",this.lineInfo.lineNumber);
+      let messageTypeOpt =[];
+      if(this.lineInfo.lineNumber == 18){
+        messageTypeOpt = [{
+              type: '0x01',
+              description: '心跳信息'
+        }, {
+          type: '0x02',
+              description: '列车信息'
+        }, {
+          type: '0x03',
+              description: '计划信息'
+        }, {
+          type: '0x04',
+              description: '首末班信息'
+        }, {
+          type: '0x05',
+              description: '车门隔离状态信息'
+        }, {
+          type: '0x06',
+              description: '站台门隔离状态信息'
+        }
+      ]}else{
+        messageTypeOpt = [
+          {
+            type: '0x01',
+            description: '心跳信息'
+          },
+          {
+            type: '0x02',
+            description: '站台首末班车信息'
+          },
+          {
+            type: '0x03',
+            description: '站台到站列车信息'
+          },
+          {
+            type: '0x04',
+            description: '列车到站信息'
+          },
+          {
+            type: '0x0A',
+            description: '列车满载率信息'
+          },
+        ]
+      }
+      return messageTypeOpt;
+    }
   }
 }
 </script>
