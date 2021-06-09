@@ -137,7 +137,7 @@
                 <el-option v-for="item in hangleLine"
                            :key="item.type"
                            :label="item.description"
-                           :value="item.description">
+                           :value="item.type">
                 </el-option>
               </el-select>
             </el-form-item>
