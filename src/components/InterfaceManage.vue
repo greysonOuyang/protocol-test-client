@@ -148,9 +148,6 @@
               <el-button type="primary"
                          @click="addServerInterfaceConfig()">确定
               </el-button>
-              <el-button type="primary"
-                         @click="addInterfaceConfig()">确定缓存
-              </el-button>
               <el-button @click="dialogTableVisible = false">取消</el-button>
             </el-form-item>
           </el-form>
@@ -1117,27 +1114,6 @@ export default {
           if (this.isRequestSuccess(response)) {
             this.$message.success('创建成功');
             this.getAllServerInterfaceInfo();
-          } else {
-            this.$message.success('创建失败');
-          }
-        }
-      )
-      // 重置formData
-      this.interfaceData = {}
-      this.dialogTableVisible = false;
-    },
-    // 缓存方式的方法
-    addInterfaceConfig () {
-      var data = {
-        interfaceType: this.interfaceData.interfaceType,
-        interfaceName: this.interfaceData.interfaceName,
-      }
-      console.log("上送到是：", data.currentMode)
-      axios.post('/interfaceCtrl/interface/add', data).then(
-        response => {
-          if (this.isRequestSuccess(response)) {
-            this.$message.success('创建成功');
-            this.getInterfaceTableData();
           } else {
             this.$message.success('创建失败');
           }
