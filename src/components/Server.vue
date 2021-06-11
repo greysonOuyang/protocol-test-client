@@ -4,10 +4,18 @@
            ref="requestServerTable">
     <!-- 启动 -->
     <el-card class="el-card-custom">
+      <!-- 请求类型选择 -->
+      <el-form-item label="模式">
+        <el-radio-group v-model="mode"
+                        :placeholder="$t('select')">
+          <el-radio label="server">服务端</el-radio>
+          <el-radio label="client">客户端</el-radio>
+        </el-radio-group>
+      </el-form-item>
       <el-row>
         <el-col :xs="24"
                 :sm="12">
-          <el-form-item label="请输入地址"
+          <el-form-item v-if="mode=='client'" label="IP地址"
                         style="width: 60%; margin-left: 0px">
             <el-input v-model="host"></el-input>
           </el-form-item>
@@ -40,7 +48,9 @@
         <el-form-item style="text-align: right">
           <el-button v-if="ServerStatus === 'initializing'"
                      type="primary"
-                     @click="startServer()">启动服务端
+                     @click="startServer()">{{
+              mode === 'server' ? '启动服务端' : '启动客户端'
+            }}
           </el-button>
           <el-button v-if="ServerStatus === 'success'"
                      type="success"
@@ -125,6 +135,7 @@ export default {
   },
   data() {
     return {
+      mode: 'server',
       pauseReceive: false,
       // 传给consoleInfo控件的数据
       responseData: '',
@@ -253,6 +264,7 @@ export default {
         window.sessionStorage.setItem('port', this.port);
         window.sessionStorage.setItem("interface", this.currentInterfaceId);
         var requestData = {
+          mode: this.mode,
           host: this.host,
           port: this.port,
           interfaceId: this.currentInterfaceId

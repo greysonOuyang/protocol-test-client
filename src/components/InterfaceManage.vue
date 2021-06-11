@@ -17,6 +17,10 @@
     <div id="server"
          v-if="currentMode == 'server'">
       <el-card class="el-card-custom"
+               header="项目配置">
+
+      </el-card>
+      <el-card class="el-card-custom"
                header="接口配置">
         <div style="margin-bottom: 20px">
           <el-button @click="btnAddPlanInfo()"
@@ -208,13 +212,6 @@
                :header="paramHeader"
                class="el-card-custom">
         <div style="margin-bottom: 20px">
-          <!--          <el-switch v-model="editModeEnabled"-->
-          <!--                     style="margin-right: 20px"-->
-          <!--                     active-color="#13ce6"-->
-          <!--                     inactive-color="#ff4949"-->
-          <!--                     active-text="编辑"-->
-          <!--                     inactive-text="查看">-->
-          <!--          </el-switch>-->
           <el-button v-model="editModeEnabled"
                      @click="editParamData"
                      type="primary"
@@ -286,16 +283,6 @@
          v-if="currentMode == 'client'">
       <el-card class="el-card-custom"
                header="接口配置">
-        <!-- 请求类型选择 -->
-        <!-- <el-form-item label="请求形式">
-          <el-radio-group v-model="requestType"
-                          placeholder="请选择">
-            <el-radio label="HTTP">HTTP/S</el-radio>
-            <el-radio label="WebSocket">WebSocket/S</el-radio>
-            <el-radio label="TCP">TCP/S</el-radio>
-            <el-radio label="UDP">UDP</el-radio>
-          </el-radio-group>
-        </el-form-item> -->
         <el-form-item label="请求形式">
           <el-select v-model="requestType"
                      placeholder="请选择">

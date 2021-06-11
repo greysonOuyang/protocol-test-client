@@ -29,7 +29,7 @@
                        name="client">
             <client></client>
           </el-tab-pane>
-          <el-tab-pane label="服务端"
+          <el-tab-pane label="项目"
                        name="server">
             <server></server>
           </el-tab-pane>
