@@ -26,15 +26,43 @@
               </el-option>
             </el-select>
           </el-form-item>
-
         </el-col>
-
       </el-row>
       <el-row>
         <el-form-item style="text-align: right">
           <el-button v-if="ServerStatus === 'initializing'"
                      type="primary"
                      @click="startServer()">启动服务端
+          </el-button>
+          <el-button v-if="ServerStatus === 'success'"
+                     type="success"
+                     round
+                     @click="stopServer()">停止服务
+          </el-button>
+        </el-form-item>
+      </el-row>
+      <el-row>
+        <el-col :xs="24"
+                :sm="12">
+          <el-form-item label="请输入地址"
+                        style="width: 60%; margin-left: 0px">
+            <el-input v-model="host"></el-input>
+          </el-form-item>
+
+        </el-col>
+        <el-col :xs="24"
+                :sm="12">
+          <el-form-item label="请输入端口"
+                        style="width: 60%; margin-left: 0px">
+            <el-input v-model="port"></el-input>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-form-item style="text-align: right">
+          <el-button v-if="ServerStatus === 'initializing'"
+                     type="primary"
+                     @click="startServer()">启动客户端
           </el-button>
           <el-button v-if="ServerStatus === 'success'"
                      type="success"
@@ -131,6 +159,8 @@ export default {
       currentInterfaceId: '',
       // 启动端口
       port: '',
+      host: '127.0.0.1',
+      clientPort: '10030',
       paramTabVisiable: false,
       // 当前参数表展示的参数类型
       paramType: '',
