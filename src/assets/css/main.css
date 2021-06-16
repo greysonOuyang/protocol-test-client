@@ -15,37 +15,10 @@
   background: transparent important;
 }
 
-/* switch按钮样式 */
-.switch .el-switch__label {
-  position: absolute;
-  display: none;
-  color: #fff !important;
-}
-/*打开时文字位置设置*/
-.switch .el-switch__label--right {
-  z-index: 1;
-}
-/* 调整打开时文字的显示位子 */
-.switch .el-switch__label--right span {
-  margin-right: 20px;
-}
-/*关闭时文字位置设置*/
-.switch .el-switch__label--left {
-  z-index: 1;
-}
-/* 调整关闭时文字的显示位子 */
-.switch .el-switch__label--left span {
-  margin-left: 20px;
-}
-/*显示文字*/
-.switch .el-switch__label.is-active {
-  display: block;
-}
-/* 调整按钮的宽度 */
-.switch.el-switch .el-switch__core,
-.el-switch .el-switch__label {
-  width: 90px !important;
-  margin: 0;
+/* 侧边导航栏 */
+.el-menu-vertical-demo:not(.el-menu--collapse) {
+  width: 200px;
+  min-height: 400px;
 }
 .el-card-custom {
   margin-bottom: 20px;
@@ -81,7 +54,7 @@ img {
     display: none !important;
   }
   #aside {
-    padding-top: 40px !important;
+    padding-top: 60px !important;
     width: 100% !important;
   }
   #main {
@@ -127,7 +100,7 @@ img {
 
 /* 电脑导航栏 */
 #pc-bar {
-  position: fixed;
+  /* position: fixed; */
   width: 100%;
   top: 0;
   width: 100%;
@@ -180,7 +153,6 @@ img {
 
 #main {
   color: #333;
-  padding-top: 80px;
   max-width: 1024px;
   margin-left: auto;
   margin-right: auto;
@@ -222,7 +194,7 @@ img {
   padding-top: 10px;
 }
 
-#response-body {
+#console-content {
   background-color: #c1c1e0;
   color: white;
   padding: 5px;
