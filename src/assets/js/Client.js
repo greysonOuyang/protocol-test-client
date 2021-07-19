@@ -1,4 +1,5 @@
 import JsonConsole from "@/components/common/JsonConsole";
+import ConsoleInfo from "@/components/common/ConsoleInfo";
 import Server from "@/components/Server";
 import Vue from "vue";
 import axios from "axios";
@@ -60,6 +61,7 @@ export default {
     components: {
         JsonConsole,
         Server,
+        ConsoleInfo
     },
     data() {
         return {
@@ -272,6 +274,9 @@ export default {
     activated() {
     },
     methods: {
+        clearContent() {
+            this.$refs.consoleInfoRef.clearContent();
+        },
         getAllInterfaceInfo() {
             var data = {};
             data.interfaceType = this.requestData.requestType
@@ -523,8 +528,8 @@ export default {
                     this.isExecuting = true; //修改是否在执行状态,执行中
                     this.isExecuted = true; //标记前端控制台状态为已执行
                     var connectMsg = this.$t("consoleConnecting");
-                    this.addConsoleInfo(LOG_INFO, connectMsg);
-                    this.showConsoleInfo();
+                    this.$refs.consoleInfoRef.addConsoleInfo(LOG_INFO, connectMsg, "text");
+                    this.$refs.consoleInfoRef.showConsoleInfo();
                     //连接WebSocket并在open后请求数据
                     var wshost = process.env.VUE_APP_BASE_API;
                     if (wshost == null || wshost == "wlhost") {
@@ -533,8 +538,8 @@ export default {
                     this.websocket = new WebSocket("ws://" + wshost + "/ws/ost");
                     this.websocket.onopen = () => {
                         var connected = this.$t("consoleConnected");
-                        this.addConsoleInfo(LOG_SUCCESS, connected);
-                        this.showConsoleInfo();
+                        this.$refs.consoleInfoRef.addConsoleInfo(LOG_SUCCESS, connected);
+                        this.$refs.consoleInfoRef.showConsoleInfo();
                         var trData = this.requestData;
                         //初始化默认数据
                         this.clearToDefaultData();
@@ -627,17 +632,17 @@ export default {
                         console.log("Connection error:");
                         console.log(err);
                         this.isExecuting = false; //修改是否在执行状态,执行结束
-                        this.addConsoleInfo(LOG_ERROR, this.$t("consoleConnectFailed"));
-                        this.showConsoleInfo();
+                        this.$refs.consoleInfoRef.addConsoleInfo(LOG_ERROR, this.$t("consoleConnectFailed"));
+                        this.$refs.consoleInfoRef.showConsoleInfo();
                     };
                     //每一秒钟显示控制台信息
                     var showLogs = setInterval(() => {
-                        this.showConsoleInfo();
+                        this.$refs.consoleInfoRef.showConsoleInfo();
                     }, 1000);
                     //关闭事件
                     this.websocket.onclose = () => {
                         window.clearInterval(showLogs);
-                        this.showConsoleInfo(1);
+                        this.$refs.consoleInfoRef.showConsoleInfo(1);
                         this.isExecuting = false; //修改是否在执行状态,执行结束
                         console.log(this.$t("consoleClosed"));
                     };
@@ -648,32 +653,32 @@ export default {
                         // console.log(data);
                         if (data.code == WS_COMMAND_INVALID_PARAMETER) {
                             //缺少参数或取消参数的响应
-                            this.addConsoleInfo(
+                            this.$refs.consoleInfoRef.addConsoleInfo(
                                 LOG_ERROR,
                                 this.$t("commandInvalidParameter") + data.msg
                             );
-                            this.showConsoleInfo();
+                            this.$refs.consoleInfoRef.showConsoleInfo();
                             this.websocket.close();
                         } else if (data.code == WS_COMMAND_BEFORE_REQUEST_TEST) {
                             //提交测试前的测试响应
                             if (data.data == 1) {
-                                this.addConsoleInfo(
+                                this.$refs.consoleInfoRef.addConsoleInfo(
                                     LOG_SUCCESS,
                                     this.$t("commandBeforeRequestTestSucceeded")
                                 );
-                                this.showConsoleInfo();
+                                this.$refs.consoleInfoRef.showConsoleInfo();
                             } else {
-                                this.addConsoleInfo(
+                                this.$refs.consoleInfoRef.addConsoleInfo(
                                     LOG_ERROR,
                                     this.$t("commandBeforeRequestTestFailed") + data.msg
                                 );
-                                this.showConsoleInfo();
+                                this.$refs.consoleInfoRef.showConsoleInfo();
                                 this.websocket.close();
                             }
                         } else if (data.code == WS_COMMAND_GC_OVERHEAD_LIMIT) {
                             //服务器超过GC开销限制,无法继续工作
-                            this.addConsoleInfo(LOG_ERROR, this.$t("commandGcOverheadLimit"));
-                            this.showConsoleInfo();
+                            this.$refs.consoleInfoRef.addConsoleInfo(LOG_ERROR, this.$t("commandGcOverheadLimit"));
+                            this.$refs.consoleInfoRef.showConsoleInfo();
                             this.websocket.close();
                         } else if (data.code == WS_COMMAND_JVM_METRIC) {
                             //服务器性能
@@ -736,7 +741,8 @@ export default {
                             };
                             console.log("当前消息：" + responnseData);
                             if (this.requestConfig.printResInfo) {
-                                this.addConsoleInfo(LOG_INFO, msg, responnseData);
+                                this.$refs.consoleInfoRef.addConsoleInfo(LOG_INFO, responnseData, "client");
+                                this.$refs.consoleInfoRef.showConsoleInfo();
                             }
                         } else if (data.code == WS_COMMAND_TEST_SUBMIT_PROGRESS) {
                             //显示任务进度
@@ -745,8 +751,8 @@ export default {
                                 "{count}",
                                 resData.count
                             );
-                            this.addConsoleInfo(LOG_SUCCESS, msg);
-                            this.showConsoleInfo();
+                            this.$refs.consoleInfoRef.addConsoleInfo(LOG_SUCCESS, msg);
+                            this.$refs.consoleInfoRef.showConsoleInfo();
                         } else if (data.code == WS_COMMAND_TEST_RESPONSE) {
                             //测试统计信息响应
                             var resData = data.data;
@@ -796,8 +802,8 @@ export default {
                             //获取处理已失败数量
                             this.responseFailed = resData.failed;
                         } else if (data.code == WS_COMMAND_TEST_COMPLETE) {
-                            this.addConsoleInfo(LOG_SUCCESS, this.$t("commandTestComplete"));
-                            this.showConsoleInfo();
+                            this.$refs.consoleInfoRef.addConsoleInfo(LOG_SUCCESS, this.$t("commandTestComplete"));
+                            this.$refs.consoleInfoRef.showConsoleInfo();
                         }
                     };
                     this.$nextTick(() => {
@@ -814,80 +820,6 @@ export default {
             if (this.websocket != null) {
                 this.websocket.close();
             }
-        },
-        /**
-         * 添加控制台打印信息
-         * @param {信息类型} log 对应LOG_*
-         * @param {信息} msg
-         */
-        addConsoleInfo(log, msg, dataMsg) {
-            // 创建json展示component
-            this.showJsonFlag = true;
-            this.jsonData = dataMsg;
-            const dialogClass = Vue.extend(JsonConsole);
-            this.jsonConsoleComp = new dialogClass({
-                propsData: {
-                    jsonData: this.jsonData,
-                },
-            }).$mount();
-            var jsonEl = this.jsonConsoleComp.$el;
-
-            var time = this.getTime();
-            var el = document.createElement("div");
-            if (log == "SUCCESS") {
-                el.style.color = "#28a745";
-            } else if (log == "ERROR") {
-                el.style.color = "#dc3545";
-            }
-            var logEl = document.createElement("p");
-            logEl.style.marginBottom = "0";
-            logEl.innerText = "[ " + log + " ] " + time;
-            el.appendChild(logEl);
-
-            var msgEl = document.createElement("p");
-            msgEl.style.marginTop = "3px";
-            msgEl.innerText = msg;
-
-            var response = document.createElement("div");
-            response.appendChild(msgEl);
-            response.appendChild(jsonEl);
-
-            el.appendChild(response);
-            this.consoleInfos.push(el);
-        },
-        /**
-         * 显示控制台信息
-         * @param {Object} all 是否显示完全部,1=显示完全部,其他不显示完全部
-         */
-        showConsoleInfo(all) {
-            if (all == 1) {
-                const fragment = document.createDocumentFragment();
-                for (var i = 0; i < this.consoleInfos.length; i++) {
-                    var el = this.consoleInfos.shift();
-                    fragment.appendChild(el);
-                }
-                const dom = document.getElementById("response-body");
-                dom.appendChild(fragment);
-                dom.scrollTop = dom.scrollHeight;
-            } else if (this.consoleInfos.length > 0) {
-                const fragment = document.createDocumentFragment();
-                for (var i = 0; i < 1000; i++) {
-                    if (this.consoleInfos.length == 0) {
-                        break;
-                    }
-                    var el = this.consoleInfos.shift();
-                    fragment.appendChild(el);
-                }
-                const dom = document.getElementById("response-body");
-                dom.appendChild(fragment);
-                dom.scrollTop = dom.scrollHeight;
-            }
-        },
-        getTime() {
-            var timezone = 8; //目标时区时间，东八区
-            var offset_GMT = new Date().getTimezoneOffset(); // 本地时间和格林威治的时间差，单位为分钟
-            var nowDate = new Date().getTime(); // 本地时间距 1970 年 1 月 1 日午夜（GMT 时间）之间的毫秒数
-            return new Date(nowDate + offset_GMT * 60 * 1000 + timezone * 60 * 60 * 1000);
         },
     },
     watch: {

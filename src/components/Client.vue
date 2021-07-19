@@ -718,9 +718,8 @@
           </div>
         </div>
       </div>
-      <div id="response-body"
-           ref="responseConsoleBody">
-      </div>
+      <el-button type="text" @click="clearContent()">清空内容</el-button>
+      <console-info ref="consoleInfoRef"></console-info>
     </div>
   </div>
 </template>

@@ -9,9 +9,6 @@
 import Vue from "vue";
 import JsonConsole from "@/components/common/JsonConsole";
 
-/**普通日志*/
-const LOG_INFO = "INFO";
-const SERVER_LOG = "SERVER_LOG"
 export default {
   name: 'consoleInfo',
   props: ['logType', 'dataMsg'], // jsonData可以为JSON字符串 也可以为对象
@@ -61,8 +58,8 @@ export default {
       return false;
     },
     funInit() {
-      this.addConsoleInfo(this.logType, this.dataMsg);
-      this.showConsoleInfo();
+      this.$refs.consoleInfoRef.addConsoleInfo(this.logType, this.dataMsg);
+      this.$refs.consoleInfoRef.showConsoleInfo();
     },
     getTime() {
       var timezone = 8; //目标时区时间，东八区
@@ -87,23 +84,38 @@ export default {
     }, /**
      * 添加控制台打印信息
      * @param {信息类型} log 对应LOG_*
-     * @param text
      * @param dataMsg
+     * @param tag 如何解析的标记
      */
-    addConsoleInfo(log, dataMsg) {
+    addConsoleInfo(log, dataMsg, tag) {
+      // 对顶层的响应元素对象
       let contentBodyEl = document.createElement("div");
       contentBodyEl.setAttribute('id', 'content-body')
-      if (log === "SUCCESS" || log === SERVER_LOG) {
+      if (log === "SUCCESS" || log === "INFO") {
         contentBodyEl.style.color = "#28a745";
       } else if (log === "ERROR") {
         contentBodyEl.style.color = "#dc3545";
       }
+      // 响应元素挂在此处
       let response = document.createElement("div");
-      if (SERVER_LOG === log) {
+      if (log === "SUCCESS") {
+        response.style.color = "#28a745";
+      } else if (log === "ERROR") {
+        response.style.color = "#dc3545";
+      }
+      if ("INFO" === log) {
         if (typeof dataMsg == 'string' && dataMsg) {
-          let result = JSON.parse(dataMsg);
-          this.appendContent("收到消息", result.input, response);
-          this.appendContent("发送消息", result.output, response );
+          if (tag === "text") {
+            this.appendContent("工具日志", dataMsg, response);
+          } else {
+            let result = JSON.parse(dataMsg);
+            this.appendContent("收到消息", result.input, response);
+            this.appendContent("发送消息", result.output, response );
+          }
+        } else {
+          if (tag === "client") {
+            this.appendContent("收到消息", dataMsg, response);
+          }
         }
       }
       contentBodyEl.appendChild(response);
@@ -111,30 +123,37 @@ export default {
     },
     /**
      * 显示控制台信息
+     * @param {Object} all 是否显示完全部,1=显示完全部,其他不显示完全部
      */
-    showConsoleInfo() {
-        const fragment = document.createDocumentFragment();
-        for (let i = 0; i < 1000; i++) {
-          if (this.consoleInfos.length === 0) {
-            break;
-          }
-          const el = this.consoleInfos.shift();
-          fragment.appendChild(el);
+    showConsoleInfo(all) {
+      const fragment = document.createDocumentFragment();
+      const contentBodyEl = document.getElementById("console-content");
+      let length = 1000;
+      if (all === 1) {
+        length = this.consoleInfos.length;
+      }
+      for (let i = 0; i < length; i++) {
+        if (this.consoleInfos.length === 0) {
+          break;
         }
-        if (document.getElementById("contentForClear")) {
-          this.contentDom = document.getElementById("contentForClear");
-        } else {
-          this.contentDom = document.createElement("div");
-          this.contentDom.setAttribute("id", "contentForClear");
-        }
-        this.contentDom.appendChild(fragment);
-        const contentBodyEl = document.getElementById("console-content");
-        this.contentDom.appendChild(fragment);
-        contentBodyEl.append(this.contentDom);
-        contentBodyEl.scrollTop = contentBodyEl.scrollHeight;
+        const el = this.consoleInfos.shift();
+        fragment.appendChild(el);
+      }
+      if (document.getElementById("contentForClear")) {
+        this.contentDom = document.getElementById("contentForClear");
+      } else {
+        this.contentDom = document.createElement("div");
+        this.contentDom.setAttribute("id", "contentForClear");
+      }
+      this.contentDom.appendChild(fragment);
+      this.contentDom.appendChild(fragment);
+      contentBodyEl.append(this.contentDom);
+      contentBodyEl.scrollTop = contentBodyEl.scrollHeight;
     },
-    clearConsoleData(){
-     document.getElementById("console-content").innerHTML="";
+    clearContent() {
+      const consoleContent = document.getElementById('contentForClear');
+      const parent = consoleContent.parentElement;
+      parent.removeChild(consoleContent);
     },
   },
 }

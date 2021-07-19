@@ -64,13 +64,13 @@
 
     <el-card v-if="ServerStatus === 'success'" class="el-card-custom">
 
-        <el-form-item style="text-align: right">
-          <el-col :span="24">
-            <el-checkbox style="margin-right: 10px" v-model="pauseReceive">暂停接收</el-checkbox>
-            <el-button type="text" @click="clearContent()">清空内容</el-button>
-<!--            <el-button size="mini" @click="clearContent()">清空内容</el-button>-->
-          </el-col>
-        </el-form-item>
+      <el-form-item style="text-align: right">
+        <el-col :span="24">
+          <el-checkbox style="margin-right: 10px" v-model="pauseReceive">暂停接收</el-checkbox>
+          <el-button type="text" @click="clearContent()">清空内容</el-button>
+          <!--            <el-button size="mini" @click="clearContent()">清空内容</el-button>-->
+        </el-col>
+      </el-form-item>
 
       <console-info ref="consoleInfoRef"></console-info>
     </el-card>
@@ -98,18 +98,16 @@ export default {
       if (port !== '' || port != null) {
         this.port = port;
       }
-      ;
       const interfaceId = window.sessionStorage.getItem("interface");
       if (interfaceId !== '' || interfaceId != null) {
         this.currentInterfaceId = interfaceId;
       }
     }
-    ;
   },
-  startAgainReceive(){
+  startAgainReceive() {
 
   },
-  clearAllData(){
+  clearAllData() {
     this.$refs.consoleInfoRef.clearConsoleData();
   },
   activated() {
@@ -122,7 +120,7 @@ export default {
   computed: {},
   mounted() {
     // 初始化
-    stomp.init( () => {
+    stomp.init(() => {
       this.subResponse();
     });
     //  启用重连 5秒检测一次
@@ -240,9 +238,7 @@ export default {
   },
   methods: {
     clearContent() {
-      const consoleContent = document.getElementById('contentForClear');
-      const parent = consoleContent.parentElement;
-      parent.removeChild(consoleContent);
+      this.$refs.consoleInfoRef.clearContent();
     },
     // 获取接口表数据
     getInterfaceTableData() {
