@@ -65,6 +65,9 @@ export default {
     },
     data() {
         return {
+            dataMsg: null,
+            logType: "",
+            tag: "",
             // 是否需要获取配置项 ,获取成功后设置为false，不再重复获取
             isGetConfig: true,
             // 配置中是否有选择框
@@ -141,14 +144,6 @@ export default {
                     value: "modbus",
                     label: "ModBus",
                 },
-                // {
-                //     value: "gzIscs",
-                //     label: "广州综合监控",
-                // },
-                // {
-                //     value: "qyAts",
-                //     label: "清远ATS",
-                // },
             ],
             gzIscsApplyFrameOpt: [
                 {
@@ -484,7 +479,9 @@ export default {
                     }
                 } else if (this.contentFormat === "3") {
                     if (this.selectArr !== null) {
-                        reqData.body = this.selectArr;
+                        let body = {}
+                        body = JSON.stringify(this.selectArr);
+                        reqData.body = JSON.parse(body);
                     }
                 } else if (this.contentFormat === "4" || this.contentFormat === "5") {
                     let body = {};
@@ -501,6 +498,11 @@ export default {
                 }
             }
 
+            /**
+             * 设置默认端口
+             * @param trData
+             * @param reqData
+             */
             function setDefaultValue(trData, reqData) {
                 if (
                     trData.port === "" ||
@@ -547,17 +549,21 @@ export default {
                         //加载请求数据
                         var reqData = {
                             type: trData.requestType,
-                            url: trData.url.trim(),
                             count: trData.count,
                             average: trData.average,
                             interval: trData.interval,
                             protocolType: this.change.protocolType,
                         };
                         // host
-                        if (trData.host == null || trData.host == "") {
+                        if (trData.host == null || trData.host === "") {
                             reqData.host = "127.0.0.1";
                         } else {
                             reqData.host = trData.host.trim();
+                        }
+                        if (trData.url == null || trData.url === "") {
+                            reqData.url = "127.0.0.1";
+                        } else {
+                            reqData.url = trData.url.trim();
                         }
 
                         /* PORT 如果非法(取值过大或者非数字或者空) 则根据以下规则取值: 先判断协议是否为TCP？
@@ -841,6 +847,7 @@ export default {
                 this.requestData.url = data.url;
                 this.requestData.port = data.port;
                 this.requestData.method = data.requestMethod;
+                this.requestData.protocolType = data.protocolType;
                 // 获取当前接口的配置内容
                 configList = data.configList;
             }

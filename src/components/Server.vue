@@ -104,12 +104,6 @@ export default {
       }
     }
   },
-  startAgainReceive() {
-
-  },
-  clearAllData() {
-    this.$refs.consoleInfoRef.clearConsoleData();
-  },
   activated() {
     this.getInterfaceTableData();
     this.getServerStatus();

@@ -11,7 +11,7 @@ import JsonConsole from "@/components/common/JsonConsole";
 
 export default {
   name: 'consoleInfo',
-  props: ['logType', 'dataMsg'], // jsonData可以为JSON字符串 也可以为对象
+  props: ['logType', 'dataMsg', 'tag'], // jsonData可以为JSON字符串 也可以为对象
   components: {
     JsonConsole,
   },
@@ -35,10 +35,10 @@ export default {
 
   },
   watch: {
-    // 异步赋值
+    // 异步赋值 值未改变传入进来不会触发更新， 用不了
     dataMsg() {
       this.funInit();
-      deep: true
+      // deep: true
     },
   },
   methods: {
@@ -58,13 +58,13 @@ export default {
       return false;
     },
     funInit() {
-      this.$refs.consoleInfoRef.addConsoleInfo(this.logType, this.dataMsg);
+      this.$refs.consoleInfoRef.addConsoleInfo(this.logType, this.dataMsg, this.tag);
       this.$refs.consoleInfoRef.showConsoleInfo();
     },
     getTime() {
-      var timezone = 8; //目标时区时间，东八区
-      var offset_GMT = new Date().getTimezoneOffset(); // 本地时间和格林威治的时间差，单位为分钟
-      var nowDate = new Date().getTime(); // 本地时间距 1970 年 1 月 1 日午夜（GMT 时间）之间的毫秒数
+      const timezone = 8; //目标时区时间，东八区
+      const offset_GMT = new Date().getTimezoneOffset(); // 本地时间和格林威治的时间差，单位为分钟
+      const nowDate = new Date().getTime(); // 本地时间距 1970 年 1 月 1 日午夜（GMT 时间）之间的毫秒数
       return new Date(nowDate + offset_GMT * 60 * 1000 + timezone * 60 * 60 * 1000);
     },
     appendContent: function (text, data, response) {

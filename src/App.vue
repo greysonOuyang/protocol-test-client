@@ -25,15 +25,15 @@
       <el-main id="main">
         <el-tabs v-model="activeName"
                  type="card">
-          <el-tab-pane label="客户端"
+          <el-tab-pane label="请求测试"
                        name="client">
             <client></client>
           </el-tab-pane>
-          <el-tab-pane label="项目"
+          <el-tab-pane label="项目请求"
                        name="server">
             <server></server>
           </el-tab-pane>
-          <el-tab-pane label="接口管理"
+          <el-tab-pane label="项目管理"
                        name="configInterface">
             <interface-manage></interface-manage>
           </el-tab-pane>

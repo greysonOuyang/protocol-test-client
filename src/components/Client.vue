@@ -719,7 +719,7 @@
         </div>
       </div>
       <el-button type="text" @click="clearContent()">清空内容</el-button>
-      <console-info ref="consoleInfoRef"></console-info>
+      <console-info ref="consoleInfoRef" dataMsg="dataMsg" tag="tag" logType="logType"></console-info>
     </div>
   </div>
 </template>
