@@ -7,7 +7,7 @@
 
 <script>
 import Vue from "vue";
-import JsonConsole from "@/components/common/JsonConsole";
+import JsonConsole from "./JsonConsole";
 
 export default {
   name: 'consoleInfo',
@@ -45,21 +45,13 @@ export default {
     checkIsJSON(str) {
       if (typeof str == 'string') {
         try {
-          var obj = JSON.parse(str);
-          if (typeof obj == 'object' && obj) {
-            return true;
-          } else {
-            return false;
-          }
+          const obj = JSON.parse(str);
+          return !!(typeof obj == 'object' && obj);
         } catch (e) {
           return false;
         }
       }
       return false;
-    },
-    funInit() {
-      this.$refs.consoleInfoRef.addConsoleInfo(this.logType, this.dataMsg, this.tag);
-      this.$refs.consoleInfoRef.showConsoleInfo();
     },
     getTime() {
       const timezone = 8; //目标时区时间，东八区
@@ -83,7 +75,7 @@ export default {
       response.appendChild(logEl);
     }, /**
      * 添加控制台打印信息
-     * @param {信息类型} log 对应LOG_*
+     * @param log 对应LOG_*
      * @param dataMsg
      * @param tag 如何解析的标记
      */

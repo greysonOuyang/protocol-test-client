@@ -29,16 +29,19 @@
                        name="client">
             <client></client>
           </el-tab-pane>
-          <el-tab-pane label="项目请求"
+          <el-tab-pane label="请求管理"
+                       name="configInterface">
+            <request-config></request-config>
+          </el-tab-pane>
+          <el-tab-pane label="项目测试"
                        name="server">
             <server></server>
           </el-tab-pane>
           <el-tab-pane label="项目管理"
-                       name="configInterface">
-            <interface-manage></interface-manage>
+                       name="projectManage">
+            <project-config></project-config>
           </el-tab-pane>
         </el-tabs>
-
       </el-main>
     </el-container>
   </el-container>
@@ -46,20 +49,19 @@
 </template>
 
 <script>
-import Vue from "vue";
-import axios from "axios";
-import Server from "@/components/Server";
-import Client from "@/components/Client"
-import NavMenu from '@/components/NavMenu';
-import InterfaceManage from '@/components/InterfaceManage';
+import Server from "./components/Server";
+import Client from "./components/Client"
+import ProjectConfig from "./components/ProjectConfig"
+import RequestConfig from "./components/RequestConfig";
+
 
 export default {
   name: "App",
   components: {
+    RequestConfig,
     Server,
     Client,
-    NavMenu,
-    InterfaceManage,
+    ProjectConfig
   },
   provide () {
     return {

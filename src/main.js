@@ -29,3 +29,7 @@ new Vue({
   i18n,
   render: (h) => h(App),
 });
+
+Vue.prototype.isRequestSuccess = function (res) {
+  return (res.data.result === "SUCCESS");
+}

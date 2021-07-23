@@ -1,21 +1,20 @@
 <template>
 
-  <el-card class="el-card-custom"
-           header="接口配置">
-    <el-form-item label="请求形式">
-      <el-select v-model="requestType"
-                 placeholder="请选择">
-        <el-option v-for="item in requestTypeOpt"
-                   :key="item.prop"
-                   :label="item.label"
-                   :value="item.prop">
-        </el-option>
-      </el-select>
-    </el-form-item>
+  <el-card class="el-card-custom">
+    <el-form v-if="clientInterfaceOpt != null && clientInterfaceOpt.length !== 0">
+      <el-form-item label="请求形式">
+        <el-select v-model="requestType"
+                   placeholder="请选择">
+          <el-option v-for="item in requestTypeOpt"
+                     :key="item.prop"
+                     :label="item.label"
+                     :value="item.prop">
+          </el-option>
+        </el-select>
+      </el-form-item>
 
-    <div v-if="clientInterfaceOpt != null && clientInterfaceOpt.length !== 0">
       <el-form-item>
-        <el-button @click="clientInterfaceVisible = true"
+        <el-button @click="requestDialogVisible = true"
                    type="primary"
                    icon="el-icon-plus"
                    size="mini">新增
@@ -36,9 +35,12 @@
                    @click="clearInterfaceConfig">清空
         </el-button>
       </el-form-item>
+    </el-form>
 
-      <!-- 客户端的接口表格 -->
-      <el-table :data="clientInterfaceTable"
+
+
+      <!-- 请求配置表格 -->
+      <el-table :data="requestTable"
                 border
                 stripe
                 style="width: 100%;"
@@ -62,7 +64,9 @@
             <span slot="content">{{ row[item.prop] }}</span>
           </editable-cell>
         </el-table-column>
-        <el-table-column label="请求配置"
+        <el-table-column
+            label="请求配置"
+            v-if="requestType === 'TCP'"
                          width="110"
                          align='center'>
           <template slot-scope="scope">
@@ -74,10 +78,9 @@
         </el-table-column>
 
       </el-table>
-    </div>
 
-    <el-dialog title="新增接口"
-               :visible.sync="clientInterfaceVisible"
+    <el-dialog title="新增请求"
+               :visible.sync="requestDialogVisible"
                :close-on-click-modal="false">
       <el-form v-model="requestForm">
         <el-form-item v-if="this.requestType === 'HTTP'"
@@ -96,9 +99,9 @@
           <el-select v-model="requestForm.protocolType"
                      placeholder="请选择">
             <el-option v-for="item in protocolTypeOpt"
-                       :key="item.prop"
+                       :key="item.value"
                        :label="item.label"
-                       :value="item.prop">
+                       :value="item.value">
             </el-option>
           </el-select>
         </el-form-item>
@@ -120,7 +123,7 @@
           <el-button type="primary"
                      @click="addRequest()">确定
           </el-button>
-          <el-button @click="clientInterfaceVisible = false">取消</el-button>
+          <el-button @click="requestDialogVisible = false">取消</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -205,14 +208,15 @@ export default {
   },
   data() {
     return {
+      requestDialogVisible: false,
       protocolTypeOpt: global.protocolTypeOpt,
       requestForm: {},
       // 表格是否支持编辑
       editModeEnabled: false,
       // 隐藏接口Id列
       idShow: false,
-      // 客户端接口表数据
-      clientInterfaceTable: [],
+      // 请求表数据
+      requestTable: [],
       // 当前选择的要展示的列表的请求类型
       requestType: 'HTTP',
       // 请求配置弹窗
@@ -233,8 +237,7 @@ export default {
         }, {
           key: 'requestId',
           label: '请求Id'
-        },
-        {
+        }, {
           key: 'configKey',
           label: '配置Key'
         }, {
@@ -292,7 +295,7 @@ export default {
       data.interfaceType = this.requestType
       axios.post('/interfaceCtrl/interface/getAllInterfaceInfo', data).then(
           res => {
-            this.clientInterfaceTable = res.data;
+            this.requestTable = res.data;
           }
       );
     },
@@ -417,12 +420,7 @@ export default {
       let opt = [{
         prop: "requestName",
         label: "请求名称",
-      },
-        {
-          prop: "requestMethod",
-          label: "请求方式",
-        },
-        {
+      },{
           prop: "address",
           label: "请求地址",
         }, {
@@ -430,6 +428,10 @@ export default {
           label: "请求内容",
         }];
       if (this.requestType === 'HTTP') {
+        opt.push(  {
+          prop: "requestMethod",
+          label: "请求方式",
+        })
         return opt;
       } else if (this.requestType === 'TCP') {
         opt.push({
@@ -440,6 +442,8 @@ export default {
               prop: "protocolType",
               label: "子协议",
             });
+        return opt;
+      } else {
         return opt;
       }
     },

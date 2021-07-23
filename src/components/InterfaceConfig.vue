@@ -1,184 +1,185 @@
 <template>
-  <el-card class="el-card-custom"
-           header="接口配置">
-    <div style="margin-bottom: 20px">
-      <el-button @click="btnAddPlanInfo()"
-                 type="primary"
-                 size="mini">添加计划信息
-      </el-button>
-      <el-button type="primary"
-                 icon="el-icon-download"
-                 size="mini"
-                 @click="downLoadExcelTabVisiable">模板文件下载
-      </el-button>
-      <el-button @click="dialogTableVisible = true"
-                 type="primary"
-                 icon="el-icon-plus"
-                 size="mini">新增
-      </el-button>
-      <el-button type="danger"
-                 icon="el-icon-delete"
-                 size="mini"
-                 @click="handleDeleteMulti">删除
-      </el-button>
-      <el-button type="primary"
-                 size="mini"
-                 icon="el-icon-upload2"
-                 @click="uploadExcelTabVisiable = true">导入
-      </el-button>
+  <div id="main">
+    <el-card class="el-card-custom"
+             header="接口配置">
+      <div style="margin-bottom: 20px">
+        <el-button @click="btnAddPlanInfo()"
+                   type="primary"
+                   size="mini">添加计划信息
+        </el-button>
+        <el-button type="primary"
+                   icon="el-icon-download"
+                   size="mini"
+                   @click="downLoadExcelTabVisiable">模板文件下载
+        </el-button>
+        <el-button @click="dialogTableVisible = true"
+                   type="primary"
+                   icon="el-icon-plus"
+                   size="mini">新增
+        </el-button>
+        <el-button type="danger"
+                   icon="el-icon-delete"
+                   size="mini"
+                   @click="handleDeleteMulti">删除
+        </el-button>
+        <el-button type="primary"
+                   size="mini"
+                   icon="el-icon-upload2"
+                   @click="uploadExcelTabVisiable = true">导入
+        </el-button>
 
-      <el-button type="success"
-                 icon="el-icon-delete"
-                 size="mini"
-                 @click="handleClearMulti">清空
-      </el-button>
-    </div>
-    <!-- 接口表 -->
-    <el-table :data="tableData"
-              border
-              highlight-current-row
-              style="width: 100%"
-              ref="tb"
-              @current-change="selectCurrentCol"
-              @selection-change="handleSelectionChange">
-      <el-table-column type="selection"
+        <el-button type="success"
+                   icon="el-icon-delete"
+                   size="mini"
+                   @click="handleClearMulti">清空
+        </el-button>
+      </div>
+      <!-- 接口表 -->
+      <el-table :data="tableData"
+                border
+                highlight-current-row
+                style="width: 100%"
+                ref="tb"
+                @current-change="selectCurrentCol"
+                @selection-change="handleSelectionChange">
+        <el-table-column type="selection"
+                         width="60">
+        </el-table-column>
+        <!-- <el-table-column label="序号"
+                       align="center"
+                       prop="index"
                        width="60">
-      </el-table-column>
-      <!-- <el-table-column label="序号"
-                     align="center"
-                     prop="index"
-                     width="60">
 
-    </el-table-column> -->
-      <el-table-column prop="interfaceId"
-                       label="接口Id"
-                       v-if="idShow"
-                       align='center'></el-table-column>
-      <el-table-column prop="description"
-                       label="消息类型"
-                       width="180"
-                       align='center'></el-table-column>
-      <el-table-column prop="interfaceName"
-                       label="接口名称"
-                       width="190"
-                       align='center'></el-table-column>
-      <el-table-column label="输入"
-                       width="110"
-                       align='center'>
-        <template slot-scope="scope">
-          <el-button size="mini"
-                     type="info"
-                     @click="viewInPut(scope.$index, scope.row)">查看
-          </el-button>
-        </template>
-      </el-table-column>
+      </el-table-column> -->
+        <el-table-column prop="interfaceId"
+                         label="接口Id"
+                         v-if="idShow"
+                         align='center'></el-table-column>
+        <el-table-column prop="description"
+                         label="消息类型"
+                         width="180"
+                         align='center'></el-table-column>
+        <el-table-column prop="interfaceName"
+                         label="接口名称"
+                         width="190"
+                         align='center'></el-table-column>
+        <el-table-column label="输入"
+                         width="110"
+                         align='center'>
+          <template slot-scope="scope">
+            <el-button size="mini"
+                       type="info"
+                       @click="viewInPut(scope.$index, scope.row)">查看
+            </el-button>
+          </template>
+        </el-table-column>
 
-      <el-table-column label="输出"
-                       width="110"
-                       align='center'>
-        <template slot-scope="scope">
-          <el-button size="mini"
-                     type="info"
-                     @click="viewOutPut(scope.$index, scope.row)">查看
-          </el-button>
-        </template>
-      </el-table-column>
+        <el-table-column label="输出"
+                         width="110"
+                         align='center'>
+          <template slot-scope="scope">
+            <el-button size="mini"
+                       type="info"
+                       @click="viewOutPut(scope.$index, scope.row)">查看
+            </el-button>
+          </template>
+        </el-table-column>
 
-      <el-table-column label="操作"
-                       width="90"
-                       align='center'>
-        <template slot-scope="scope">
-          <el-button size="mini"
-                     type="danger"
-                     circle
-                     icon="el-icon-remove-outline"
-                     @click="handleDelete(scope.$index, scope.row)"></el-button>
-        </template>
-      </el-table-column>
+        <el-table-column label="操作"
+                         width="90"
+                         align='center'>
+          <template slot-scope="scope">
+            <el-button size="mini"
+                       type="danger"
+                       circle
+                       icon="el-icon-remove-outline"
+                       @click="handleDelete(scope.$index, scope.row)"></el-button>
+          </template>
+        </el-table-column>
 
-    </el-table>
-    <!-- 添加用户弹框 -->
-    <el-dialog title="新增接口"
-               :visible.sync="dialogTableVisible"
-               :close-on-click-modal="false">
-      <el-form>
-        <!-- 请求类型选择 -->
-        <el-form-item label="请选择线路">
-          <el-radio v-model="lineInfo.lineNumber" label="14">14号线</el-radio>
-          <el-radio v-model="lineInfo.lineNumber" label="18">18/22号线</el-radio>
-        </el-form-item>
-        <el-form-item label="消息类型">
-          <el-select v-model="interfaceData.interfaceType"
-                     placeholder="请选择" >
-            <el-option v-for="item in hangleLine"
-                       :key="item.type"
-                       :label="item.description"
-                       :value="item.type">
-            </el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="接口名称">
-          <el-input v-model="interfaceData.interfaceName"></el-input>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary"
-                     @click="addServerInterfaceConfig()">确定
-          </el-button>
-          <el-button @click="dialogTableVisible = false">取消</el-button>
-        </el-form-item>
-      </el-form>
-    </el-dialog>
+      </el-table>
+      <!-- 添加用户弹框 -->
+      <el-dialog title="新增接口"
+                 :visible.sync="dialogTableVisible"
+                 :close-on-click-modal="false">
+        <el-form>
+          <!-- 请求类型选择 -->
+          <el-form-item label="项目Id" v-if="false">
+            <el-input v-model="interfaceData.projectId"></el-input>
+          </el-form-item>
+<!--          <el-form-item label="消息类型">-->
+<!--            <el-select v-model="interfaceData.interfaceType"-->
+<!--                       placeholder="请选择">-->
+<!--              <el-option v-for="item in hangleLine"-->
+<!--                         :key="item.type"-->
+<!--                         :label="item.description"-->
+<!--                         :value="item.type">-->
+<!--              </el-option>-->
+<!--            </el-select>-->
+<!--          </el-form-item>-->
+          <el-form-item label="接口名称">
+            <el-input v-model="interfaceData.interfaceName"></el-input>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary"
+                       @click="addServerInterfaceConfig()">确定
+            </el-button>
+            <el-button @click="dialogTableVisible = false">取消</el-button>
+          </el-form-item>
+        </el-form>
+      </el-dialog>
 
-    <!-- 新增模拟多趟车弹框 -->
-    <el-dialog title="新增接口"
-               :visible.sync="addDialogVisible"
-               :close-on-click-modal="false">
-      <el-form>
-        <el-form-item label="接口名称">
-          <el-input v-model="interfaceData.interfaceName"></el-input>
-        </el-form-item>
-        <el-form-item label="站台数">
-          <el-input v-model="interfaceData.stationCount"></el-input>
-        </el-form-item>
-        <el-form-item label="列车趟数">
-          <el-input v-model="interfaceData.trainCount"></el-input>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary"
-                     @click="addPlanInfo()">确定
-          </el-button>
-          <el-button @click="addDialogVisible = false">取消</el-button>
-        </el-form-item>
-      </el-form>
-    </el-dialog>
-    <el-dialog title="上传Excel"
-               :visible.sync="uploadExcelTabVisiable"
-               :close-on-click-modal="false">
-      <el-upload drag
-                 class="upload-excel"
-                 :auto-upload="false"
-                 action="/api/excelUtil/importExcel"
-                 :limit=limitNum
-                 accept=".xlsx"
-                 :on-change="fileChange"
-                 :on-exceed="exceedFile"
-                 :on-success="handleSuccess"
-                 :on-error="handleError"
-                 :file-list="fileList">
-        <i class="el-icon-upload"></i>
-        <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
-      </el-upload>
-      <br />
-      <el-button size="small"
-                 type="primary"
-                 @click="uploadFile">立即上传
-      </el-button>
-      <el-button size="small"
-                 @click="cancelUpload()">取消
-      </el-button>
-    </el-dialog>
+      <!-- 新增模拟多趟车弹框 -->
+      <el-dialog title="新增接口"
+                 :visible.sync="addDialogVisible"
+                 :close-on-click-modal="false">
+        <el-form>
+          <el-form-item label="接口名称">
+            <el-input v-model="interfaceData.interfaceName"></el-input>
+          </el-form-item>
+          <el-form-item label="站台数">
+            <el-input v-model="interfaceData.stationCount"></el-input>
+          </el-form-item>
+          <el-form-item label="列车趟数">
+            <el-input v-model="interfaceData.trainCount"></el-input>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary"
+                       @click="addPlanInfo()">确定
+            </el-button>
+            <el-button @click="addDialogVisible = false">取消</el-button>
+          </el-form-item>
+        </el-form>
+      </el-dialog>
+      <el-dialog title="上传Excel"
+                 :visible.sync="uploadExcelTabVisiable"
+                 :close-on-click-modal="false">
+        <el-upload drag
+                   class="upload-excel"
+                   :auto-upload="false"
+                   action="/api/excelUtil/importExcel"
+                   :limit=limitNum
+                   accept=".xlsx"
+                   :on-change="fileChange"
+                   :on-exceed="exceedFile"
+                   :on-success="handleSuccess"
+                   :on-error="handleError"
+                   :file-list="fileList">
+          <i class="el-icon-upload"></i>
+          <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+        </el-upload>
+        <br/>
+        <el-button size="small"
+                   type="primary"
+                   @click="uploadFile">立即上传
+        </el-button>
+        <el-button size="small"
+                   @click="cancelUpload()">取消
+        </el-button>
+      </el-dialog>
+    </el-card>
     <param-config ref="paramConfigRef" paramTabVisible="paramTabVisible"></param-config>
-  </el-card>
+  </div>
 </template>
 <script>
 import axios from "axios";
@@ -186,11 +187,15 @@ import ParamConfig from "./ParamConfig";
 
 export default {
   name: "projectConfig",
+  props: ['interfaceData.projectId'],
   components: {
     ParamConfig
   },
   data() {
     return {
+      dialogTableVisible: false,
+      uploadExcelTabVisiable: false,
+      addDialogVisible: false,
       // 添加接口表单
       interfaceData: {},
       // 隐藏接口Id列
@@ -370,14 +375,14 @@ export default {
       this.paramTabVisible = true;
       this.paramHeader = '输出参数';
       this.paramType = 'output';
-      this.$refs.paramConfigRef.getParamTable(index ,this.paramType)
+      this.$refs.paramConfigRef.getParamTable(index, this.paramType)
 
     },
     viewInPut(index, row) {
       this.paramTabVisible = true;
       this.paramHeader = '输入参数';
       this.paramType = 'input';
-      this.$refs.paramConfigRef.getParamTable(index ,this.paramType)
+      this.$refs.paramConfigRef.getParamTable(index, this.paramType)
     },
     handleDelete(index, row) {
       var arr = [];
@@ -438,59 +443,5 @@ export default {
       return ""
     },
   },
-  computed: {
-    hangleLine() {
-      console.log("线路是", this.lineInfo.lineNumber);
-      let contentFormatOpt = [];
-      if (this.lineInfo.lineNumber == 18) {
-        this.messageTypeOpt = [{
-          type: '0x01',
-          description: '心跳信息'
-        }, {
-          type: '0x02',
-          description: '列车信息'
-        }, {
-          type: '0x03',
-          description: '计划信息'
-        }, {
-          type: '0x04',
-          description: '首末班信息'
-        }, {
-          type: '0x05',
-          description: '车门隔离状态信息'
-        }, {
-          type: '0x06',
-          description: '站台门隔离状态信息'
-        }
-        ]
-      } else {
-        this.messageTypeOpt = [
-          {
-            type: '0x01',
-            description: '心跳信息'
-          },
-          {
-            type: '0x02',
-            description: '站台首末班车信息'
-          },
-          {
-            type: '0x03',
-            description: '站台到站列车信息'
-          },
-          {
-            type: '0x04',
-            description: '列车到站信息'
-          },
-          {
-            type: '0x0A',
-            description: '列车满载率信息'
-          },
-        ]
-      }
-
-      contentFormatOpt = contentFormatOpt.concat(this.messageTypeOpt);
-      return contentFormatOpt;
-    }
-  }
 }
 </script>

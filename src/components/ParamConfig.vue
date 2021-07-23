@@ -1,7 +1,7 @@
 <template>
   <!-- 参数表 -->
   <el-card v-if="paramTabVisible"
-           header="参数表"
+           header="参数配置"
            class="el-card-custom">
     <div style="margin-bottom: 20px">
       <el-button v-model="editModeEnabled"
@@ -39,6 +39,7 @@
                        :label="item.label"
                        :prop="item.prop"
                        :width="item.width"
+                       :v-if = "item.isShow"
                        v-for="item in paramDataOpt">
         <editable-cell slot-scope="{row}"
                        :can-edit="editModeEnabled"
@@ -87,7 +88,7 @@ export default {
   data() {
     return {
       // 参数表是否可见
-      paramTabVisible: false,
+      // paramTabVisible: false,
       // 参数表数据
       paramTable: [],
       // 表格是否支持编辑
@@ -110,26 +111,33 @@ export default {
         {
           prop: "paramId",
           label: "参数Id",
+          isShow: false,
         }, {
           prop: "interfaceId",
           label: "接口Id",
+          isShow: false,
         }, {
           prop: "index",
           label: "写入下标",
+          isShow: true,
         },
         {
           prop: "field",
           label: "参数名称",
+          isShow: true,
         },
         {
           prop: "length",
           label: "参数长度",
+          isShow: true,
         }, {
           prop: "value",
           label: "参数值",
+          isShow: true,
         }, {
           prop: "paramIo",
           label: "输入输出类型",
+          isShow: true,
         },
       ],
     }
