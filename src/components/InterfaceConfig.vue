@@ -107,16 +107,16 @@
           <el-form-item label="项目Id" v-if="false">
             <el-input v-model="interfaceData.projectId"></el-input>
           </el-form-item>
-<!--          <el-form-item label="消息类型">-->
-<!--            <el-select v-model="interfaceData.interfaceType"-->
-<!--                       placeholder="请选择">-->
-<!--              <el-option v-for="item in hangleLine"-->
-<!--                         :key="item.type"-->
-<!--                         :label="item.description"-->
-<!--                         :value="item.type">-->
-<!--              </el-option>-->
-<!--            </el-select>-->
-<!--          </el-form-item>-->
+          <el-form-item label="消息类型">
+            <el-select v-model="interfaceData.interfaceType"
+                       placeholder="请选择">
+              <el-option v-for="item in MessageTypeOpt"
+                         :key="item.messageType"
+                         :label="item.messageDescription"
+                         :value="item.messageType">
+              </el-option>
+            </el-select>
+          </el-form-item>
           <el-form-item label="接口名称">
             <el-input v-model="interfaceData.interfaceName"></el-input>
           </el-form-item>
@@ -187,12 +187,18 @@ import ParamConfig from "./ParamConfig";
 
 export default {
   name: "projectConfig",
-  props: ['interfaceData.projectId'],
+  props: ['interfaceData.projectId', 'messageType'],
   components: {
     ParamConfig
   },
+  created() {
+    this.getMessageTypeOpt();
+  },
+  watch: {
+  },
   data() {
     return {
+      MessageTypeOpt: {},
       dialogTableVisible: false,
       uploadExcelTabVisiable: false,
       addDialogVisible: false,
@@ -214,6 +220,11 @@ export default {
     }
   },
   methods: {
+    getMessageTypeOpt() {
+      axios.get('/message/type/find/list', {params: {projectId: this.messageType}}).then(res => {
+        this.MessageTypeOpt = res.data;
+      });
+    },
     btnAddPlanInfo() {
       if (this.multipleSelection.length === 0) {
         this.$alert("请先选择一个接口数据", "提示", {

@@ -88,6 +88,16 @@
              </el-option>
            </el-select>
          </el-form-item>
+         <el-form-item label="设置消息类型">
+           <el-select v-model="projectForm.projectMessageType"
+                      placeholder="请选择" >
+             <el-option v-for="item in projectMessageOpt"
+                        :key="item.projectId"
+                        :label="item.projectName"
+                        :value="item.projectId">
+             </el-option>
+           </el-select>
+         </el-form-item>
 
          <el-form-item>
            <el-button type="primary"
@@ -98,43 +108,43 @@
        </el-form>
      </el-dialog>
 
-     <!--    <el-dialog title="配置消息类型"-->
-     <!--               :visible.sync="messageTypeDialog"-->
-     <!--               :close-on-click-modal="false">-->
-     <!--      <el-form v-model="messageTypeForm">-->
-     <!--        <el-row>-->
-     <!--          <el-card class="el-card-custom">-->
-     <!--            <el-table border-->
-     <!--                      @current-change="handleOne"-->
-     <!--                      :data="messageTable">-->
-     <!--              <el-table-column v-for="item in messageTypeOpt"-->
-     <!--                               :prop="item.prop"-->
-     <!--                               :label="item.label"-->
-     <!--                               :key="item.prop">-->
-     <!--              </el-table-column>-->
-     <!--            </el-table>-->
-     <!--          </el-card>-->
-     <!--          <el-form-item label="消息类型">-->
-     <!--            <el-input placeholder="请输入英文单词,建议驼峰命名"-->
-     <!--                      v-model="messageTypeForm.messageType"></el-input>-->
-     <!--          </el-form-item>-->
-     <!--          <el-form-item label="消息类型描述">-->
-     <!--            <el-input v-model="messageTypeForm.messageDescription"></el-input>-->
-     <!--          </el-form-item>-->
-     <!--        </el-row>-->
-     <!--      </el-form>-->
+<!--         <el-dialog title="配置消息类型"-->
+<!--                    :visible.sync="messageTypeDialog"-->
+<!--                    :close-on-click-modal="false">-->
+<!--           <el-form v-model="messageTypeForm">-->
+<!--             <el-row>-->
+<!--               <el-card class="el-card-custom">-->
+<!--                 <el-table border-->
+<!--                           @current-change="handleOne"-->
+<!--                           :data="messageTable">-->
+<!--                   <el-table-column v-for="item in messageTypeOpt"-->
+<!--                                    :prop="item.prop"-->
+<!--                                    :label="item.label"-->
+<!--                                    :key="item.prop">-->
+<!--                   </el-table-column>-->
+<!--                 </el-table>-->
+<!--               </el-card>-->
+<!--               <el-form-item label="消息类型">-->
+<!--                 <el-input placeholder="请输入英文单词,建议驼峰命名"-->
+<!--                           v-model="messageTypeForm.messageType"></el-input>-->
+<!--               </el-form-item>-->
+<!--               <el-form-item label="消息类型描述">-->
+<!--                 <el-input v-model="messageTypeForm.messageDescription"></el-input>-->
+<!--               </el-form-item>-->
+<!--             </el-row>-->
+<!--           </el-form>-->
 
-     <!--      <el-button type="primary"-->
-     <!--                 @click="addConfigRow()">添加消息类型-->
-     <!--      </el-button>-->
-     <!--      <el-button type="primary"-->
-     <!--                 @click="saveMessageType()">保存-->
-     <!--      </el-button>-->
-     <!--      <el-button @click="messageTypeDialog=false">取消</el-button>-->
-     <!--    </el-dialog>-->
+<!--           <el-button type="primary"-->
+<!--                      @click="addConfigRow()">添加消息类型-->
+<!--           </el-button>-->
+<!--           <el-button type="primary"-->
+<!--                      @click="saveMessageType()">保存-->
+<!--           </el-button>-->
+<!--           <el-button @click="messageTypeDialog=false">取消</el-button>-->
+<!--         </el-dialog>-->
 
    </el-card>
-   <interface-config v-if="tableVisible === 'interface'" interfaceData.projectId="selectProjectId"></interface-config>
+   <interface-config v-if="tableVisible === 'interface'" :interfaceData.projectId="selectProjectId" :messageType="projectForm.projectMessageType"></interface-config>
  </div>
 
 </template>
@@ -149,14 +159,18 @@ export default {
   },
   created() {
     this.getCodec();
+    this.getProjectMessageOpt();
     this.getProjectList();
   },
   activated() {
     this.getCodec();
+    this.getProjectMessageOpt();
     this.getProjectList();
   },
   data() {
     return {
+      projectMessageType: "",
+      projectMessageOpt: {},
       tableVisible: 'project',
       // 被单选中
       projectInSelect: {},
@@ -190,6 +204,11 @@ export default {
     }
   },
   methods: {
+    getProjectMessageOpt() {
+      axios.get('/message/type/find/project/list').then(res => {
+        this.projectMessageOpt = res.data;
+      });
+    },
     btnAddProject() {
       this.dialogTableVisible = true
     },
