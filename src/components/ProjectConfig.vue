@@ -144,7 +144,7 @@
 <!--         </el-dialog>-->
 
    </el-card>
-   <interface-config ref="interfaceConfigRef" v-if="tableVisible === 'interface'" :currentProject="selectProjectId" :messageType="projectForm.projectMessageType"></interface-config>
+   <interface-config ref="interfaceConfigRef"  :currentProject="selectProjectId" :messageType="projectForm.projectMessageType"></interface-config>
  </div>
 
 </template>
@@ -170,7 +170,6 @@ export default {
   data() {
     return {
       projectMessageOpt: {},
-      tableVisible: 'project',
       // 被单选中
       projectInSelect: {},
       selectProjectId: "",
@@ -221,7 +220,6 @@ export default {
     },
     view(index, row) {
       this.projectInSelect = row;
-      this.tableVisible = "interface";
       this.selectProjectId = row.projectId;
       this.$refs.interfaceConfigRef.getInterfaceTableData(row.projectId);
       this.$refs.interfaceConfigRef.getMessageTypeOpt(row.messageBelongId);

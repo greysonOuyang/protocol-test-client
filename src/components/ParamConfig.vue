@@ -39,7 +39,7 @@
                        :label="item.label"
                        :prop="item.prop"
                        :width="item.width"
-                       :v-if = "item.isShow"
+                       :v-if="item.isShow"
                        v-for="item in paramDataOpt">
         <editable-cell slot-scope="{row}"
                        :can-edit="editModeEnabled"
@@ -81,7 +81,7 @@ import cloneDeep from "lodash/cloneDeep";
 
 export default {
   name: "paramConfig",
-  props: ['paramTabVisible'],
+  props: ['paramTabVisible', 'currentInterfaceId', 'currentParamIo'],
   components: {
     EditableCell,
   },
@@ -108,19 +108,11 @@ export default {
       ],
       // 数据录入表格相关
       paramDataOpt: [
-        {
-          prop: "paramId",
-          label: "参数Id",
-          isShow: false,
-        }, {
-          prop: "interfaceId",
-          label: "接口Id",
-          isShow: false,
-        }, {
-          prop: "index",
-          label: "写入下标",
-          isShow: true,
-        },
+        //  {
+        //   prop: "index",
+        //   label: "写入下标",
+        //   isShow: true,
+        // },
         {
           prop: "field",
           label: "参数名称",
@@ -134,11 +126,12 @@ export default {
           prop: "value",
           label: "参数值",
           isShow: true,
-        }, {
-          prop: "paramIo",
-          label: "输入输出类型",
-          isShow: true,
         },
+        // {
+        //   prop: "paramIo",
+        //   label: "输入输出类型",
+        //   isShow: true,
+        // },
       ],
     }
   },
@@ -151,12 +144,16 @@ export default {
     },
     editParamData() {
       this.editModeEnabled = true;
-      this.getAllServerInterfaceInfo();
     },
     saveParamData() {
-      axios.post('param/save', this.paramTable);
+      let data = this.paramTable;
+      data.forEach(item => {
+            item.interfaceId = this.currentInterfaceId;
+            item.paramIo = this.currentParamIo;
+          }
+      )
+      axios.post('param/save', data);
       this.$message.success('保存成功');
-      this.getAllServerInterfaceInfo();
       this.editModeEnabled = false;
     },
     handleAddDetails() {

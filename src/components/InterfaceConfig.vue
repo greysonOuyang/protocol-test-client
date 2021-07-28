@@ -55,7 +55,7 @@
                          label="接口Id"
                          v-if="idShow"
                          align='center'></el-table-column>
-        <el-table-column prop="description"
+        <el-table-column prop="messageDescription"
                          label="消息类型"
                          width="180"
                          align='center'></el-table-column>
@@ -175,7 +175,7 @@
         </el-button>
       </el-dialog>
     </el-card>
-    <param-config ref="paramConfigRef" paramTabVisible="paramTabVisible"></param-config>
+    <param-config ref="paramConfigRef" paramTabVisible="paramTabVisible" :currentInterfaceId="currentInterfaceId" :currentParamIo="currentParamIo"></param-config>
   </div>
 </template>
 <script>
@@ -197,6 +197,9 @@ export default {
   },
   data() {
     return {
+      // 传参给参数组件 参数展示形式 输入、输出
+      currentParamIo: "",
+      currentInterfaceId: "",
       MessageTypeOpt: {},
       dialogTableVisible: false,
       uploadExcelTabVisiable: false,
@@ -360,12 +363,12 @@ export default {
     },
     // 添加一个接口  数据库方式的方法
     addInterface() {
-      this.interfaceData.currentProject = this.currentProject
+      this.interfaceData.projectId = this.currentProject
       axios.post('/interface/save', this.interfaceData).then(
           response => {
             if (this.isRequestSuccess(response)) {
               this.$message.success('创建成功');
-              this.getAllServerInterfaceInfo();
+              this.getInterfaceTableData(this.currentProject);
             } else {
               this.$message.success('创建失败');
             }
@@ -385,15 +388,17 @@ export default {
     viewOutPut(index, row) {
       this.paramTabVisible = true;
       this.paramHeader = '输出参数';
-      this.paramType = 'output';
-      this.$refs.paramConfigRef.getParamTable(index, this.paramType)
+      this.currentParamIo = 'output'
+      this.currentInterfaceId = row.interfaceId;
+      this.$refs.paramConfigRef.getParamTable(row.interfaceId, this.currentParamIo)
 
     },
     viewInPut(index, row) {
       this.paramTabVisible = true;
       this.paramHeader = '输入参数';
-      this.paramType = 'input';
-      this.$refs.paramConfigRef.getParamTable(index, this.paramType)
+      this.currentInterfaceId = row.interfaceId;
+      this.currentParamIo = 'input'
+      this.$refs.paramConfigRef.getParamTable(row.interfaceId, this.currentParamIo)
     },
     handleDelete(index, row) {
       var arr = [];
@@ -412,15 +417,6 @@ export default {
           }
       );
       this.dialogTableVisible = false;
-    },
-    getAllServerInterfaceInfo() {
-      const data = {};
-      data.currentMode = this.currentMode
-      axios.post('/find/list/by/projectId', data).then(
-          res => {
-            this.tableData = res.data;
-          }
-      );
     },
     // 文件状态改变时的钩子
     fileChange(file, fileList) {
