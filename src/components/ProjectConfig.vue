@@ -15,7 +15,7 @@
        </el-button>
      </el-form>
 
-     <el-table :data="tableData"
+     <el-table :data="projectTable"
                border
                highlight-current-row
                style="width: 100%"
@@ -41,7 +41,7 @@
                         label="解码器"
                         width="190"
                         align='center'></el-table-column>
-       <el-table-column prop="messageType"
+       <el-table-column prop="messageBelongId"
                         label="消息类型"
                         v-if="false"
                         width="190"
@@ -89,12 +89,12 @@
            </el-select>
          </el-form-item>
          <el-form-item label="设置消息类型">
-           <el-select v-model="projectForm.projectMessageType"
+           <el-select v-model="projectForm.messageBelongId"
                       placeholder="请选择" >
              <el-option v-for="item in projectMessageOpt"
-                        :key="item.projectId"
-                        :label="item.projectName"
-                        :value="item.projectId">
+                        :key="item.messageBelongId"
+                        :label="item.messageDesc"
+                        :value="item.messageBelongId">
              </el-option>
            </el-select>
          </el-form-item>
@@ -144,7 +144,7 @@
 <!--         </el-dialog>-->
 
    </el-card>
-   <interface-config v-if="tableVisible === 'interface'" :interfaceData.projectId="selectProjectId" :messageType="projectForm.projectMessageType"></interface-config>
+   <interface-config ref="interfaceConfigRef" v-if="tableVisible === 'interface'" :currentProject="selectProjectId" :messageType="projectForm.projectMessageType"></interface-config>
  </div>
 
 </template>
@@ -169,7 +169,6 @@ export default {
   },
   data() {
     return {
-      projectMessageType: "",
       projectMessageOpt: {},
       tableVisible: 'project',
       // 被单选中
@@ -177,12 +176,14 @@ export default {
       selectProjectId: "",
       // 多选
       multipleSelection: [],
-      tableData: [],
+      projectTable: [],
       // 当前选中
       currentProject: {},
       messageTypeForm: {},
       messageTypeDialog: false,
+      messageBelongId: "",
       projectForm: {
+        projectName: "",
         encoderId: "",
         decoderId: "",
       },
@@ -205,7 +206,7 @@ export default {
   },
   methods: {
     getProjectMessageOpt() {
-      axios.get('/message/type/find/project/list').then(res => {
+      axios.get('/message/type/find/message/list').then(res => {
         this.projectMessageOpt = res.data;
       });
     },
@@ -214,7 +215,6 @@ export default {
     },
     selectCurrentCol(val) {
       this.projectInSelect = val;
-      this.selectProjectId = val.projectId;
     },
     handleSelectionChange(val) {
       this.multipleSelection = val;
@@ -222,6 +222,9 @@ export default {
     view(index, row) {
       this.projectInSelect = row;
       this.tableVisible = "interface";
+      this.selectProjectId = row.projectId;
+      this.$refs.interfaceConfigRef.getInterfaceTableData(row.projectId);
+      this.$refs.interfaceConfigRef.getMessageTypeOpt(row.messageBelongId);
     },
     // 添加一行配置项 todo config表单
     addConfigRow() {
@@ -231,6 +234,10 @@ export default {
       this.messageTypeForm = {}
     },
     addProject() {
+      const data = {
+        messageBelongId: this.messageBelongId,
+        projectEntity: this.projectForm
+      }
       axios.post('/project/save', this.projectForm);
       this.dialogTableVisible = false;
       this.$message.success('添加成功');
@@ -295,14 +302,9 @@ export default {
               }
             }
         );
-        this.tableData.splice(this.multipleSelection[0].index - 1, 1);
+        this.projectTable.splice(this.multipleSelection[0].index - 1, 1);
       }
     },
-    getProjectList() {
-      axios.post('/project/find/list').then(res => {
-        this.tableData = res.data;
-      });
-    }
   }
 }
 </script>

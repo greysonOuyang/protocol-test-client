@@ -104,16 +104,13 @@
                  :close-on-click-modal="false">
         <el-form>
           <!-- 请求类型选择 -->
-          <el-form-item label="项目Id" v-if="false">
-            <el-input v-model="interfaceData.projectId"></el-input>
-          </el-form-item>
           <el-form-item label="消息类型">
-            <el-select v-model="interfaceData.interfaceType"
+            <el-select v-model="interfaceData.messageTypeId"
                        placeholder="请选择">
               <el-option v-for="item in MessageTypeOpt"
-                         :key="item.messageType"
+                         :key="item.messageTypeId"
                          :label="item.messageDescription"
-                         :value="item.messageType">
+                         :value="item.messageTypeId">
               </el-option>
             </el-select>
           </el-form-item>
@@ -122,7 +119,7 @@
           </el-form-item>
           <el-form-item>
             <el-button type="primary"
-                       @click="addServerInterfaceConfig()">确定
+                       @click="addInterface()">确定
             </el-button>
             <el-button @click="dialogTableVisible = false">取消</el-button>
           </el-form-item>
@@ -187,14 +184,16 @@ import ParamConfig from "./ParamConfig";
 
 export default {
   name: "projectConfig",
-  props: ['interfaceData.projectId', 'messageType'],
+  props: ['currentProject', 'messageType'],
   components: {
     ParamConfig
   },
   created() {
-    this.getMessageTypeOpt();
   },
   watch: {
+    // currentProject(val) {
+    //   this.getInterfaceTableData(val);
+    // },
   },
   data() {
     return {
@@ -220,8 +219,8 @@ export default {
     }
   },
   methods: {
-    getMessageTypeOpt() {
-      axios.get('/message/type/find/list', {params: {projectId: this.messageType}}).then(res => {
+    getMessageTypeOpt(messageBelongId) {
+      axios.get('/message/type/find/opt/list', {params: {messageBelongId: messageBelongId}}).then(res => {
         this.MessageTypeOpt = res.data;
       });
     },
@@ -350,7 +349,7 @@ export default {
           axios.post('/interface/deleteAll').then(
               res => {
                 this.$message.success('清空成功');
-                this.getInterfaceTableData();
+                // this.getInterfaceTableData();
               }
           ).catch(() => {
             this.$message({
@@ -360,7 +359,8 @@ export default {
           }))
     },
     // 添加一个接口  数据库方式的方法
-    addServerInterfaceConfig() {
+    addInterface() {
+      this.interfaceData.currentProject = this.currentProject
       axios.post('/interface/save', this.interfaceData).then(
           response => {
             if (this.isRequestSuccess(response)) {

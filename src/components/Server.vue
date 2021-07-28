@@ -31,6 +31,20 @@
         </el-col>
         <el-col :xs="24"
                 :sm="12">
+          <el-form-item label="项目"
+                        style="width: 60%; margin-left: 0px">
+            <el-select v-model="projectId"
+                       placeholder="请选择">
+              <el-option v-for="item in projectTable"
+                         :key="item.projectId"
+                         :label="item.projectName"
+                         :value="item.projectId">
+              </el-option>
+            </el-select>
+          </el-form-item>
+        </el-col>
+        <el-col :xs="24"
+                :sm="12">
           <el-form-item label="接口"
                         style="width: 60%; margin-left: 0px">
             <el-select v-model="currentInterfaceId"
@@ -91,7 +105,7 @@ export default {
     ConsoleInfo
   },
   created() {
-    this.getInterfaceTableData();
+    // this.getInterfaceTableData();
     this.getServerStatus();
     if (window.sessionStorage) {
       const port = window.sessionStorage.getItem("port");
@@ -105,7 +119,8 @@ export default {
     }
   },
   activated() {
-    this.getInterfaceTableData();
+    this.getProjectList();
+    // this.getInterfaceTableData();
     this.getServerStatus();
   },
   beforeDestroy() {
@@ -127,6 +142,8 @@ export default {
   },
   data() {
     return {
+      projectId: "",
+      projectTable: [],
       mode: 'server',
       pauseReceive: false,
       // 传给consoleInfo控件的数据
@@ -233,16 +250,6 @@ export default {
   methods: {
     clearContent() {
       this.$refs.consoleInfoRef.clearContent();
-    },
-    // 获取接口表数据
-    getInterfaceTableData() {
-      var data = {};
-      data.currentMode = "server"
-      axios.post('/interfaceCtrl/interface/getAllServerInterfaceInfo', data).then(
-          res => {
-            this.tableData = res.data;
-          }
-      );
     },
     // 启动服务端
     startServer() {

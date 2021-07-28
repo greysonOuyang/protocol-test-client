@@ -264,7 +264,7 @@ export default {
         };
     },
     created() {
-        this.getAllInterfaceInfo();
+        this.getRequestData();
     },
     activated() {
     },
@@ -272,12 +272,10 @@ export default {
         clearContent() {
             this.$refs.consoleInfoRef.clearContent();
         },
-        getAllInterfaceInfo() {
-            var data = {};
-            data.interfaceType = this.requestData.requestType
-            axios.post('/interfaceCtrl/interface/getAllInterfaceInfo', data).then(
+        getRequestData () {
+            axios.post('/request/find/list/by/type', {params: {requestType: this.requestType}}).then(
                 res => {
-                    this.requestInterfaceSelection = res.data;
+                    this.requestTable = res.data;
                 }
             );
         },

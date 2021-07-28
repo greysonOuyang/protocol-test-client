@@ -198,7 +198,7 @@
 <script>
 import axios from "axios";
 import EditableCell from "./common/EditeableCell";
-import global from "./Global";
+import global from "../Global";
 
 
 export default {
@@ -282,18 +282,16 @@ export default {
   },
   methods: {
     addRequest() {
-      axios.post('/interfaceCtrl/interface/save', this.requestForm).then(
+      axios.post('/request/save', this.requestForm).then(
           res => {
-            this.getAllInterfaceInfo();
+            this.getRequestData();
           }
       );
       this.clientInterfaceVisible = false;
       this.requestForm = {}
     },
-    getAllInterfaceInfo () {
-      const data = {};
-      data.interfaceType = this.requestType
-      axios.post('/interfaceCtrl/interface/getAllInterfaceInfo', data).then(
+    getRequestData () {
+      axios.get('/request/find/list/by/type', {params: {requestType: this.requestType}}).then(
           res => {
             this.requestTable = res.data;
           }

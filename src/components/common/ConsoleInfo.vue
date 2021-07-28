@@ -26,14 +26,6 @@ export default {
       response: null,
     }
   },
-  mounted() {
-    this.funInit()
-  },
-  created() {
-  },
-  computed: {
-
-  },
   watch: {
     // 异步赋值 值未改变传入进来不会触发更新， 用不了
     dataMsg() {
