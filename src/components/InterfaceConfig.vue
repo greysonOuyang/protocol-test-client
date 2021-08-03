@@ -306,9 +306,9 @@ export default {
               if (this.isRequestSuccess(response)) {
                 this.$message.success('导入成功');
                 this.fileList = [];
-                this.getAllServerInterfaceInfo();
+                // this.getInterfaceTableData();
               } else {
-                this.$message.success('导入失败');
+                this.$message.success('导入失败:' + response.data.msg);
               }
             }
         )
