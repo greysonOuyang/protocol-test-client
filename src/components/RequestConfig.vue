@@ -280,23 +280,36 @@ export default {
       ],
     }
   },
+  created() {
+    this.getRequestData();
+  },
+  watch: {
+    requestType() {
+      this.requestTable = [];
+      this.getRequestData();
+    }
+  },
   methods: {
     addRequest() {
+      this.requestForm.requestType = this.requestType
       axios.post('/request/save', this.requestForm).then(
           res => {
             this.getRequestData();
           }
       );
-      this.clientInterfaceVisible = false;
+      this.requestDialogVisible = false;
       this.requestForm = {}
     },
-    getRequestData () {
+    getRequestData() {
       axios.get('/request/find/list/by/type', {params: {requestType: this.requestType}}).then(
           res => {
             this.requestTable = res.data;
           }
       );
+      console.log("输出表数据")
+      console.log(this.requestTable)
     },
+
     /* 多选interface表row */
     handleSelectionChange(val) {
       this.multipleSelection = val;
@@ -358,14 +371,14 @@ export default {
     saveConfigRequest() {
       const data = {
         configList: this.configTableData,
-        id: this.multipleSelection[0].id
+        id: this.multipleSelection[0].requestId
       };
       console.log("configList" + data.configList)
       axios.post('config/save', data).then(
           res => {
             if (this.isRequestSuccess(res)) {
               this.$message.success('保存成功');
-              this.getAllInterfaceInfo();
+              // this.getAllInterfaceInfo();
             } else {
               this.$message.success('保存失败');
             }

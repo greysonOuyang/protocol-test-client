@@ -17,16 +17,35 @@
       </el-form-item>
       <!-- 请求接口 -->
       <el-form-item label="请求接口"
-                    style="width: 60%; margin-left: 0px">
-        <el-select v-model="currentId"
-                   clearable
-                   placeholder="请选择">
-          <el-option v-for="item in requestInterfaceSelection"
-                     :key="item.id"
-                     :label="item.requestName"
-                     :value="item.id">
-          </el-option>
-        </el-select>
+                    style="width: 60%; margin-left: 0">
+        <el-col :xs="24"
+                :sm="12">
+          <el-select v-model="currentId"
+                     clearable
+                     placeholder="请选择">
+            <el-option v-for="item in requestInterfaceSelection"
+                       :key="item.id"
+                       :label="item.requestName"
+                       :value="item.id">
+            </el-option>
+          </el-select>
+        </el-col>
+        <el-col :xs="24"
+                :sm="12">
+          <!-- 应用层协议选择 -->
+          <el-form-item v-if="requestData.requestType == 'TCP'"
+                        :label="'应用层协议：'">
+            <el-select v-model="change.protocolType"
+                       style="width: 150px">
+              <el-option v-for="item in protocolTypeOpt"
+                         :key="item.value"
+                         :label="item.label"
+                         :value="item.value">
+              </el-option>
+            </el-select>
+          </el-form-item>
+        </el-col>
+
       </el-form-item>
 
       <!-- UDP相关 -->
@@ -99,59 +118,6 @@
                     required>
         <el-input :placeholder="$t('websocketUrlPlaceholder')"
                   v-model="requestData.url"></el-input>
-      </el-form-item>
-      <!-- TCP相关 -->
-      <!-- 应用层协议选择 -->
-      <el-form-item v-if="requestData.requestType == 'TCP'"
-                    :label="'应用层协议：'">
-        <el-col :xs="24"
-                :sm="8">
-          <el-select v-model="change.protocolType"
-                     style="width: 150px">
-            <el-option v-for="item in protocolTypeOpt"
-                       :key="item.value"
-                       :label="item.label"
-                       :value="item.value">
-            </el-option>
-          </el-select>
-        </el-col>
-        <el-col :xs="24"
-                :sm="8">
-          <el-form-item v-if="change.protocolType == 'gzIscs'"
-                        :label="'测试接口:'">
-            <el-select v-model="change.testInterface">
-              <el-option v-for="item in gzIscsInterfaceOpt"
-                         :key="item.value"
-                         :label="item.label"
-                         :value="item.value">
-
-              </el-option>
-            </el-select>
-          </el-form-item>
-        </el-col>
-        <el-col :xs="24"
-                :sm="8">
-          <el-form-item v-if="change.protocolType == 'qyAts'"
-                        :label="'测试接口:'">
-            <el-select v-model="change.testInterface">
-              <el-option v-for="item in qyAtsInterfaceOpt"
-                         :key="item.value"
-                         :label="item.label"
-                         :value="item.value">
-
-              </el-option>
-            </el-select>
-          </el-form-item>
-        </el-col>
-        <!-- <el-col :xs="24"
-                    :sm="6"
-                    style="align: middle">
-              <el-button type="primary"
-                         size="small"
-                         round
-                         @click="addModBus"
-                         >构造请求信息</el-button>
-            </el-col> -->
       </el-form-item>
       <!-- 请求地址 -->
       <el-form-item v-if="requestData.requestType == 'TCP'"

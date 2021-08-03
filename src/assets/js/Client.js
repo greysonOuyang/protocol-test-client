@@ -264,20 +264,12 @@ export default {
         };
     },
     created() {
-        this.getRequestData();
     },
     activated() {
     },
     methods: {
         clearContent() {
             this.$refs.consoleInfoRef.clearContent();
-        },
-        getRequestData () {
-            axios.post('/request/find/list/by/type', {params: {requestType: this.requestType}}).then(
-                res => {
-                    this.requestTable = res.data;
-                }
-            );
         },
         // 判断具体展现哪个
         watchBodyShowWhich() {
