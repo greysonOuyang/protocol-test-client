@@ -24,9 +24,9 @@
                      clearable
                      placeholder="请选择">
             <el-option v-for="item in requestInterfaceSelection"
-                       :key="item.id"
+                       :key="item.requestId"
                        :label="item.requestName"
-                       :value="item.id">
+                       :value="item.requestId">
             </el-option>
           </el-select>
         </el-col>

@@ -72,7 +72,7 @@
           <template slot-scope="scope">
             <el-button size="mini"
                        type="info"
-                       @click="configTableVisible = true;">查看
+                       @click="view(scope.$index, scope.row)">查看
             </el-button>
           </template>
         </el-table-column>
@@ -184,7 +184,7 @@
     <el-dialog :visible.sync="configTableVisible"
                title="请求配置表">
       <el-table border
-                :data="clientConfigTableData">
+                :data="configTable">
         <el-table-column v-for="item in ConfigOpt"
                          :prop="item.key"
                          :label="item.label"
@@ -223,21 +223,17 @@ export default {
       requestConfigDialog: false,
       // 表单配置项数据
       configTableData: [],
+      // 单选
+      currentRequest: {},
       // 选中多行
       multipleSelection: [],
       // 是否展示配置请求表
       configTableVisible: false,
-      clientConfigTableData: [],
+      configTable: [],
       configForm: {},
       // 配置项
       ConfigOpt: [
         {
-          key: 'configId',
-          label: '配置Id'
-        }, {
-          key: 'requestId',
-          label: '请求Id'
-        }, {
           key: 'configKey',
           label: '配置Key'
         }, {
@@ -290,6 +286,11 @@ export default {
     }
   },
   methods: {
+    view(index, row) {
+      this.currentRequest = row;
+      this.getConfigTable();
+      this.configTableVisible = true;
+    },
     addRequest() {
       this.requestForm.requestType = this.requestType
       axios.post('/request/save', this.requestForm).then(
@@ -306,8 +307,6 @@ export default {
             this.requestTable = res.data;
           }
       );
-      console.log("输出表数据")
-      console.log(this.requestTable)
     },
 
     /* 多选interface表row */
@@ -315,7 +314,7 @@ export default {
       this.multipleSelection = val;
     },
     handleOneCol(val) {
-      this.clientConfigTableData = val.configList;
+      this.currentRequest = val;
     },
     clearInterfaceConfig() {
       this.$confirm('接口配置不易，请主人三思而后行，真的要清空嘛?', '提示', {
@@ -369,16 +368,14 @@ export default {
     },
     // 保存配置请求
     saveConfigRequest() {
-      const data = {
-        configList: this.configTableData,
-        id: this.multipleSelection[0].requestId
-      };
-      console.log("configList" + data.configList)
+      let data = this.configTableData;
+      for (const v of data) {
+        v.requestId = this.multipleSelection[0].requestId
+      }
       axios.post('config/save', data).then(
           res => {
             if (this.isRequestSuccess(res)) {
               this.$message.success('保存成功');
-              // this.getAllInterfaceInfo();
             } else {
               this.$message.success('保存失败');
             }
@@ -386,6 +383,15 @@ export default {
       );
       this.requestConfigDialog = false;
       this.configTableData = [];
+    },
+    getConfigTable() {
+      let requestId = this.currentRequest.requestId;
+      console.log("请求Id；" + requestId)
+      axios.get('/config/find/list/requestId', {params: {"requestId": requestId}}).then(
+          res => {
+           this.configTable = res.data;
+          }
+      )
     },
     cancel() {
       this.requestConfigDialog = false;

@@ -264,10 +264,18 @@ export default {
         };
     },
     created() {
+        this.getRequestData()
     },
     activated() {
     },
     methods: {
+        getRequestData() {
+            axios.get('/request/find/list/by/type', {params: {requestType: this.requestData.requestType}}).then(
+                res => {
+                    this.requestInterfaceSelection = res.data;
+                }
+            );
+        },
         clearContent() {
             this.$refs.consoleInfoRef.clearContent();
         },
@@ -900,7 +908,7 @@ export default {
             } else if (this.requestData.requestType != REQUEST_TYPE_TCP) {
                 this.requestData.isSSL = false;
             }
-            this.getAllInterfaceInfo();
+            this.getRequestData();
             this.currentId = "";
             this.requestData.url = "";
             this.requestData.body = "";
