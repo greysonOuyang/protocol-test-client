@@ -5,17 +5,37 @@
     <!-- 启动 -->
     <el-card class="el-card-custom">
       <!-- 请求类型选择 -->
-      <el-form-item label="模式">
-        <el-radio-group v-model="mode"
-                        :placeholder="$t('select')">
+      <el-form-item label="启动模式">
+        <el-radio-group v-model="startMode">
           <el-radio label="server">服务端</el-radio>
           <el-radio label="client">客户端</el-radio>
         </el-radio-group>
       </el-form-item>
+      <el-form-item label="数据模式">
+        <el-radio-group v-model="dataMode">
+          <el-radio label="interface">接口</el-radio>
+          <el-radio label="context">报文</el-radio>
+        </el-radio-group>
+      </el-form-item>
+      <el-form-item label="进制" v-if="dataMode === 'context'">
+        <el-radio-group v-model="baseType"
+                        :placeholder="$t('select')">
+          <el-radio label="Hex">十六进制</el-radio>
+          <el-radio label="Dec">十进制</el-radio>
+        </el-radio-group>
+      </el-form-item>
+      <el-form-item label="报文" v-if="dataMode === 'context'">
+        <el-input type="textarea"
+                  :rows="4"
+                  placeholder="请输入报文"
+                  v-model="context">
+          <el-row></el-row>
+        </el-input>
+      </el-form-item>
       <el-row>
         <el-col :xs="24"
                 :sm="12">
-          <el-form-item v-if="mode=='client'" label="IP地址"
+          <el-form-item v-if="startMode=='client'" label="IP地址"
                         style="width: 60%; margin-left: 0px">
             <el-input v-model="host"></el-input>
           </el-form-item>
@@ -31,7 +51,7 @@
         </el-col>
         <el-col :xs="24"
                 :sm="12">
-          <el-form-item label="项目"
+          <el-form-item label="项目" v-if="dataMode === 'interface'"
                         style="width: 60%; margin-left: 0px">
             <el-select v-model="projectId"
                        placeholder="请选择">
@@ -45,7 +65,7 @@
         </el-col>
         <el-col :xs="24"
                 :sm="12">
-          <el-form-item label="接口"
+          <el-form-item label="接口" v-if="projectId != null && dataMode === 'interface'"
                         style="width: 60%; margin-left: 0px">
             <el-select v-model="currentInterfaceId"
                        placeholder="请选择">
@@ -63,7 +83,7 @@
           <el-button v-if="ServerStatus === 'initializing'"
                      type="primary"
                      @click="startServer()">{{
-              mode === 'server' ? '启动服务端' : '启动客户端'
+              startMode === 'server' ? '启动服务端' : '启动客户端'
             }}
           </el-button>
           <el-button v-if="ServerStatus === 'success'"
@@ -105,6 +125,7 @@ export default {
     ConsoleInfo
   },
   created() {
+    this.getProjectList();
     // this.getInterfaceTableData();
     this.getServerStatus();
     if (window.sessionStorage) {
@@ -119,7 +140,7 @@ export default {
     }
   },
   activated() {
-    this.getProjectList();
+    // this.getProjectList();
     // this.getInterfaceTableData();
     this.getServerStatus();
   },
@@ -142,9 +163,16 @@ export default {
   },
   data() {
     return {
+      baseType: "",
+      // 数据模式
+      dataMode: "",
+      // 数据模式 接口
+      interface: "",
+      // 数据模式 报文
+      context: "",
       projectId: "",
       projectTable: [],
-      mode: 'server',
+      startMode: 'server',
       pauseReceive: false,
       // 传给consoleInfo控件的数据
       responseData: '',
@@ -239,6 +267,9 @@ export default {
     }
   },
   watch: {
+    projectId(val) {
+      this.getInterfaceTableData(val);
+    },
     pauseReceive(val) {
       if (val) {
         stomp.unSub("/topic/response");
@@ -253,7 +284,7 @@ export default {
     },
     // 启动服务端
     startServer() {
-      if (this.port == '' || this.currentInterfaceId == null) {
+      if (this.port === '' || this.currentInterfaceId == null) {
         this.$alert("请点击表格中的一行作为启动接口并填写端口号", "提示", {
           confirmButtonText: "确定",
         });
@@ -261,7 +292,7 @@ export default {
         window.sessionStorage.setItem('port', this.port);
         window.sessionStorage.setItem("interface", this.currentInterfaceId);
         var requestData = {
-          mode: this.mode,
+          startMode: this.startMode,
           host: this.host,
           port: this.port,
           interfaceId: this.currentInterfaceId
