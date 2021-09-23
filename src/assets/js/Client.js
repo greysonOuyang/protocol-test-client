@@ -65,6 +65,7 @@ export default {
     },
     data() {
         return {
+            requestId: "",
             dataMsg: null,
             logType: "",
             tag: "",
@@ -91,7 +92,6 @@ export default {
                 testInterface: "",
                 protocolType: "none",
                 testSystem: "",
-                gzIscsApplyFrame: "",
                 paramData: "",
             },
             contextSlect: {
@@ -102,38 +102,6 @@ export default {
                 textcont: "",
                 showTime: "10",
             },
-            // 测试接口服务类别
-            testSystemOpt: [
-                {
-                    value: "gzIscs",
-                    label: "广州综合监控",
-                },
-                {
-                    value: "qyAts",
-                    label: "清远ATS",
-                },
-            ],
-            // 广州综合监控的信号接口类型
-            gzIscsInterfaceOpt: [
-                {
-                    value: "ats",
-                    label: "地面ATS",
-                },
-                {
-                    value: "turnstileState",
-                    label: "闸机状态",
-                },
-                {
-                    value: "passengerFlow",
-                    label: "站内客流",
-                },
-            ],
-            qyAtsInterfaceOpt: [
-                {
-                    value: "ats",
-                    label: "清远ATS",
-                },
-            ],
             // 应用层协议类别
             protocolTypeOpt: [
                 {
@@ -143,28 +111,6 @@ export default {
                 {
                     value: "modbus",
                     label: "ModBus",
-                },
-            ],
-            gzIscsApplyFrameOpt: [
-                {
-                    value: "heart",
-                    label: "心跳信息",
-                },
-                {
-                    value: "train",
-                    label: "列车信息",
-                },
-                {
-                    value: "plan",
-                    label: "计划信息",
-                },
-                {
-                    value: "trainSchedule",
-                    label: "首末班信息",
-                },
-                {
-                    value: "doorStatus",
-                    label: "车门隔离状态信息",
                 },
             ],
             inputText: "",
@@ -273,6 +219,8 @@ export default {
             axios.get('/request/find/list/by/type', {params: {requestType: this.requestData.requestType}}).then(
                 res => {
                     this.requestInterfaceSelection = res.data;
+                    console.log("得到接口数据")
+                    console.log(res.data)
                 }
             );
         },
@@ -297,7 +245,7 @@ export default {
                 if (this.requestData.requestType === REQUEST_TYPE_TCP) {
                     return "modbusRead";
                 }
-            }else if (this.contentFormat === "5") {
+            } else if (this.contentFormat === "5") {
                 if (this.requestData.requestType === REQUEST_TYPE_TCP) {
                     return "modbusOperator";
                 }
@@ -827,57 +775,62 @@ export default {
         },
     },
     watch: {
-        currentId(val) {
+        contentFormat(val) {
+            this.requestId = "";
+        },
+        requestId(requestId) {
             // 重置以下几个数组，目的是重新展示归属于每个接口的配置项
             this.configSelectValueArr = [];
             this.SelectConfigArr = [];
             this.inputConfigArr = [];
-            let data = null;
+            axios.get('/request/find/by/id', {params: {requestId: requestId}}).then(
+                res => {
+                    if (res.data != null) {
+                        // 数据回显 以及赋值
+                        this.requestData.body = res.data.content;
+                        this.requestData.url = res.data.address;
+                        this.requestData.port = res.data.port;
+                        this.requestData.method = res.data.requestMethod;
+                        this.requestData.protocolType = res.data.protocolType;
+                    }
+                }
+            );
             let configList = [];
-            for (const v of this.requestInterfaceSelection) {
-                if (v.id === this.currentId) {
-                    data = v;
-                }
-            }
-            // 数据回显 以及赋值
-            if (data != null) {
-                this.requestData.body = data.content;
-                this.requestData.url = data.url;
-                this.requestData.port = data.port;
-                this.requestData.method = data.requestMethod;
-                this.requestData.protocolType = data.protocolType;
-                // 获取当前接口的配置内容
-                configList = data.configList;
-            }
-            if (configList.length !== 0) {
-                // 计数，用来记住curSelectValueArr是第几个下拉框的下拉选项
-                let index = 0;
-                for (const v of configList) {
-                    let configType = v.configType;
-                    // 遍历配置内容中的数据，是input则添加一个输入框到页面；是select则添加一个下拉框
-                    if (configType === "input") {
-                        this.isExistInput = true;
-                        this.inputConfigArr.push(v);
-                    }
-                    if (configType === "select") {
-                        this.isExistSelect = true;
-                        v.index = index;
-                        this.SelectConfigArr.push(v);
-                        index = index + 1;
-                        const configArr = v.configValue.split("；");
-                        let i;
-                        // 当前下拉框的下拉选项
-                        let curSelectValueArr = [];
-                        for (i = 0; i < configArr.length; i++) {
-                            let obj = {};
-                            obj.key = i;
-                            obj.label = configArr[i];
-                            curSelectValueArr.push(obj);
+            axios.get('/config/find/list/requestId', {params: {"requestId": requestId}}).then(
+                res => {
+                    configList = res.data;
+                    // 获取当前接口的配置内容
+                    if (configList.length !== 0) {
+                        // 计数，用来记住curSelectValueArr是第几个下拉框的下拉选项
+                        let index = 0;
+                        for (const v of configList) {
+                            let configType = v.configType;
+                            // 遍历配置内容中的数据，是input则添加一个输入框到页面；是select则添加一个下拉框
+                            if (configType === "input") {
+                                this.isExistInput = true;
+                                this.inputConfigArr.push(v);
+                            }
+                            if (configType === "select") {
+                                this.isExistSelect = true;
+                                v.index = index;
+                                this.SelectConfigArr.push(v);
+                                index = index + 1;
+                                const configArr = v.configValue.split("；");
+                                let i;
+                                // 当前下拉框的下拉选项
+                                let curSelectValueArr = [];
+                                for (i = 0; i < configArr.length; i++) {
+                                    let obj = {};
+                                    obj.key = i;
+                                    obj.label = configArr[i];
+                                    curSelectValueArr.push(obj);
+                                }
+                                this.configSelectValueArr.push(curSelectValueArr);
+                            }
                         }
-                        this.configSelectValueArr.push(curSelectValueArr);
                     }
                 }
-            }
+            )
         },
         "requestData.url"(val) {
             if (
@@ -960,7 +913,7 @@ export default {
                         data = v;
                     }
                 }
-                let configList = data.configList;
+                let configList = this.configList;
                 if (configList !== null && configList.length !== 0) {
                     tempArr = [
                         {

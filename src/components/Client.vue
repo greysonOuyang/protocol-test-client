@@ -20,7 +20,7 @@
                     style="width: 60%; margin-left: 0">
         <el-col :xs="24"
                 :sm="12">
-          <el-select v-model="currentId"
+          <el-select v-model="requestId"
                      clearable
                      placeholder="请选择">
             <el-option v-for="item in requestInterfaceSelection"
@@ -120,9 +120,9 @@
                   v-model="requestData.url"></el-input>
       </el-form-item>
       <!-- 请求地址 -->
-      <el-form-item v-if="requestData.requestType == 'TCP'"
+      <el-form-item v-if="requestData.requestType === 'TCP'"
                     :label="$t('requestUrl')"
-                    required>
+                    >
         <el-col :xs="24"
                 :sm="2">
           <el-form-item>
@@ -216,33 +216,9 @@
                     >{{item.label}}</el-radio>
         </el-radio-group>
       </el-form-item>
-      <!-- 构造广州综合监控ATS请求信息 -->
-      <el-row v-if="watchBodyShowWhich() == 'gzIscs'">
-        <el-col :xs="24"
-                :sm="8">
-          <el-form-item label="消息种类">
-
-            <el-select v-model="change.gzIscsApplyFrame">
-              <el-option v-for="item in gzIscsApplyFrameOpt"
-                         :key="item.value"
-                         :label="item.label"
-                         :value="item.value">
-              </el-option>
-            </el-select>
-          </el-form-item>
-        </el-col>
-
-        <el-col :xs="24"
-                :sm="8">
-          <el-form-item :label="'请求信息'">
-            <el-input placeholder="请求信息"
-                      v-model="functionCode"></el-input>
-          </el-form-item>
-        </el-col>
-      </el-row>
       <!-- http下的配置 -->
       <div id="httpConfig"
-           v-if="watchBodyShowWhich() == 'config'">
+           v-if="watchBodyShowWhich() === 'config'">
         <el-row v-if="isExistInput">
           <el-form-item v-model="ConfigDataForm"
                         v-for="item in inputConfigArr"

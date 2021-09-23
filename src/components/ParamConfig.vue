@@ -178,6 +178,11 @@ export default {
           .then(
               res => {
                 this.paramTable = res.data;
+                console.log("获取到参数")
+                console.log(res.data);
+                res.data.forEach(item => {
+
+                });
               }
           );
     }
