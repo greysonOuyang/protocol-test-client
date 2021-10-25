@@ -41,6 +41,10 @@
                        name="projectManage">
             <project-config></project-config>
           </el-tab-pane>
+          <el-tab-pane label="综合监控"
+                       name="ISCS">
+            <iscs-manager></iscs-manager>
+          </el-tab-pane>
         </el-tabs>
       </el-main>
     </el-container>
@@ -53,6 +57,7 @@ import Server from "./components/Server";
 import Client from "./components/Client"
 import ProjectConfig from "./components/ProjectConfig"
 import RequestConfig from "./components/RequestConfig";
+import IscsManager from "./components/IscsManager";
 
 
 export default {
@@ -61,7 +66,8 @@ export default {
     RequestConfig,
     Server,
     Client,
-    ProjectConfig
+    ProjectConfig,
+    IscsManager
   },
   provide () {
     return {

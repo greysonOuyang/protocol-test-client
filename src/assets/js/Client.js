@@ -94,6 +94,7 @@ export default {
                 testSystem: "",
                 paramData: "",
             },
+            locationSelection: "0",
             contextSlect: {
                 isOpen: "1",
                 showType: "1",
@@ -101,6 +102,8 @@ export default {
                 priority: "1",
                 textcont: "",
                 showTime: "10",
+                playerLocation: "",
+                stationId: "",
             },
             // 应用层协议类别
             protocolTypeOpt: [
@@ -112,6 +115,78 @@ export default {
                     value: "modbus",
                     label: "ModBus",
                 },
+            ],
+            stationOpt: [
+                {
+
+                    "stationId": "0.18.0",
+                    "stationName": "万顷沙",
+
+                },
+                {
+
+                    "stationId": "0.18.1",
+                    "stationName": "横沥",
+
+                },
+                {
+
+                    "stationId": "0.18.2",
+                    "stationName": "番禺广场-18",
+
+                },
+                {
+
+                    "stationId": "0.18.3",
+                    "stationName": "南村万博",
+
+                },
+                {
+
+                    "stationId": "0.18.4",
+                    "stationName": "沙溪",
+
+                },
+                {
+
+                    "stationId": "0.18.5",
+                    "stationName": "龙潭",
+
+                },
+                {
+
+                    "stationId": "0.18.6",
+                    "stationName": "磨碟沙",
+
+                },
+                {
+
+                    "stationId": "0.18.7",
+                    "stationName": "冼村",
+
+                },
+                {
+
+                    "stationId": "0.22.0",
+                    "stationName": "番禺广场-22",
+
+                },
+                {
+
+                    "stationId": "0.22.1",
+                    "stationName": "市广路",
+
+                },
+                {
+
+                    "stationId": "0.22.2",
+                    "stationName": "广州南站",
+
+                },
+                {
+                    "stationId": "0.22.3",
+                    "stationName": "陈头岗",
+                }
             ],
             inputText: "",
             outputText: "",
@@ -431,6 +506,7 @@ export default {
                     }
                 } else if (this.contentFormat === "4" || this.contentFormat === "5") {
                     let body = {};
+                    body.playerSelection = this.locationSelection;
                     body.functionCode = this.functionCode;
                     body.registerCount = this.registerCount;
                     body.startAddress = this.startAddress;
@@ -440,6 +516,8 @@ export default {
                     body.priority = this.contextSlect.priority;
                     body.textCont = this.contextSlect.textcont;
                     body.showTime = this.contextSlect.showTime;
+                    body.playerLocation = this.contextSlect.playerLocation;
+                    body.stationId = this.contextSlect.stationId;
                     reqData.body = body;
                 }
             }

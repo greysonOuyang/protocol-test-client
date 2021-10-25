@@ -326,6 +326,35 @@
           </el-input>
         </el-row>
         <el-row>
+          <el-form-item :label="'播控位置'">
+            <el-radio v-model="locationSelection"
+                      label="0">所有</el-radio>
+            <el-radio v-model="locationSelection"
+                      label="1">车站级</el-radio>
+            <el-radio v-model="locationSelection"
+                      label="2">播控级</el-radio>
+          </el-form-item>
+          <el-form-item :label="'选择车站'" v-if="locationSelection === '1'">
+
+          <el-select v-model="contextSlect.stationId"
+                     clearable
+                     placeholder="请选择">
+            <el-option v-for="item in stationOpt"
+                       :key="item.stationId"
+                       :label="item.stationName"
+                       :value="item.stationId">
+            </el-option>
+          </el-select>
+          </el-form-item>
+          <el-form-item :label="'播控位置'" v-if="locationSelection === '2'">
+            <el-input type="textarea"
+                      :rows="4"
+                      placeholder="请输入播控点位，英文逗号分隔，末位不需要逗号"
+                      v-model="contextSlect.playerLocation">
+              <el-row></el-row>
+            </el-input>
+          </el-form-item>
+
           <!-- TODO 如果是终止后两个不用展示 -->
           <el-form-item :label="'是否启动'">
             <el-radio v-model="contextSlect.isOpen"
