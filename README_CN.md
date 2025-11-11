@@ -1,11 +1,6 @@
-
-
-## 📗 `README_CN.md`（中文说明）
-
-```markdown
 # 地铁ATS协议测试系统
 
-[🇺🇸 English Version](./README.md)
+[🇺🇸 English Version](README.md)
 
 ---
 
@@ -46,12 +41,4 @@
 | 层级 | 技术栈 | 说明 |
 |------|----------|------|
 | **前端** | Vue + Element UI | 提供交互式测试配置与结果展示 |
-| **后端** | Spring Boot + Netty | 实现TCP与ModBus通信逻辑、WebSocket（STOMP）消息推送 |
-| **协议支持** | 自定义 / ModBus | 支持灵活的协议解析与二进制消息处理 |
-
----
-
-## 开源协议
-MIT License
-
-
+| **后端** | Spring
